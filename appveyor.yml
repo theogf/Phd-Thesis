@@ -1,0 +1,31 @@
+# AppVeyor.com is a Continuous Integration service to build and run tests under
+# https://ci.appveyor.com/project/HolgerNahrstaedt/tub-phdthesistemplate/
+environment:
+    matrix:
+     - LATEXBIN: "pdflatex"
+     - LATEXBIN: "lualatex"
+     - LATEXBIN: "xelatex"
+
+matrix:
+    fast_finish: false
+
+install:
+  # Install miktex to get pdflatex, if we don't get it from the cache
+  - if not exist c:\miktex\texmfs\install\miktex\bin\pdflatex.exe appveyor DownloadFile http://mirrors.ctan.org/systems/win32/miktex/setup/miktex-portable.exe
+  - if not exist c:\miktex\texmfs\install\miktex\bin\pdflatex.exe 7z x miktex-portable.exe -oC:\miktex >NUL
+  - set "PATH=%PATH%;c:\miktex\texmfs\install\miktex\bin"
+  # autoinstall latex packages (0=no, 1=autoinstall, 2=ask)
+  # this adds this to the registry!
+  - initexmf --set-config-value "[MPM]AutoInstall=1"
+  - mpm --install=cm-super
+  - mpm --update-db
+  - mpm --update=fontspec
+  - initexmf --update-fndb
+
+# to run your custom scripts instead of automatic MSBuild
+build_script:
+  - compile-%LATEXBIN%-biblatex.bat
+
+artifacts:
+  # Archive the generated wheel package in the ci.appveyor.com build report.
+  - path: '*.pdf'

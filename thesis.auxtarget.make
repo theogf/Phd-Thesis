@@ -1,0 +1,12 @@
+\newlabel{ch:chapter3}
+\newlabel{ch:chapter4}
+\newlabel{ch:chapter5}
+\newlabel{ch:chapter6}
+\newlabel{ch:chapter7}
+\newlabel{fig:ROC_curve}
+\newlabel{fig:algorithm1}
+\newlabel{fig:asymptote}
+\newlabel{fig:largepotato}
+\newlabel{fig:tikz_exapmle}
+\newlabel{latexin_genes}
+\newlabel{nom}

@@ -1,0 +1,40 @@
+% -*- root: ../thesis.tex -*-
+%!TEX root = ../thesis.tex
+% this file is called up by thesis.tex
+% content in this file will be fed into the main document
+
+%level followed %by section, subsection
+
+
+% ----------------------- paths to graphics ------------------------
+
+% change according to folder and file names
+\graphicspath{{4/figures/}}
+% ----------------------- contents from here ------------------------
+
+
+
+\begin{figure}[htb]
+\begin{algorithmic}[1]
+
+\Procedure{SUM}{ $\{x\}$}
+
+\State $y\gets0$
+\For{$i \gets 1 : N^{x}$} \Comment{Time series $\{x\}$ has length $N^{x}$}
+   \State $y\gets y+x(i)$ \Comment{Summing up.}
+\EndFor
+
+\State \textbf{return}  $y$ 
+\EndProcedure
+\end{algorithmic}
+\caption[Implementation of a algorithm for calculating a sum.]{Implementation of a algorithm for calculating a sum.}
+\label{fig:algorithm1}
+\end{figure}
+
+
+
+
+% ---------------------------------------------------------------------------
+%: ----------------------- end of thesis sub-document ------------------------
+% ---------------------------------------------------------------------------
+
