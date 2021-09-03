@@ -14,6 +14,8 @@
 % In this template package, it can be found in ./Classes/
 
 \documentclass[twoside,11pt,online,a4paper,pdfa1,custommargin,numbered,biblatex]{PhDthesisTUB}
+
+
 % *********************** Choosing pdfx standard ******************************
 % `pdfa1'
 % `pdfa2'
@@ -105,6 +107,11 @@
 % ************************* other options ********************************
 % `abstract`: Only the title-page and the abstracts are generated
 %
+
+\usepackage{acronym}
+\include{commands}
+\include{acronyms}
+
 
 \include{Preamble/preamble}
 \include{thesis-info}
@@ -210,20 +217,18 @@
 % \cfchapter[short name] {full name} {folder name} {file name}.
 \tikzsetexternalprefix{./1_introduction/TikzPictures/}
 \cfchapter{Introduction}{1_introduction}{introduction}
-\tikzsetexternalprefix{./2/TikzPictures/}
-\cfchapter{State of the Art}{2}{chapter2}
-\tikzsetexternalprefix{./3/TikzPictures/}
-\cfchapter{Including tikz\label{ch:chapter3}}{3}{chapter3}
-\tikzsetexternalprefix{./4/TikzPictures/}
-\cfchapter{Sum - Algorithm\label{ch:chapter4}}{4}{chapter4}
-\tikzsetexternalprefix{./5/TikzPictures/}
-\cfchapter{PGF-plots from python\label{ch:chapter5}}{5}{chapter5}
+\tikzsetexternalprefix{./2_background/TikzPictures/}
+\cfchapter{Background}{2_background}{chapter2_background}
+\tikzsetexternalprefix{./3_classification/TikzPictures/}
+\cfchapter{Efficient Gaussian Process Classification Using Polya-Gamma Data Augmentation\label{ch:chapter3}}{3_classification}{chapter3_classification}
+\tikzsetexternalprefix{./4_multiclass/TikzPictures/}
+\cfchapter{Multi-Class Gaussian Process Classification Made Conjugate: Efficient Inference via Data Augmentation\label{ch:chapter4}}{4_multiclass}{chapter4_multiclass}
+\tikzsetexternalprefix{./5_general/TikzPictures/}
+\cfchapter{Automated Augmented Conjugate Inference for Non-conjugate Gaussian Process Models\label{ch:chapter5}}{5_general}{chapter5_general}
 \tikzsetexternalprefix{./6/TikzPictures/}
-\cfchapter{Asymptote\label{ch:chapter6}}{6}{chapter6}
+\cfchapter{Variational Gaussian Particle Flow\label{ch:chapter6}}{6_gpf}{chapter6_gpf.tex}
 \tikzsetexternalprefix{./7/TikzPictures/}
 \cfchapter{Discussion\label{ch:chapter7}}{7}{discussion}
-\tikzsetexternalprefix{./8/TikzPictures/}
-\cfchapter{Materials and Methods}{8}{materials_methods}
 \cleardoublepage
        % description of lab methods
 
