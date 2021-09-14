@@ -110,8 +110,6 @@
 
 \usepackage{acronym}
 \include{commands}
-\include{acronyms}
-
 
 \include{Preamble/preamble}
 \include{thesis-info}
@@ -192,8 +190,10 @@
 \else
 \printglossary[type=\acronymtype,title=Abbreviations]
 \fi
+
+\include{acronyms}
 %\printglossary
-%\printnomenclature[1.5cm] % [] = distance between entry and description
+%\printnomenclature[\include{acronyms}1.5cm] % [] = distance between entry and description
 %\printglossery
 \label{nom} % target name for links to glossary
 \end{footnotesize}
