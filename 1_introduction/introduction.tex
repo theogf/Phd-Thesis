@@ -14,27 +14,65 @@
 
 
 Machine learning has become a wide field of research with a variety of sub-fields, each dedicated to solve various problems in different ways.
-One field in particular, usually called probabilistic machine learning aims at representing the statistical side of the different models.
+One field in particular, usually called \textit{probabilistic machine learning} aims at representing the statistical side of the different models.
+
+\begin{itemize}
+\item Motivate the idea of Bayesian machine learning
+\item Bring to the concept of relation between representation and inference
+\item Introduce each of the chapter properly
+\end{itemize}
 
 
-\section{Following Bayes}
+\section{Bayesian Machine Learning}
 
 \begin{itemize}
 \item Bayes is awesome
+\item Frequentist vs Bayesian
 \end{itemize}
 
-In this thesis we are going to follow Bayesian principles
+Bayesian Machine Learning is just another name for applied statistics on clean datasets.
 
-\section{The use of Gaussian Processes}
 
-\begin{itemize}
-\item All these things you can do with Gaussian processes
-\end{itemize}
+In this thesis we are going to follow Bayesian principles.
+In a standard \textit{frequentist} setting, one is interested in finding the best point estimate 
+Using priors over latent parameters results in a posterior distribution instead of a point estimate.
+Posterior distributions have multiple advantages over point estimates: they are more robust to overfitting, they allow to compute prediction uncertainty and more.
+Of course they come at a higher computational cost: a distribution contains more information than a single point and finding analytical solutions is rare and often require manual derivations.
+However Bayesian methods gain an important edge when the datasets are small or when uncertainty about the predictions are uncertain.
+A typical example is in medicine, where data is scarce but the predictive outcome can have a dramatic effect (diagnosis, prognosis, etc...).
+
+
 
 \section{The underestimated importance of representation}
 
 \begin{itemize}
 \item Different representation lead to very different results, efficiency etc
+\item Mention existing approaches
 \end{itemize}
 
+
+\section{The use of Gaussian Processes}
+
+\begin{itemize}
+\item All these things you can do with Gaussian processes
+\item why GPs vs other things
+\end{itemize}
+
+One of the strong 
+
+\section{Thesis Outline}
+
+This thesis is constructed as follow:
+\begin{itemize}
+\item Chapter 2 will introduce in details all the common concepts to Bayesian inference and \ac{GPs}.
+This background is generally introduced in each of the published articles, but this chapter allows to go more in-depth in the background theory.
+Bayesian inference will be properly introduced with a focus on variational inference and sampling.
+\item Chapter 3 introduces the paper \com{Put paper name here}, which was the first step in this work using augmentations to improve and scale up inference.
+\item Chapter 4 introduced the paper \com{Put paper name here}.
+This paper brings new concepts of augmentation to a much more complex problem: multiclass classification.
+\item Chapter 5 introduces the paper \com{Put paper name here}.
+This work was the first generalization of one type of augmentation and allowed to get a much better understanding of these concepts.
+\item Chapter 6 introduces a different way of representing variational inference with Gaussians using particle and defining optimal dynamics for those.
+
+\end{itemize}
 
