@@ -9,15 +9,15 @@
 \graphicspath{{2/figures/}}
 % ----------------------- contents from here ------------------------
 
-A short introduction to the basic theory of \acl{GPs} and their scaling to larger is given in each paper.
-However, in this chapter we go a bit more into detail on how inference and prediction can be computed.
+A short introduction to the basic theory of \acl{GPs} as well as their extension to large datasets using inducing points \cite{Titsias2009} is given in each paper.
+In this chapter, we go a bit more into detail on the basics of probabilistic Bayesian modeling, \acl{GPs}, \acl{VI} and sampling methods.
 
 
 \section{Probabilistic Bayesian Modeling}
 
 \label{sec:prob_bayes}
 
-The Bayes' theorem is one of the simplest theorem in probabilites and its demonstration holds in one line, yet its implications are very important.
+The Bayes' theorem is one of the simplest theorem in probabilities and its demonstration holds in one line, yet its implications are very important.
 
 Let's give the very general modeling setting.
 Given a set of observed variables $\bx$, a set of latent (unobserved) variables $\btheta$ with a prior distribution $p(\btheta)$, and a likelihood function $p(\bx\mid\btheta)$, we can get the posterior distribution $p(\btheta|\bx)$:
@@ -33,7 +33,7 @@ Given some input $\bx \in \mathbb{R}^D$ and binary label $y\in \{ 0, 1\}$ we mod
 y \sim \Be\left(\sigma(\btheta^\top \bx)\right),
 \end{align}
 where $\btheta\in\mathbb{R}^D$ and $\sigma$ is the logistic function $\sigma(x) = \frac{1}{1+\exp(-x)}$.
-For simplicity we use an isotropic Normal prior on $\btheta$ : $p(\btheta) = \No\left(\btheta|0, I_{D}\right)$ and use the following likelihood function: $p(y_i|\btheta,\bx_i) =\sigma\left(2(y_i - 1) \btheta^\top \bx_i\right)$.
+For simplicity, we use an isotropic Normal prior on $\btheta$ : $p(\btheta) = \No\left(\btheta|0, I_{D}\right)$ and use the following likelihood function: $p(y_i|\btheta,\bx_i) =\sigma\left(2(y_i - 1) \btheta^\top \bx_i\right)$.
 Given the posterior $p(\btheta|\boldy, \bX)$ we can make predictions for new data using the following:
 \begin{align}
 p(y^*|\bX^*,\boldy,\bX) = \int p(y^*, \btheta|\bX^*\boldy, \bX)d\btheta = \int p(y^*|\btheta,\bX^*) p(\btheta|\boldy,\bX)d\btheta.
@@ -41,13 +41,13 @@ p(y^*|\bX^*,\boldy,\bX) = \int p(y^*, \btheta|\bX^*\boldy, \bX)d\btheta = \int p
 The last term of the equation involves the posterior distribution $p(\btheta|\by,\bX)$.
 To solve this integral, we must either be able to know the posterior in closed form and solve the integral numerically, or be able to sample from it and compute this integral with Monte-Carlo integration.
 Computing the posterior \eqref{eq:bayes} in closed-form involves computing the integral $\int p(\bx|\btheta)p(\btheta)d\btheta$, which is intractable for most non-trivial models.
-In Section~\ref{sec:approx_inf}, we mention methods which help solving this issue by introducing approximations or ways to sample directly from the posterior.
+In Section~\ref{sec:approx_inf}, we mention methods which help to solve this issue by introducing approximations or ways to sample directly from the posterior.
 
 \section{Gaussian Processes}
 
 \ac{GP} are a class of stochastic processes used as non-parametric approximations to functions.
 A \ac{GP} is a stochastic process $X_t$, where the joint distribution on any collection of variables $X_t$ follows a (multivariate) Gaussian distribution.
-This Gaussian nature is what make them attractive since operations on Gaussian variables tend to be easier and many calculus have closed-form solutions.
+This Gaussian nature is what make them attractive since operations on Gaussian variables tend to be easier and many calculi have closed-form solutions.
 The Gaussian distribution is to statistics what the harmonic oscillator is to physics.
 Although, \ac{GPs} are defined to be a non-parametric model, one needs to define the covariance between each variable of the process.
 One of the most popular interpretation of \ac{GP} is as a prior on functions in the \acf{RKHS}.
@@ -62,7 +62,7 @@ $K$ is positive-definite, i.e. for $K\in \real^{D\times D}$, and $x\in \real^D$,
 
 \subsection{Gaussian Process Regression}
 
-We now have a prior on the realisation of the function $\boldf$ on some data $\bX$, $p(\boldf) = \No(\boldf|\bmu_0, \bK)$.
+We now have a prior on the realization of the function $\boldf$ on some data $\bX$, $p(\boldf) = \No(\boldf|\bmu_0, \bK)$.
 We can now add information about some noisy observations $\by$ we got for $\bX$:
 \begin{align}
 y_i = f(X_i) + \epsilon_i,
@@ -82,7 +82,7 @@ This integral is analytically solvable and results in $p(f^*|\bx^*,\bX,\by)=\No(
 A Gaussian prior is only conjugate\footnote{A prior is said conjugate to a given likelihood when the resulting posterior is of the same family of the prior.} to a Gaussian likelihood
 Therefore \ac{GPs} only give a Gaussian posterior with a Gaussian likelihood, for all other cases we talk about \textit{Non-Conjugate Gaussian Processes}.
 
-Since the posterior is not analytically tractable, one has to resort to some of the methods presented in Section~\ref{sec:approx_inf}.
+Since the posterior is not analytically tractable, one has to resort to some methods presented in Section~\ref{sec:approx_inf}.
 
 \subsection{Sparse Gaussian Processes}
 One of the largest issue of \ac{GPs}, regardless of if they are conjugate or not is the scalability with the number of observed samples.
@@ -91,16 +91,24 @@ One of the largest issue of \ac{GPs}, regardless of if they are conjugate or not
 
 \section{Approximate Bayesian Inference}
 \label{sec:approx_inf}
-The posterior distribution in Eq.\eqref{eq:bayes} cannot be computed in closed-form for non-trivial problems.
-To still be able to make predictions and render the model useful one can resort to different approximations.
-Out of a very large number of methods two of the most used are sampling and variational inference.
+The posterior distribution in Equation~\eqref{eq:bayes} cannot be computed in closed-form for non-trivial problems.
+To make predictions, one can try nonetheless to approximate the posterior.
+Many options exist, but this chapter will focus specifically on sampling and variational inference.
 
 \subsection{Sampling}
 
-When the posterior $p(\btheta|\bx)$ is not available in closed-form, it may be possible to draw samples from it.
-The set of methods is far too large to be even mentioned in this thesis, I will restrict the scope to methods tailored or adapted to \ac{GPs}.
-I will especially focus on \ac{MCMC} methods, where a chain of variable $\btheta^t$ is created with a Markovian assumption ($\btheta^t$ depends only of $\btheta^{t-1}$) and where the stationary distribution of $\btheta^t$ is the same as the target distribution (in our case the posterior $p(\btheta|\bx)$.
+Even if the posterior $p(\btheta|\bx)$ is not available in closed-form, it might be still possible to draw samples from it.
+The whole collection of sampling techniques is far too large to be mentioned in this thesis.
+Therefore, the scope will be restricted to methods tailored or adapted to \ac{GPs}.
+We will especially focus on \ac{MCMC} methods, where a chain of variable $\btheta^t$ is created with the Markov assumption ($\btheta^t$ depends only on $\btheta^{t-1}$) and where the stationary distribution of $\btheta^t$ is the same as the target distribution (in our case the posterior $p(\btheta|\bx)$).
 
+\subsubsection{Gibbs Sampling}
+
+
+\subsubsection{Hybrid Monte Carlo}
+
+
+\subsubsection{Elliptical Slice Sampling}
 
 
 \subsection{Variational Inference}
@@ -111,13 +119,13 @@ Given a family of distributions $\mathcal{Q}$, parametrized by parameters $\bphi
 \bphi^* = \arg_{\bphi}\min \KL{q_{\bphi}(\btheta)}{p(\btheta|\bx)},
 \label{eq:prob_VI}
 \end{align}
-where the $\mathrm{KL}$ (Kullback-Leibler) divergence is defined (for continuous distributions as:
+where the $\mathrm{KL}$ \ac{KL} divergence is defined for continuous distributions as:
 \begin{align}
 \KL{q(x)}{p(x)} = \int q(x) \log \frac{q(x)}{p(x)}dx
 \end{align}
 
 The objective of equation~\eqref{eq:prob_VI} is generally not tractable.
-Since computing $p(\btheta|\bx)$ involves the typically intractable normalization constant $p(\bx)$, one resort to a surrogate function, the \ac{VFE} (or its negative counterpart the \ac{ELBO}):
+Since computing $p(\btheta|\bx)$ involves the normalization constant $p(\bx)$, one resort to a surrogate function, the \ac{VFE} (or its negative counterpart the \ac{ELBO}):
 \begin{align}
 \KL{q_{\bphi}(\btheta)}{p(\btheta|\bx)} =& \int q_{\bphi}(\btheta) \left(\log q_{\bphi}(\btheta) - \log p(\btheta|\bx)\right)d\btheta\\
 =&\int q_{\bphi}(\btheta) \left(\log q_{\bphi}(\btheta) - \log p(\btheta, \bx) - \log p(\bx)\right)d\btheta\\
@@ -126,29 +134,39 @@ Since computing $p(\btheta|\bx)$ involves the typically intractable normalizatio
 \end{align}
 
 
-By minimizing the \ac{VFE}:$\VFE(\bphi)$ instead of the \ac{KL} divergence, we expect to find a solution close to the optimum of the problem stated in \eqref{eq:prob_VI}.
+By minimizing the \ac{VFE}: $\VFE(\bphi)$ instead of the \ac{KL} divergence, we expect to find a solution close to the optimum of the problem stated in \eqref{eq:prob_VI}.
 A standard way is to perform gradient descent on the variational parameters $\bphi$
 \begin{align}
 \bphi^{t+1} = \bphi^{t} - \epsilon \grad_{\bphi}\VFE(\bphi^{t}).
 \end{align}
 
-Computing the gradient $\grad_{\bphi}\VFE(\bphi)$ can be non-trivial but many methods were developed to tackle this problem.
+Computing the gradient $\grad_{\bphi}\VFE(\bphi)$ can be non-trivial, but many methods were developed to tackle this problem.
 
-\com{introduce different methods here}.
-One of the most important addition to the \ac{VI} method is the \ac{MF} approximation.
-\ac{MF} is the assumption that the variational distribution $q(\btheta)$ assumes every compoment of $\btheta$ to be independent from each other.
-This way we can write
+\subsubsection{Mean-Field Approximation}
+
+One of the most important additions to the \ac{VI} method is the \ac{MF} approximation.
+\ac{MF} is the assumption that the variational distribution $q(\btheta)$ assumes every component of $\btheta$ to be independent of each other.
+This variational distribution can be specified as:
 \begin{align}
-q^{MF}_{\bphi}(\btheta) = \prod_{i=1}^D q_{\bphi_i}(\theta_i)
+q^{MF}_{\bphi}(\btheta) = \prod_{i=1}^D q_{\bphi_i}(\theta_i),
 \end{align}
-A more general method is also to consider blocks of variables instead.
+where $\bphi_i$ are the variational parameters for the variable $\theta_i$.
+
+One can also build more general distributions by considering independence between blocks of variables instead.
+We can split $\mathcal{I}=\{1,2,\ldots,D\}$, the set of indices of $\theta$, into $K$ independent subsets $\mathcal{I}_k \subseteq \mathcal{I}$ such that  $\mathcal{I} = \cup_{k=1}^K \mathcal{I}_{k}$ and $\mathcal{I}_i \cap \mathcal{I}_j=\emptyset,~\mathrm{iff}~i \neq j$.
+The variational distribution based on this blocked mean-field approximation is then defined as
+\begin{align}
+    q^{BMF}_{\bphi}(\btheta) = \prod_{k=1}^K q_{\bphi_k}(\btheta_{\mathcal{I}_k}),
+\end{align}
+where $\bphi_k$ are the variational parameters for the set of variable $\theta_{\mathcal{I}_k}$.
+\subsubsection{Coordinate Ascent VI}
 
 Following the \ac{MF} approach, it is sometimes possible to find the optimal parameters $\bphi^*$ in closed-form.
 By solving:
 \begin{align}
 \left.\grad_{\varphi_i}\VFE(\bphi)\right\vert_{\varphi_i=\varphi_i^*} = 0,
 \end{align}
-for each variable $\varphi_i$ we can find a local optima, which with additional assumptions, can prove to be the local minima we are looking for.
+for each variable $\varphi_i$ we can find a local optima.
 The advantage of this method is that one can also perform it independently for each latent variable $\theta_i$.
 Concretely the updates are of the form:
 \begin{align}
@@ -156,12 +174,27 @@ q_{\varphi_i}^*(\theta_i) \propto \exp\left(\expec{q_{\bphi}(\btheta_{/i})}{\log
 \end{align}
 where $\btheta_{/i}$ represent the collection of variables $\btheta_{/i} = \{\theta_j | j \neq i\}$.
 When working with distribution coming from exponential families, it is straightforward to get the optimal variational parameters $\varphi_i$.
-By updating the parameters one after another we get a \ac{CAVI} scheme\footnote{The word ascent is used since the scheme was originally derived using the negative \ac{VFE} or \ac{ELBO}.}.
+By updating the parameters one after another we get a \ac{CAVI} scheme\footnote{The word ascent is used since the scheme was originally derived using the negative \ac{VFE} i.e. the \ac{ELBO}.}.
 Effectively, one update each variational parameter $\varphi_i$ by its optimum given the rest of the variational parameters $\bphi_{/i}$ via closed-form functions:
 \begin{align}
 \varphi_i^{t+1} = f_i\left(\bphi_{1:(i-1)}^{t+1}, \bphi_{(i+1):D}^t\right).
 \end{align}
 The order of the updates do not matter as long as the variational parameters $\bphi$ are initialized in their domain.
+
+The algorithm is presented completely on Algorithm~\ref{alg:CAVI}.
+
+\begin{algorithm}
+    \caption{CAVI Updates}
+\end{algorithm}
+
+
+\subsubsection{Natural Gradients}
+
+
+
+\com{Introduce different methods here}.
+
+
 
 % ---------------------------------------------------------------------------
 % ----------------------- end of thesis sub-document ------------------------
