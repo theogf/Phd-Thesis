@@ -1,0 +1,216 @@
+% -*- root: ../thesis.tex -*-
+%!TEX root = ../thesis.tex
+% ******************************************************************************
+% ****************************** Custom Margin *********************************
+% Add `custommargin' in the document class options to use this section
+% Set {innerside margin / outerside margin / topmargin / bottom margin}  and
+% other page dimensions
+\ifCLASSINFOcustommargin
+  %\RequirePackage[left=37mm,right=30mm,top=35mm,bottom=30mm]{geometry}
+  \RequirePackage[left=32mm,right=22mm,top=12mm,bottom=10mm,includeheadfoot,heightrounded]{geometry}
+
+%\setlength\marginparwidth{2.3cm} %Die wird später zum Rechnen gebraucht, wird aber durch die Angabe im geometry package nicht automatisch richtig gesetzt.
+  \setFancyHdr % To apply fancy header after geometry package is loaded
+\fi
+%\overfullrule=5pt
+
+% Add spaces between paragraphs
+%\setlength{\parskip}{0.5em}
+
+% To remove the excess top spacing for enumeration, list and description
+%\usepackage{enumitem}
+%\setlist[enumerate,itemize,description]{topsep=0em}
+
+%: ----------------------------------------------------------------------
+%:                  TITLE PAGE: name, degree,..
+% ----------------------------------------------------------------------
+% below is to generate the title page with crest and author name
+
+
+% ********************** TOC depth and numbering depth *************************
+% levels are: 0 - chapter, 1 - section, 2 - subsection, 3 - subsection
+\setcounter{secnumdepth}{3} % organisational level that receives a numbers
+\setcounter{tocdepth}{3}    % print table of contents for level 3
+%
+
+%
+% ******************************************************************************
+% ******************************** Custom Packages *****************************
+% ******************************************************************************
+% ************************* Algorithms and Pseudocode **************************
+\usepackage{algorithm}% http://ctan.org/pkg/algorithms
+\usepackage{algpseudocode}% http://ctan.org/pkg/algorithmicx
+% ************************* Math packages **************************
+%\usepackage{upgreek}
+\usepackage{ntheorem}
+\newtheorem{theorem}{Theorem}
+% ********************Captions and Hyperreferencing / URL **********************
+\usepackage{graphics} % for improved inclusion of graphics
+%\RequirePackage{wrapfig} % to include figure with text wrapping around it
+\usepackage[margin=10pt,font=small,labelfont=bf]{caption} % for improved layout of figure captions with extra margin, smaller font than text
+\usepackage{chapterfolder}
+\usepackage[all]{hypcap} % fix hyperref links to jump directly to Table or Figure
+% ********************** New Chapter layout *************************
+\RequirePackage{titlesec}
+\renewcommand{\chaptername}{} % uncomment to print only "1" not "Chapter 1"
+% Special layout for chapter numbers
+\titleformat{\chapter}[display]
+{\bfseries\sffamily\Huge}
+{\hfill\fontsize{140}{50}\selectfont\color{lightgray}\rmfamily\textbf{\thechapter}}% label
+{-0ex}
+%{\filleft moves all to the right side
+{\filleft\fontsize{50}{50}}
+[\vspace{-0ex}]
+% *************************** Graphics and figures *****************************
+\usepackage{placeins} %Defines a \FloatBarrier command
+\usepackage[countmax]{subfloat}
+\usepackage{subfig}
+\usepackage{import}
+%:-------------------------- packages for fancy things -----------------------
+
+\setlength{\columnsep}{20pt} % space between columns; default 10pt quite narrow
+
+%\RequirePackage[usenames, dvipsnames]{color}
+
+
+%:-------------------------- BibLatex ---------------------------
+
+\usepackage{csquotes}
+% ********************************** Tables ************************************
+\usepackage{booktabs}
+\usepackage{multicol} % for pages with multiple text columns, e.g. References
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{hhline}
+%\renewcommand{\arraystretch}{1.2}
+\usepackage{xcolor,colortbl}
+%dashed line
+\usepackage{array}
+\usepackage{ragged2e}
+%\usepackage{arydshln}
+%\setlength\dashlinedash{0.2pt}
+%\setlength\dashlinegap{1.5pt}
+% use P instead of p for RaggedRight tabel columns e.g. begin{tabular}{P{2cm}|P{4cm}|P{3cm}|P{3cm}}
+\newcolumntype{P}[1]{>{\RaggedRight\hspace{0pt}}p{#1}}
+%\setlength\arrayrulewidth{0.3pt}
+% turn of those nasty overfull and underfull hboxes
+
+% *********************************** SI Units *********************************
+
+\usepackage[separate-uncertainty = true,multi-part-units=single]{siunitx}
+\sisetup{
+  locale = US ,
+  per-mode = symbol,
+  binary-units = true
+}
+
+% ********************** bibtex/biblatex *************************
+%\usepackage{showframe}
+\ifCLASSINFOcustombibstyle
+\ifCLASSINFObiblatex
+\usepackage[
+    backend=biber,
+    style=ieee,
+    sortlocale=en_US,
+    natbib=true,
+    maxbibnames=50,
+    url=true, 
+    doi=true,
+    eprint=false
+]{biblatex}
+
+%\DeclareFieldFormat*{url}{}
+%\DeclareFieldFormat[misc]{url}{\mkbibacro{URL}\addcolon\space\url{#1}}
+%\DeclareFieldFormat*{urldate}{}
+%\DeclareFieldFormat[misc]{urldate}{\mkbibparens{\bibstring{urlseen}\space#1}}
+
+\AtEveryBibitem{%
+  \ifentrytype{misc}{%
+  }{%
+    \ifentrytype{patent}{%
+    }{%
+      \clearfield{url}%
+      \clearfield{urldate}%
+      \clearfield{urlyear}%
+    }%
+  }%
+}
+
+\else
+\usepackage[sort, numbers]{natbib}
+\fi
+\fi
+\ifCLASSINFObiblatex
+\addbibresource{9_backmatter/references.bib}
+\DeclareSourcemap{ 
+    \maps[datatype=bibtex]{
+      \map{
+           \step[fieldsource=doi, match={\regexp{\{\\textunderscore.?\}}}, replace={_}]
+           \step[fieldsource=doi, match={\regexp{\{\\textless.?\}}}, replace={&lt;}]
+           \step[fieldsource=doi, match={\regexp{\{\\textgreater.?\}}}, replace={&gt;}]
+           %\step[fieldsource=doi, match={\regexp{\{\>.?\}}}, replace={&gt;}]
+      }
+      %\map{
+      %     \step[fieldsource=doi, match={\regexp{\{\\textless.?\}}}, replace={<}]
+      %     %\step[fieldsource=doi, match={\regexp{\{\\textgreater.*\}}}, replace={>}]
+      %}
+      %\map{
+      %     \step[fieldsource=doi, match={\regexp{\{\\textgreater *\}}}, replace={>}]
+      %     %\step[fieldsource=doi, match={\regexp{\{\\textgreater.*\}}}, replace={>}]
+      %}
+    }
+}
+\fi
+
+
+
+% ******************************************************************************
+% ************************* User Defined Commands ******************************
+% ******************************************************************************
+
+% *********** To change the name of Table of Contents / LOF and LOT ************
+\addto\captionsenglish{
+%\renewcommand{\contentsname}{My Table of Contents}
+%\renewcommand{\listfigurename}{My List of Figures}
+%\renewcommand{\listtablename}{My List of Tables}
+}
+% ************************ Formatting / Footnote *******************************
+       
+% turn of those nasty overfull and underfull hboxes
+
+%\hbadness=10000
+%\hfuzz=50pt
+
+\tolerance=1414
+\hbadness=1414
+\emergencystretch=1.5em
+\hfuzz=0.5pt
+%\widowpenalty=10000
+\vfuzz=\hfuzz
+% Ragged bottom avoids extra whitespaces between paragraphs
+% But the buttom line is not euqalized anymore!
+\raggedbottom
+
+% TeX default is 50
+\hyphenpenalty=750
+% The TeX default is 1000
+%\hbadness=1350
+% IEEE does not use extra spacing after punctuation
+\frenchspacing
+
+\binoppenalty=1000 % default 700
+\relpenalty=800     % default 500
+   
+\interfootnotelinepenalty=10000
+
+% Don't break enumeration (etc.) across pages in an ugly manner
+\clubpenalty=10000
+\widowpenalty=10000
+
+%\linepenalty=1000 
+%\looseness=-1
+
+%\usepackage[defaultlines=4,all]{nowidow}
+
+%\usepackage[perpage]{footmisc}

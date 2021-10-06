@@ -1,0 +1,102 @@
+%%% Needed packages for commands
+
+\usepackage{xcolor}
+%\usepackage{amsthm}
+\usepackage{mathtools}
+%%% Mathematics
+
+%% Miscellaneous
+
+\newcommand{\uptoconst}{\mathrel{\overset{\makebox[0pt]{\mbox{\normalfont\small\sffamily c}}}{=}}}
+\newcommand{\half}{\frac{1}{2}}
+\def\*#1{\mathbf{#1}}
+
+%% Analasis
+
+\newcommand{\real}{\mathbb{R}}
+\newcommand{\grad}{\nabla}
+
+%% Linear Algebra
+
+\newcommand{\logdet}[1]{\log\left|#1\right|}
+\newcommand{\trace}{\text{tr}}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\dt}[1]{\frac{d#1}{dt}}
+\newcommand{\deriv}[2]{\frac{d#1}{d#2}}
+
+%% Matrices
+
+\newcommand{\Knm}{K_{nm}}
+\newcommand{\invKmm}{K_{mm}^{-1}}
+\newcommand{\Ktilde}{\widetilde{K}}
+\newcommand{\invKtilde}{\widetilde{K}^{-1}}
+
+%% Probabilities
+
+\newcommand{\PG}{\text{PG}} % Polya-Gamma
+\newcommand{\Po}{\text{Po}} % Poisson
+\newcommand{\No}{\mathcal{N}} % Normal
+\newcommand{\GP}{\mathrm{GP}} % GaussianProcess
+\newcommand{\Ga}{\mathrm{Ga}} % Gamma
+\newcommand{\NB}{\mathrm{NB}} % Negative Binomial
+\newcommand{\KL}[2]{\mathrm{KL}\left(#1\vert\vert #2\right)} % KL Divergence
+\newcommand{\IG}{\mathrm{IG}} % Inverse Gamma
+\newcommand{\Be}{\mathrm{Bernoulli}} % Bernoulli
+\newcommand{\GIG}{\mathrm{GIG}} % Generalized Inverse Gaussian
+\newcommand{\EE}{\mathbb{E}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\ELBO}{\mathcal{L}}
+\newcommand{\VFE}{\mathcal{F}}
+
+%% Symbols
+
+\newcommand{\bX}{\boldsymbol{X}}
+\newcommand{\bx}{\boldsymbol{x}}
+\newcommand{\boldf}{\boldsymbol{f}}
+\newcommand{\boldy}{\boldsymbol{y}}
+\newcommand{\by}{\boldsymbol{y}}
+\newcommand{\bn}{\boldsymbol{n}}
+\newcommand{\bu}{\boldsymbol{u}}
+\newcommand{\boldu}{\boldsymbol{u}}
+\newcommand{\boldm}{\boldsymbol{m}}
+\newcommand{\bgamma}{\boldsymbol{\gamma}}
+\newcommand{\bomega}{\boldsymbol{\omega}}
+\newcommand{\blambda}{\boldsymbol{\lambda}}
+\newcommand{\bSigma}{\boldsymbol{\Sigma}}
+\newcommand{\bdelta}{\boldsymbol{\delta}}
+\newcommand{\btheta}{\boldsymbol{\theta}}
+\newcommand{\bbeta}{\boldsymbol{\beta}}
+\newcommand{\balpha}{\boldsymbol{\alpha}}
+\newcommand{\bmu}{\boldsymbol{\mu}}
+\newcommand{\boldc}{\boldsymbol{c}}
+\newcommand{\bkappa}{\boldsymbol{\kappa}}
+\newcommand{\boldeta}{\boldsymbol{\eta}}
+\newcommand{\boldI}{\boldsymbol{I}}
+\newcommand{\bphi}{\boldsymbol{\varphi}}
+\newcommand{\bK}{\boldsymbol{K}}
+
+%% Multi-Arguments
+
+\newcommand{\expec}[2]{\mathbb{E}_{#1}\left[#2\right]}
+\newcommand{\var}[2]{\mathbb{V}_{#1}\left[#2\right]}
+\newcommand{\cov}[2]{\text{Cov}_{#1}\left[#2\right]}
+\newcommand{\laplace}[2]{\mathcal{L}\left\{#1\right\}\left(#2\right)}
+
+%%% Comments
+
+\newcommand{\needcite}{\textcolor{red}{[\textbf{NEED CITATION}]}}
+\newcommand{\com}[1]{\textcolor{red}{[\uppercase{\textbf{#1}}]}}
+\newcommand{\flo}[1]{\textcolor{purple}{\uppercase{#1}}}
+\newcommand{\flotheo}[1]{\textcolor{orange}{THEO: \uppercase{#1}}}
+
+%%% Theorem and Definitions
+
+%\newtheorem{prop}{Proposition}
+%\newtheorem*{prop*}{Proposition}
+%\newtheorem{theorem}{Theorem}
+%\newtheorem*{theorem*}{Theorem}
+%\newtheorem*{lemma*}{Lemma}
+%\newtheorem*{corrolary*}{Corrolary}
+%\newtheorem{definition}{Definition}
+%\newtheorem*{definition*}{Definition}
