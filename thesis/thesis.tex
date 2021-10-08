@@ -13,7 +13,7 @@
 % Most style definitions are in the external file PhDthesisTUB.
 % In this template package, it can be found in ./Classes/
 
-\documentclass[twoside,11pt,online,a4paper,pdfa1,custommargin,numbered,biblatex,customfont]{PhDthesisTUB}
+\documentclass[twoside,11pt,online,a4paper,pdfa1,custommargin,numbered,customfont]{PhDthesisTUB}
 
 
 % *********************** Choosing pdfx standard ******************************
@@ -248,11 +248,7 @@
 
 \begin{footnotesize} % tiny(5) < scriptsize(7) < footnotesize(8) < small (9)
 
-\ifCLASSINFOlangDE
-%\renewcommand{\bibname}{References}
-\else
 \renewcommand{\bibname}{References} % changes the header; default: Bibliography
-\fi
 % add bib to toc
 \cleardoublepage
 \phantomsection
@@ -262,9 +258,9 @@
 \printbibliography
 \else
 % PhDbiblio-url2 = names small caps, title bold & hyperlinked, link to page 
-\bibliographystyle{Classes/PhDbiblio-url2} % Title is link if provided
+\bibliographystyle{utils/PhDbiblio-url2} % Title is link if provided
 %\bibliographystyle{apalike}
-\bibliography{chapters/9_backmatter/references} % adjust this to fit your BibTex file
+\bibliography{zotero.bib} % adjust this to fit your BibTex file
 \fi
 \end{footnotesize}
 

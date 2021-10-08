@@ -102,10 +102,26 @@ The whole collection of sampling techniques is far too large to be mentioned in 
 Therefore, the scope will be restricted to methods tailored or adapted to \ac{GPs}.
 We will especially focus on \ac{MCMC} methods, where a chain of variable $\btheta^t$ is created with the Markov assumption ($\btheta^t$ depends only on $\btheta^{t-1}$) and where the stationary distribution of $\btheta^t$ is the same as the target distribution (in our case the posterior $p(\btheta|\bx)$).
 
+\subsubsection{Markov Chain Monte Carlo}
+
 \subsubsection{Gibbs Sampling}
 
+Gibbs sampling is a special case of \ac{MCMC} where each variable or block of variable is sampled one after another.
+The proposal distribution is given by the full-conditional $p(\theta_i|\bx,\btheta_{/i})$.
+The advantage of Gibbs sampling is that the Metropolis-Hastings step is guaranteed to accept the new samples since the acceptance rate is given by:
+\begin{align*}
+    A =& \frac{p(\theta^{t+1}_i,\btheta^t_{/i}|\bx)}{p(\theta^t_i,\btheta^t_{/i}|\bx)}\frac{p(\theta^t_i|\bx,\btheta^{t}_{/i})}{p(\theta^{t+1}_i|\bx,\btheta^t_{/i})}\\
+    =& \frac{p(\theta^{t+1}|\bx, \btheta^{t}_{/i})}{p(\theta^t_i|\bx,\btheta^t_{/i})}\frac{p(\btheta^t_{/i}|\bx)}{p(\btheta^t_{/i}|\bx)}\frac{p(\theta^t_i|\bx,\btheta^{t}_{/i})}{p(\theta^{t+1}_i|\bx,\btheta^t_{/i})} = 1
+\end{align*}
 
-\subsubsection{Hybrid Monte Carlo}
+Gibbs sampling has several issues:
+First, being able to sample and/or compute it is not necessarily given.
+Second, it can suffer from heavy convergence issues if variables are heavily correlated, i.e. that the full-conditionals have tiny variances.
+Some of these issues can be resolved by using additional techniques like "Blocked" Gibbs sampling where multiple variables are sampled at the same time or "Collapsed" Gibbs sampling where some conditional variables are marginalized out. 
+
+\subsubsection{Hamilton/Hybrid Monte Carlo}
+
+\acf{HMC} or Hybrid Monte Carlo \cite{betancourt2017conceptual} is a \ac{MCMC} gradient-based method.
 
 
 \subsubsection{Elliptical Slice Sampling}
@@ -184,15 +200,31 @@ The order of the updates do not matter as long as the variational parameters $\b
 The algorithm is presented completely on Algorithm~\ref{alg:CAVI}.
 
 \begin{algorithm}
-    \caption{CAVI Updates}
+    \caption{\ac{CAVI} Updates}
+    \label{alg:CAVI}
 \end{algorithm}
 
 
 \subsubsection{Natural Gradients}
 
-
-
-\com{Introduce different methods here}.
+One interesting aspect of \ac{CAVI}, is that it implicitly brings the concept of "Natural Gradients" \cite{amariNaturalGradientWorks1998}.
+A natural gradient is a gradient with the inverse Fisher matrix applied as a preconditioner.
+The Fisher information matrix is defined as 
+\begin{align*}
+    \mathcal{I}_\theta = \expec{p(\bx|\btheta)}{\left(\grad_{\btheta}\log p(\bx|\btheta)\right)\left(\grad_{\btheta} \log p(\bx|\btheta)\right)^\top} = -\expec{p(\bx|\btheta)}{\mathbf{H}(\log p(\bx|\btheta))},
+\end{align*}
+where $\mathbf{H}(f)$ is the Hessian matrix of the function $f$.
+\com{Give more details about the meaning of the Fisher info}
+The natural gradient is therefore given by :
+\begin{align*}
+    \widetilde{\grad}_{\bphi}\mathcal{F}(\bphi) = \mathcal{I}^{-1} \grad_{\bphi}\mathcal{F}(\bphi)
+\end{align*}
+This preconditioning of the gradients move the gradient descent in a different Riemannian metric.
+The natural gradient is constructed such that the metric it gives maximizes the change of the \ac{KL} divergence between the given distribution and its target.
+The reason why natural gradients are brought up here is that the updates of the \ac{CAVI} algorithm \ref{alg:CAVI} for exponential distributions, can be interpreted as natural gradient ascent updates with learning rate $1$.
+\begin{align*}
+    \phi^{t+1} = \phi^t + \mathcal{I}^{-1}\grad_{\phi}\mathcal{F}(\bphi^t) \equiv \phi^{t+1} = 
+\end{align*}
 
 
 
