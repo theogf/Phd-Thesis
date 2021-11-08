@@ -108,6 +108,7 @@
 % `abstract`: Only the title-page and the abstracts are generated
 %
 
+\usepackage{todonotes}
 \usepackage{acronym}
 \include{utils/commands}
 
@@ -133,6 +134,9 @@
 %: ----------------------- generate glossary ------------------------
 \loadglsentries{chapters/0_frontmatter/glossary}
 \makeglossaries
+\usepackage{todonotes}
+
+
 \begin{document}
 
 
@@ -214,9 +218,9 @@
 % Parts of the thesis are included below. Rename the files as required.
 % But take care that the paths match. You can also change the order of appearance by moving the include commands.
 % \cfchapter[short name] {full name} {folder name} {file name}.
-\tikzsetexternalprefix{./chapters/1_introduction/TikzPictures/}
+% \tikzsetexternalprefix{./chapters/1_introduction/TikzPictures/}
 \cfchapter{Introduction}{./chapters/1_introduction}{introduction}
-\tikzsetexternalprefix{./chapters/2_background/TikzPictures/}
+% \tikzsetexternalprefix{./chapters/2_background/TikzPictures/}
 \cfchapter{Background}{./chapters/2_background}{chapter2_background}
 \tikzsetexternalprefix{./chapters/3_classification/TikzPictures/}
 \cfchapter{Efficient Gaussian Process Classification Using Polya-Gamma Data Augmentation\label{ch:chapter3}}{./chapters/3_classification}{chapter3_classification}
