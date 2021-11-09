@@ -89,8 +89,14 @@ Since the posterior is not analytically tractable, one has to resort to some met
 \subsection{Sparse Gaussian Processes}
 One of the largest issue of \ac{GPs}, regardless of their conjugacy, is the scalability with the number of observed samples.
 When computing the covariance, the inverse operation has a computational complexity of $\mathcal{O}(N^3)$ where $N$ is the number of samples.
-For one-dimensional inputs ($D=1$), solutions exist using state-space models representation, leading to a $\mathcal{O}(N)$ complexity but higher-dimensional problems require alternative solutions.
-\cite{csato2002sparse} proposed first to use a subset of points and create an approximation
+For one-dimensional inputs ($D=1$), solutions exist using state-space models representation, leading to an $\mathcal{O}(N)$ complexity but higher-dimensional problems require alternative solutions.
+\citep{csato2002sparse} proposed first to create an approximation of the posterior using a subset of the points only in the context of online learning.
+\citet{snelsonSparseGaussianProcesses2009} expanded this theory to the offline framework and \citet{Titsias2009} developed an alternative approximation based on KL divergence where the "inducing points" are not necessarily a subset of the training data and do not even have to belong to the same domain \com{cite related work}.
+
+The rest of this thesis is based on Titsias approach, where the approximation is made by defining a set of inducing points location $Z=\{\boldz_i\}_{i=1}^M$ and the respective realization of $\boldu$ where $u_i = u(\boldz_i)$
+\begin{align*}
+    q(\boldu,\boldf) = q(\boldu)\prod_{i=1}^N p(f_i|\boldu)
+\end{align*}
 
 
 \section{Approximate Bayesian Inference}
