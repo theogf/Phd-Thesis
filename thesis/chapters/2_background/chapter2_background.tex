@@ -56,7 +56,7 @@ Most operations on Gaussian variables can be done analytically, and they have ot
 One of the interpretation of a \ac{GP} is as a prior on functions in the \acf{RKHS}.
 In practice the \ac{RKHS} is infinite-dimensional, and to be able to perform any computation one needs to project it into a finite-dimensional space.
 Considering a function $f$ we wish to represent with a \ac{GP}, we can project it on data samples $\bX = \{\bx_i, \ldots, \bx_N\}$ and evaluate $f$ on them such that we obtain the finite-dimensional vector $\boldf$ where $f_i = f(X_i)$.
-\missingfigure{Put a prior of a GP}
+% \missingfigure{Put a prior of a GP}
 
 One resorts to kernel functions \com{need to cite this}.
 The kernel matrix $K$ is defined by $K_{ij} = k(x_i, x_j)$.
@@ -64,8 +64,8 @@ $K$ is positive-definite, i.e. for $K\in \real^{D\times D}$, and $x\in \real^D$,
 
 \subsection{Gaussian Process Regression}
 
-We now have a prior on the realization of the function $\boldf$ on some data $\bX$, $p(\boldf) = \No(\boldf|\bmu_0, \bK)$.
-We can now add information about some noisy observations $\by$ we got for $\bX$:
+We now have a prior on the realization of the function $\boldf$ on the data $\bX = \{\bx_i\}_{i=1}^N$, $p(\boldf) = \No(\boldf|\bmu_0, \bK)$, where $\bmu_0 = \{\bmu_0(\bx_i)\}_{i=1}^N$ is the mean function.
+We can add noisy observations $\by = \{y_i\}_{i=1}^N$ for each respective $\bX$:
 \begin{align}
 y_i = f(X_i) + \epsilon_i,
 \end{align}
@@ -73,11 +73,11 @@ where $\epsilon_i \sim \No(0,\sigma^2)$.
 This leads to the likelihood $p(y_i|f_i) = \No(y_i|f_i, \sigma^2)$.
 Fortunately, multiplying Gaussian probability distributions together lead to another Gaussian distribution function.
 The posterior for $\boldf$ is given by $p(\boldf|\by) = \No(\boldf|\by, \bK + \sigma^2 I)$.
-The prediction of $f^*$ on a new point $\bx^*$ can be done by computing:
+The prediction of $f^*$ on a new point $\bx^*$ can be evaluated by computing:
 \begin{align}
 p(f^*|\bx^*,\bX,\by) = \int p(f^*|\boldf,\bx^*)p(\boldf|\bX,\by)d\boldf.
 \end{align}	
-This integral is analytically solvable and results in $p(f^*|\bx^*,\bX,\by)=\No(f^*|m^*,s^*)$ where $m^* = K_{\bx^*,\bX}(K_{\bX,\bX} + \sigma^{2}I)^{-1}y$ and $s^*=K_{\bx^*,\bx^*} - K_{\bx^*,\bX}\left(K_{\bX,\bX}+\sigma^2I\right)^{-1}K_{\bX,\bx^*}$.
+This integral is analytically solvable and results in $p(f^*|\bx^*,\bX,\by)=\No(f^*|m^*,s^*)$ where $m^* = K_{\bx^*,\bX}(K_{\bX,\bX} + \sigma^{2}I)^{-1}\boldy$ and $s^*=K_{\bx^*,\bx^*} - K_{\bx^*,\bX}\left(K_{\bX,\bX}+\sigma^2I\right)^{-1}K_{\bX,\bx^*}$.
 
 \subsection{Non-Conjugate Gaussian Processes}
 
@@ -87,8 +87,10 @@ Therefore \ac{GPs} only give a Gaussian posterior with a Gaussian likelihood, fo
 Since the posterior is not analytically tractable, one has to resort to some methods presented in Section~\ref{sec:approx_inf}.
 
 \subsection{Sparse Gaussian Processes}
-One of the largest issue of \ac{GPs}, regardless of if they are conjugate or not is the scalability with the number of observed samples.
-
+One of the largest issue of \ac{GPs}, regardless of their conjugacy, is the scalability with the number of observed samples.
+When computing the covariance, the inverse operation has a computational complexity of $\mathcal{O}(N^3)$ where $N$ is the number of samples.
+For one-dimensional inputs ($D=1$), solutions exist using state-space models representation, leading to a $\mathcal{O}(N)$ complexity but higher-dimensional problems require alternative solutions.
+\cite{csato2002sparse} proposed first to use a subset of points and create an approximation
 
 
 \section{Approximate Bayesian Inference}
