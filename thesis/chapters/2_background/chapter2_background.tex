@@ -17,19 +17,19 @@ In this chapter, we go a bit more into detail on the basics of probabilistic Bay
 
 \label{sec:prob_bayes}
 
-The Bayes' theorem is one of the simplest theorem in probabilities and its demonstration holds in one line, yet its implications are most important.
+Bayes' theorem is one of the simplest theorem in probabilities and its demonstration fits one line, yet its implications are most important.
 
-Let's give a very general modeling setting.
-Given a set of observed variables $\bx$, usually the data, a set of latent (unobserved) variables $\btheta$ with a prior distribution $p(\btheta)$, and a likelihood function $p(\bx\mid\btheta)$, we obtain the posterior distribution $p(\btheta|\bx)$ via Bayes' theorem:
+Let's give a very general modeling setting that we are going to follow for the rest of this chapter.
+Given a set of observed variables $\bx$, usually the data, a set of latent (unobserved) variables $\btheta$ with a prior distribution $p(\btheta)$, and a \textit{likelihood} function $p(\bx\mid\btheta)$, we obtain the \textit{posterior} distribution $p(\btheta|\bx)$ via Bayes' theorem:
 \begin{align}
 p(\btheta|\bx) = \frac{p(\bx|\btheta)p(\btheta)}{p(\bx)} = \frac{p(\bx|\btheta)p(\btheta)}{\int p(\bx|\btheta)p(\btheta)d\btheta}
 \label{eq:bayes}
 \end{align}
 
 The posterior allows us to obtain both an estimate of the latent variables of interest and the uncertainty of this estimate given the prior $p(\theta)$.
-It also allows producing new data in a generative model or making predictions for new observations for a discriminative model.
+It is then used for computing all estimations of the form $\expec{p(\btheta|\bx)}{f(\theta)}$, for example to make predictions or estimating some statistics, or even producing data in a generative model.
 Let's take the simple example of logistic regression, a discriminative model:
-Given some input $\bx \in \mathbb{R}^D$ and binary label $y\in \{ 0, 1\}$ we model the generative model as:
+Given an input $\bx \in \mathbb{R}^D$ and binary label $y\in \{ 0, 1\}$ we model the generative model as:
 \begin{align}
 y \sim \Be\left(\sigma(\btheta^\top \bx)\right),
 \end{align}
@@ -58,7 +58,7 @@ In practice the \ac{RKHS} is infinite-dimensional, and to be able to perform any
 Considering a function $f$ we wish to represent with a \ac{GP}, we can project it on data samples $\bX = \{\bx_i, \ldots, \bx_N\}$ and evaluate $f$ on them such that we obtain the finite-dimensional vector $\boldf$ where $f_i = f(X_i)$.
 % \missingfigure{Put a prior of a GP}
 
-One resorts to kernel functions \com{need to cite this}.
+One resorts to kernel functions % TODO need to cite this.
 The kernel matrix $K$ is defined by $K_{ij} = k(x_i, x_j)$.
 $K$ is positive-definite, i.e. for $K\in \real^{D\times D}$, and $x\in \real^D$, $x^\top K x > 0$.
 
