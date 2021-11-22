@@ -45,7 +45,7 @@ Computing the posterior \eqref{eq:bayes} in closed-form involves computing the i
 In Section~\ref{sec:approx_inf}, we mention methods which help to solve this issue by introducing approximations or ways to sample directly from the posterior.
 
 \section{Gaussian Processes}
-
+\label{sec:gps}
 \acf{GPs} are a class of stochastic processes used as non-parametric probabilistic representations to functions.
 A \ac{GP} is a stochastic process $f_t$, where the joint distribution on any collection of variables $f_t$ follows a (multivariate) Gaussian distribution.
 Their Gaussian nature makes them computationally very attractive.
@@ -82,37 +82,43 @@ This integral is analytically solvable and results in $p(f^*|\bx^*,\bX,\by)=\No(
 \subsection{Non-Conjugate Gaussian Processes}
 
 A Gaussian prior is only conjugate\footnote{A prior is said conjugate to a given likelihood when the resulting posterior is of the same family of the prior.} to a Gaussian likelihood
-Therefore \ac{GPs} only give a Gaussian posterior with a Gaussian likelihood, for all other cases we talk about \textit{Non-Conjugate Gaussian Processes}.
+Therefore, \ac{GPs} only give a Gaussian posterior with a Gaussian likelihood, for all other cases we talk about \textit{Non-Conjugate Gaussian Processes}.
+Examples of Non-Conjugate \ac{GPs} are binary classification, regression using non-Gaussian noise such as Student-t or Laplace noise.
+Additionally, some likelihoods such as multi-class classification or heteroscedastic regression require multiple latent \ac{GPs}.
 
-Since the posterior is not analytically tractable, one has to resort to some methods presented in Section~\ref{sec:approx_inf}.
+In all these cases, the posterior is not analytically tractable and one has to resort to the approximation methods presented in Section~\ref{sec:approx_inf}.
 
 \subsection{Sparse Gaussian Processes}
-One of the largest issue of \ac{GPs}, regardless of their conjugacy, is the scalability with the number of observed samples.
+One of the other largest issue of \ac{GPs}, regardless of the conjugacy of the likelihood, is the scalability with the number of observed samples.
 When computing the covariance, the inverse operation has a computational complexity of $\mathcal{O}(N^3)$ where $N$ is the number of samples.
 For one-dimensional inputs ($D=1$), solutions exist using state-space models representation, leading to an $\mathcal{O}(N)$ complexity but higher-dimensional problems require alternative solutions.
-\citep{csato2002sparse} proposed first to create an approximation of the posterior using a subset of the points only in the context of online learning.
-\citet{snelsonSparseGaussianProcesses2009} expanded this theory to the offline framework and \citet{Titsias2009} developed an alternative approximation based on KL divergence where the "inducing points" are not necessarily a subset of the training data and do not even have to belong to the same domain \com{cite related work}.
+\citet{csato2002sparse} proposed first to create an approximation of the posterior using a subset of the points only in the context of online learning.
+\citet{snelsonSparseGaussianProcesses2009} expanded this theory to the offline framework and \citet{Titsias2009} developed an alternative approximation based on KL divergence where the "inducing points" are not necessarily a subset of the training data and do not even have to belong to the same domain. \com{Cite related work}.
 
-The rest of this thesis is based on Titsias approach, where the approximation is made by defining a set of inducing points location $Z=\{\boldz_i\}_{i=1}^M$ and the respective realization of $\boldu$ where $u_i = u(\boldz_i)$
-\begin{align*}
+The rest of this thesis is based on \citet{Titsias2009} approach, where the approximation is made by defining a set of inducing points location $Z=\{\boldz_i\}_{i=1}^M$ and the respective realization of $\boldu$ where $u_i = u(\boldz_i)$
+\begin{align}
     q(\boldu,\boldf) = q(\boldu)\prod_{i=1}^N p(f_i|\boldu)
-\end{align*}
+    \label{eq:titsias_assumption}
+\end{align}
 
 
 \section{Approximate Bayesian Inference}
 \label{sec:approx_inf}
-The posterior distribution in Equation~\eqref{eq:bayes} cannot be computed in closed-form for non-trivial problems.
-To make predictions, one can try nonetheless to approximate the posterior.
-Many options exist, but this chapter will focus specifically on sampling and variational inference.
+The posterior distribution in Equation~\eqref{eq:bayes} cannot be computed in closed-form for non-trivial problems such as the one presented in Section~\ref{sec:gps}.
+One can nonetheless to approximate the posterior to obtain a useful estimator for predictions and computing function expectations of interest.
+This problem of \textit{Approximate Bayesian Inference} is a research field of its own, and this chapter will focus specifically on sampling and variational inference, the most used methods for \ac{GPs}.
 
 \subsection{Sampling}
 
-Even if the posterior $p(\btheta|\bx)$ is not available in closed-form, it might be still possible to draw samples from it.
-The whole collection of sampling techniques is far too large to be mentioned in this thesis.
-Therefore, the scope will be restricted to methods tailored or adapted to \ac{GPs}.
-We will especially focus on \ac{MCMC} methods, where a chain of variable $\btheta^t$ is created with the Markov assumption ($\btheta^t$ depends only on $\btheta^{t-1}$) and where the stationary distribution of $\btheta^t$ is the same as the target distribution (in our case the posterior $p(\btheta|\bx)$).
-
+Even if the posterior distribution $p(\btheta|\bx)$ is not available in closed-form, one might be able to draw samples from it.
+The whole collection of sampling techniques is again a whole research and the number of methods is too large to make mention of them all in this thesis.
+Therefore, the scope will be restricted to methods favored or tailored to \ac{GPs}.
+We will especially focus on \ac{MCMC} methods, where a
 \subsubsection{Markov Chain Monte Carlo}
+
+\acf{MCMC} methods generate a chain of variables $\btheta^t$ with the Markov assumption: $\btheta^t$ depends only on $\btheta^{t-1}$ and where the stationary distribution of $\btheta^t$ is the same as the target distribution (for our use case the posterior $p(\btheta|\bx)$).
+\ac{MCMC} require a transition probability $t(\btheta^{t+1}|\btheta)$ which leaves the target stationary distribution invariant, i.e. $p(\btheta) = \int t(\btheta|\btheta')p(\btheta')d\btheta'$.
+Other properties such as detailed balance (a chain has the same probability to go backward and forward in time) and ergodicity (the chain should be able to explore all the parameter space and be aperiodic).
 
 \subsubsection{Gibbs Sampling}
 
@@ -127,7 +133,7 @@ The advantage of Gibbs sampling is that the Metropolis-Hastings step is guarante
 Gibbs sampling has several issues:
 First, being able to sample and/or compute it is not necessarily given.
 Second, it can suffer from heavy convergence issues if variables are heavily correlated, i.e. that the full-conditionals have tiny variances.
-Some of these issues can be resolved by using additional techniques like "Blocked" Gibbs sampling where multiple variables are sampled at the same time or "Collapsed" Gibbs sampling where some conditional variables are marginalized out. 
+Some of these issues can be resolved by using additional techniques like "Blocked" Gibbs sampling where blocks of variables are sampled jointly or "Collapsed" Gibbs sampling where some variables are marginalized out from the full-conditional distribution. 
 
 \subsubsection{Hamilton/Hybrid Monte Carlo}
 
