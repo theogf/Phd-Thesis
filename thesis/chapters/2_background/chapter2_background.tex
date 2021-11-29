@@ -172,14 +172,16 @@ By minimizing the \ac{VFE}: $\VFE(\bphi)$ instead of the \ac{KL} divergence, we 
 A standard way is to perform gradient descent on the variational parameters $\bphi$
 \begin{align}
 \bphi^{t+1} = \bphi^{t} - \epsilon \grad_{\bphi}\VFE(\bphi^{t}).
+\label{eq:vigraddescent}
 \end{align}
 
-Computing the gradient $\grad_{\bphi}\VFE(\bphi)$ can be non-trivial, but many methods were developed to tackle this problem.
+Computing the gradient $\grad_{\bphi}\VFE(\bphi)$ can be non-trivial, as it involves derivatives over expectations and the number of parameters can grow extremely charge depending on the assumption on $q(\btheta)$.
 
 \subsubsection{Mean-Field Approximation}
 
-One of the most important additions to the \ac{VI} method is the \ac{MF} approximation.
-\ac{MF} is the assumption that the variational distribution $q(\btheta)$ assumes every component of $\btheta$ to be independent of each other.
+One problem when considering $q(\btheta)$ is that if we consider that all parameters are correlated to each other, the number of variational parameters to train grow quadratically with the dimensionality of $\btheta$.
+The simplest assumption to add is the \ac{MF} approximation.
+The \ac{MF} assumption is that every component of $\btheta$ to be independent of each other.
 This variational distribution can be specified as:
 \begin{align}
 q^{MF}_{\bphi}(\btheta) = \prod_{i=1}^D q_{\bphi_i}(\theta_i),
@@ -195,18 +197,22 @@ The variational distribution based on this blocked mean-field approximation is t
 where $\bphi_k$ are the variational parameters for the set of variable $\theta_{\mathcal{I}_k}$.
 \subsubsection{Coordinate Ascent VI}
 
-Following the \ac{MF} approach, it is sometimes possible to find the optimal parameters $\bphi^*$ in closed-form.
-By solving:
+Based on the \ac{MF} approach, we are interested in finding the solution for each set of parameters $\bphi_i$ to
+\begin{align}
+    \bphi_i^* = \arg_{\bphi_i}\min \VFE(\bphi_i, \bphi_{/i})
+    \label{eq:optimalbphi}
+\end{align}
+which can be found either by solving
 \begin{align}
 \left.\grad_{\varphi_i}\VFE(\bphi)\right\vert_{\varphi_i=\varphi_i^*} = 0,
 \end{align}
-for each variable $\varphi_i$ we can find a local optima.
-The advantage of this method is that one can also perform it independently for each latent variable $\theta_i$.
-Concretely the updates are of the form:
+or performing the same gradient scheme as \eqref{eq:vigraddescent}.
+In some cases the solution to \eqref{eq:optimalbphi} is given by
 \begin{align}
 q_{\varphi_i}^*(\theta_i) \propto \exp\left(\expec{q_{\bphi}(\btheta_{/i})}{\log p\left(\theta_i|\btheta_{/i},\bx\right)}\right)
 \end{align}
 where $\btheta_{/i}$ represent the collection of variables $\btheta_{/i} = \{\theta_j | j \neq i\}$.
+
 When working with distribution coming from exponential families, it is straightforward to get the optimal variational parameters $\varphi_i$.
 By updating the parameters one after another we get a \ac{CAVI} scheme\footnote{The word ascent is used since the scheme was originally derived using the negative \ac{VFE} i.e. the \ac{ELBO}.}.
 Effectively, one update each variational parameter $\varphi_i$ by its optimum given the rest of the variational parameters $\bphi_{/i}$ via closed-form functions:
@@ -220,17 +226,24 @@ The algorithm is presented completely on Algorithm~\ref{alg:CAVI}.
 \begin{algorithm}
     \caption{\ac{CAVI} Updates}
     \label{alg:CAVI}
+    \begin{algorithmic}
+        \While {$|\VFE^{t+1} - \VFE^t| > \epsilon$}
+            \ForAll {$i \in \{1,\ldots,D\}$}
+                \State $\varphi_i^{t+1} = f_i\left(\bphi_{1:(i-1)}^{t+1}, \bphi_{(i+1):D}^t\right).$
+            \EndFor
+        \EndWhile
+    \end{algorithmic}
 \end{algorithm}
 
 
 \subsubsection{Natural Gradients}
 
-One interesting aspect of \ac{CAVI}, is that it implicitly brings the concept of "Natural Gradients" \cite{amariNaturalGradientWorks1998}.
-A natural gradient is a gradient with the inverse Fisher matrix applied as a preconditioner.
-The Fisher information matrix is defined as 
-\begin{align*}
+One interesting aspect of \ac{CAVI}, is that it implicitly use "Natural Gradients" \cite{amariNaturalGradientWorks1998}.
+A natural gradient is a gradient with the inverse Fisher information matrix applied as a preconditioner, where the Fisher information matrix is
+\begin{align}
     \mathcal{I}_\theta = \expec{p(\bx|\btheta)}{\left(\grad_{\btheta}\log p(\bx|\btheta)\right)\left(\grad_{\btheta} \log p(\bx|\btheta)\right)^\top} = -\expec{p(\bx|\btheta)}{\mathbf{H}(\log p(\bx|\btheta))},
-\end{align*}
+    \label{eq:fisherinfomatrix}
+\end{align}
 where $\mathbf{H}(f)$ is the Hessian matrix of the function $f$.
 \com{Give more details about the meaning of the Fisher info}
 The natural gradient is therefore given by :
@@ -244,7 +257,7 @@ The reason why natural gradients are brought up here is that the updates of the 
     \phi^{t+1} = \phi^t + \mathcal{I}^{-1}\grad_{\phi}\mathcal{F}(\bphi^t) \equiv \phi^{t+1} = 
 \end{align*}
 
-
+Now that all important and necessary topics for this thesis have been overviewed, the following will present the different works presented in this thesis. 
 
 % ---------------------------------------------------------------------------
 % ----------------------- end of thesis sub-document ------------------------

@@ -1,3 +1,6 @@
 preconditioner
 conjugacy
 ergodicity
+quadratically
+Pòlya-Gamma
+Opper
