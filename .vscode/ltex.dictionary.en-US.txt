@@ -4,3 +4,4 @@ ergodicity
 quadratically
 Pòlya-Gamma
 Opper
+frequentist
