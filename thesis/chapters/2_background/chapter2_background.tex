@@ -114,30 +114,46 @@ Even if the posterior distribution $p(\btheta|\bx)$ is not available in closed-f
 The whole collection of sampling techniques is again a whole research and the number of methods is too large to make mention of them all in this thesis.
 Therefore, the scope will be restricted to methods favored or tailored to \ac{GPs}.
 We will especially focus on \ac{MCMC} methods, where a
-\subsubsection{Markov Chain Monte Carlo}
+\subsubsection{Markov Chain Monte Carlo and Metropolis-Hastings}
 
 \acf{MCMC} methods generate a chain of variables $\btheta^t$ with the Markov assumption: $\btheta^t$ depends only on $\btheta^{t-1}$ and where the stationary distribution of $\btheta^t$ is the same as the target distribution (for our use case the posterior $p(\btheta|\bx)$).
-\ac{MCMC} require a transition probability $t(\btheta^{t+1}|\btheta)$ which leaves the target stationary distribution invariant, i.e. $p(\btheta) = \int t(\btheta|\btheta')p(\btheta')d\btheta'$.
-Other properties such as detailed balance (a chain has the same probability to go backward and forward in time) and ergodicity (the chain should be able to explore all the parameter space and be aperiodic).
+\ac{MCMC} methods require a transition probability $t(\btheta^{t+1}|\btheta)$ which leaves the target stationary distribution invariant, i.e. $p(\btheta) = \int t(\btheta|\btheta')p(\btheta')d\btheta'$.
+Other properties such as detailed balance (a chain has the same probability to go backward and forward in time) and ergodicity (the chain should be able to explore all the parameter space and be aperiodic) need to be satisfied as well.
+
+One the most common algorithm to run a Markov Chain sampling directly from a distribution $p(\btheta)$ is the \acf{MH} algorithm.
+The \ac{MH} algorithm consists in having a proposal distribution $q(\btheta'|\btheta)$ suggesting a new sample.
+Each proposed sample $\btheta'$ is randomly accepted or rejected with probability $p(\text{accept}) = A = \frac{p(\btheta')}{p(\btheta)}\frac{q(\btheta|\btheta')}{q(\btheta'|\btheta)}$.
+The choice of the proposal distribution $q$ is the key to producing "good" chains with high acceptance rate and a good exploration of the parameter space of $\btheta$.
+Next are presented briefly some important categories of choice for the proposal $q$.
+
 
 \subsubsection{Gibbs Sampling}
 
-Gibbs sampling is a special case of \ac{MCMC} where each variable or block of variable is sampled one after another.
-The proposal distribution is given by the full-conditional $p(\theta_i|\bx,\btheta_{/i})$.
-The advantage of Gibbs sampling is that the Metropolis-Hastings step is guaranteed to accept the new samples since the acceptance rate is given by:
+Gibbs sampling is a particular \ac{MCMC} method where each random variable or block of random variables are sampled one after another separately.
+The proposal distribution for the \ac{MH} algorithm is given by the full-conditional  $p(\theta_i|\bx,\btheta_{/i})$, where $\btheta_{/i}=\{\theta_1, \ldots \theta_{i-1}, \theta_{i+1},\ldots \theta_{D}\}$.
+The biggest advantage of Gibbs sampling is that the acceptance probability is guaranteed to be 1:
 \begin{align*}
     A =& \frac{p(\theta^{t+1}_i,\btheta^t_{/i}|\bx)}{p(\theta^t_i,\btheta^t_{/i}|\bx)}\frac{p(\theta^t_i|\bx,\btheta^{t}_{/i})}{p(\theta^{t+1}_i|\bx,\btheta^t_{/i})}\\
-    =& \frac{p(\theta^{t+1}|\bx, \btheta^{t}_{/i})}{p(\theta^t_i|\bx,\btheta^t_{/i})}\frac{p(\btheta^t_{/i}|\bx)}{p(\btheta^t_{/i}|\bx)}\frac{p(\theta^t_i|\bx,\btheta^{t}_{/i})}{p(\theta^{t+1}_i|\bx,\btheta^t_{/i})} = 1
+    =& \frac{p(\theta^{t+1}|\bx, \btheta^{t}_{/i})}{p(\theta^t_i|\bx,\btheta^t_{/i})}\frac{p(\btheta^t_{/i}|\bx)}{p(\btheta^t_{/i}|\bx)}\frac{p(\theta^t_i|\bx,\btheta^{t}_{/i})}{p(\theta^{t+1}_i|\bx,\btheta^t_{/i})} = 1.
 \end{align*}
+This means that all proposed samples are guaranteed to be accepted.
 
-Gibbs sampling has several issues:
-First, being able to sample and/or compute it is not necessarily given.
-Second, it can suffer from heavy convergence issues if variables are heavily correlated, i.e. that the full-conditionals have tiny variances.
-Some of these issues can be resolved by using additional techniques like "Blocked" Gibbs sampling where blocks of variables are sampled jointly or "Collapsed" Gibbs sampling where some variables are marginalized out from the full-conditional distribution. 
+However, the Gibbs sampling approach has several issues:
+First, the full-conditional distribution is rarely available in closed-form and being able to sample from it is not always easy.
+Second, there can be convergence issues if the variables are heavily correlated.
+Some of these issues can be resolved by using additional techniques like "Blocked" Gibbs sampling \needcite where blocks of variables are sampled jointly or "Collapsed" Gibbs sampling \needcite where some variables are marginalized out from the full-conditional distribution.
 
 \subsubsection{Hamilton/Hybrid Monte Carlo}
 
 \acf{HMC} or Hybrid Monte Carlo \cite{betancourt2017conceptual} is a \ac{MCMC} gradient-based method.
+Using Hamiltonian dynamics and augmenting the variables with a new momentum variables, one can guarantee both a high acceptance rate and a good exploration of the space.
+\ac{HMC}'s proposal is to integrate the Hamiltonian dynamics with a randomly sampled momentum for a fixed number of steps with a given symplectic integrator.
+Thanks to the energy conservation law, the acceptance rate is guaranteed to be close to 1, lower acceptance rates are due to numerical inaccuracies of the integrator.
+\ac{HMC} has also multiple disadvantages: 
+First, one needs to integrate differential equations based on gradients, which can be exceedingly expansive for some models.
+Second, it has parameters to tune, namely the step size of the integrator, the number of steps taken and the metric matrix used.
+Lastly, it only works for continuous variables.
+For the second step automatic approaches exist but they have their issues of their own as well.
 
 
 \subsubsection{Elliptical Slice Sampling}
