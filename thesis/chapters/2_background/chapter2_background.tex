@@ -44,6 +44,12 @@ To solve this integral, we must either be able to know the posterior in closed f
 Computing the posterior \eqref{eq:bayes} in closed-form involves computing the integral $p(\bx)=\int p(\bx|\btheta)p(\btheta)d\btheta$, which is intractable for most non-trivial models.
 In Section~\ref{sec:approx_inf}, we mention methods which help to solve this issue by introducing approximations or ways to sample directly from the posterior.
 
+\subsection{Exact Bayesian Inference}
+
+\begin{itemize}
+    \item conjugate models
+\end{itemize}
+
 \section{Gaussian Processes}
 \label{sec:gps}
 \acf{GPs} are a class of stochastic processes used as non-parametric probabilistic representations to functions.
@@ -278,7 +284,25 @@ Now that all important and necessary topics for this thesis have been overviewed
 \subsection{Scale-Mixtures and conditionally conjugate likelihoods}
 
 A large part of this work is based on scale-mixtures and mixtures in general.
+The definition of a scale-mixture is a distribution with a prior on the variance parameter.
+A textbook example is the Student-T distribution which is the marginalization of such a scale-mixture:
+\begin{align*}
+    T_\nu(x) = \int_{0}^\infty \mathcal{N}\left(x|0,\omega\right)\mathrm{Ga}\left(\omega|\frac{\nu}{2}, \frac{\nu}{2}\right)d\omega,
+\end{align*}
+where Ga is a Gamma distribution.
+Another example is the Laplace distribution which is also the marginalization of a scale-mixture:
+\begin{align*}
+    \mathrm{La}(x|\beta) = \int_0^{\infty} \mathcal{N}(x|0,\omega)\mathrm{Exp}\left(\omega|\frac{1}{2b^2}\right)d\omega,
+\end{align*}
+where Exp is the exponential distribution.
 
+Generally these representations are used to compute predictive distributions.
+For example in linear regression with a Gamma prior on the likelihood variance, the resulting posterior predictive distribution will be a Student-T distribution.
+In this thesis we show that we can use this connection the other way around.
+Given a likelihood $p(\bx|\btheta)$ which can be defined as a marginalized scale-mixture,
+we can \textit{augment} the likelihood by "de-marginalizing" the scale-mixture.
+We transform for example a Student-T likelihood into a Gaussian likelihood with a Gamma prior.
+This allows for so-called conditionally conjugate likelihoods.
 
 
 % ---------------------------------------------------------------------------
