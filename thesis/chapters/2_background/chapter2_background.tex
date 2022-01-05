@@ -20,35 +20,55 @@ In this chapter, we go a bit more into detail on the basics of probabilistic Bay
 Bayes' theorem is one of the simplest theorem in probabilities and its demonstration fits one line, yet its implications are most important.
 
 Let's give a very general modeling setting that we are going to follow for the rest of this chapter.
-Given a set of observed variables $\bx$, usually the data, a set of latent (unobserved) variables $\btheta$ with a prior distribution $p(\btheta)$, and a \textit{likelihood} function $p(\bx\mid\btheta)$, we obtain the \textit{posterior} distribution $p(\btheta|\bx)$ via Bayes' theorem:
+Given a set of observed variables $\bx$, a set of latent (unobserved) variables $\btheta$ with a \textit{prior} distribution $p(\btheta)$, and a \textit{likelihood} function $p(\bx\mid\btheta)$, we obtain the \textit{posterior} distribution $p(\btheta|\bx)$ via Bayes' theorem:
 \begin{align}
 p(\btheta|\bx) = \frac{p(\bx|\btheta)p(\btheta)}{p(\bx)} = \frac{p(\bx|\btheta)p(\btheta)}{\int p(\bx|\btheta)p(\btheta)d\btheta}
 \label{eq:bayes}
 \end{align}
 
-The posterior allows us to obtain both an estimate of the latent variables of interest and the uncertainty of this estimate given the prior $p(\theta)$.
-It is then used for computing all estimations of the form $\expec{p(\btheta|\bx)}{f(\theta)}$, for example to make predictions or estimating some statistics, or even producing data in a generative model.
-Let's take the simple example of logistic regression, a discriminative model:
-Given an input $\bx \in \mathbb{R}^D$ and binary label $y\in \{ 0, 1\}$ we model the generative model as:
+The posterior allows us to obtain an estimate of the latent variables with its uncertainty given the prior $p(\btheta)$.
+The posterior is used for computing all kind of expectations of the form $\expec{p(\btheta|\bx)}{f(\btheta)} = \int f(\btheta)p(\btheta|\bx)d\btheta$.
+Expected values of interest can be statistics of the posterior like the mean $\expec{p(\btheta|\bx)}{\btheta}$ or predictions of new data points $p(\bx'|\bx) = \expec{p(\btheta|\bx)}{p(\bx'|\btheta)}$.
+Let's take the simple example of linear logistic regression, a discriminative model:
+Given an input $\bx \in \mathbb{R}^D$ and binary label $y\in \{ 0, 1\}$, we model the generative model as:
 \begin{align}
 y \sim \Be\left(\sigma(\btheta^\top \bx)\right),
 \end{align}
-where $\Be$ is the Bernoulli distribution, $\btheta\in\mathbb{R}^D$ and $\sigma$ is the logistic function $\sigma(x) = \frac{1}{1+\exp(-x)}$, i.e. $\sigma : \mathbb{R} \mapsto [0, 1]$.
-The likelihood function is then given by: $p(y_i|\btheta,\bx_i) =\sigma\left(\btheta^\top \bx_i\right)^{y_i}\sigma\left(-\btheta^\top \bx_i\right)^{1-y_i}$ for an output label $y_i$ and input features $\bx_i$.
-Given $\bX = \{\bx_1,\ldots,\bx_N\}$, $\boldy = \{y_1,\ldots,y_N\}$, the training data and the corresponding posterior $p(\btheta|\boldy, \bX)$ we can make predictions for new input data $\bX^*$:
+where $\Be$ is the Bernoulli distribution, $\btheta\in\mathbb{R}^D$ and $\sigma$ is the logistic function $\sigma(x) = \frac{1}{1 + \exp(-x)}$, i.e. $\sigma : \mathbb{R} \mapsto [0, 1]$.
+The likelihood function is given by: $p(y_i|\btheta,\bx_i) =\sigma\left(\btheta^\top \bx_i\right)^{y_i}\sigma\left(-\btheta^\top \bx_i\right)^{1-y_i}$ for an output label $y_i$ and input features $\bx_i$.
+Given $\bX = \{\bx_1,\ldots,\bx_N\}$, $\boldy = \{y_1,\ldots,y_N\}$, the training data and the corresponding posterior $p(\btheta|\boldy, \bX)$ we can make predictions for new input data $\bx^*$:
 \begin{align}
-p(y^*|\bX^*,\boldy,\bX) = \int p(y^*, \btheta|\bX^*\boldy, \bX)d\btheta = \int p(y^*|\btheta,\bX^*) p(\btheta|\boldy,\bX)d\btheta.
+p(y^*|\bx^*,\boldy,\bX) = \int p(y^*, \btheta|\bx^*\boldy, \bX)d\btheta = \int p(y^*|\btheta,\bx^*) p(\btheta|\boldy,\bX)d\btheta.
 \end{align}
-The last term of the equation involves the posterior distribution $p(\btheta|\by,\bX)$.
-To solve this integral, we must either be able to know the posterior in closed form and solve the integral numerically (or analytically), or be able to sample from it and compute this integral using Monte-Carlo integration.
-Computing the posterior \eqref{eq:bayes} in closed-form involves computing the integral $p(\bx)=\int p(\bx|\btheta)p(\btheta)d\btheta$, which is intractable for most non-trivial models.
-In Section~\ref{sec:approx_inf}, we mention methods which help to solve this issue by introducing approximations or ways to sample directly from the posterior.
+Note that the last term of the equation directly involves the posterior distribution $p(\btheta|\by,\bX)$.
+To solve this integral, we must either be able to both know the posterior in closed form and solve the integral numerically (or analytically), or be able to sample from it and compute this integral using Monte-Carlo integration.
 
-\subsection{Exact Bayesian Inference}
+\subsection{Posterior computations}
 
-\begin{itemize}
-    \item conjugate models
-\end{itemize}
+Assuming that both the prior $p(\btheta)$ and the likelihood $p(\bx|\btheta)$ are known in closed-form, computing the posterior \eqref{eq:bayes} in closed-form involves computing the integral $p(\bx)=\int p(\bx|\btheta)p(\btheta)d\btheta$.
+For most non-trivial models, this integral is intractable and approximations to the posterior and/or sampling approaches are needed.
+These are introduced in Section~\ref{sec:approx_inf}.
+However, in certain settings, computing the posterior in closed-form are possible.
+This happens when the prior is said \textit{conjugate} to the likelihood, i.e. that the posterior is of the same probability distribution family as the prior.
+If we consider the distributions part of the \textit{exponential family}, i.e. distributions that can be written as:
+\begin{align}
+    p(\btheta|\bphi) = h(\btheta)\exp(\boldeta(\bphi)^\top T(\btheta) - \log A(\bphi)),
+    \label{eq:expfamily}
+\end{align}
+where $\bphi$ are the distribution parameters, $h(\btheta)$ is a \textit{base measure}, $\boldeta(\bphi)$ corresponds to the \textit{natural parameters}, $T(\btheta)$ are the sufficient statistics and $\log A(\bphi)$ is the \textit{log-partition}.
+Note that any distribution can be written as an exponential family by using the trivial case where $p(\btheta) =h(\btheta)$.
+
+Formally a \textit{conjugate prior} for a likelihood
+\begin{align*}
+    p(\bx|\btheta) = h(\bx)\exp(\boldeta(\btheta)^\top T(\bx) - \log A(\btheta)),
+\end{align*}
+is a distribution $p(\btheta|\balpha)$ defined as
+\begin{align*}
+    p(\btheta|\balpha) = h'(\btheta)\exp(\boldeta'(\balpha)^\top T'(\btheta) - \log A'(\balpha)),
+\end{align*}
+where $T'(\btheta) = \boldeta(\btheta)$ and where $\balpha$ is the prior distribution parameters.
+
+
 
 \section{Gaussian Processes}
 \label{sec:gps}
