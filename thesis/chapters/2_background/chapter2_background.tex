@@ -52,21 +52,34 @@ However, in certain settings, computing the posterior in closed-form are possibl
 This happens when the prior is said \textit{conjugate} to the likelihood, i.e. that the posterior is of the same probability distribution family as the prior.
 If we consider the distributions part of the \textit{exponential family}, i.e. distributions that can be written as:
 \begin{align}
-    p(\btheta|\bphi) = h(\btheta)\exp(\boldeta(\bphi)^\top T(\btheta) - \log A(\bphi)),
+    p(\btheta|\bphi) = h(\btheta)\exp(\boldeta(\bphi)^\top T(\btheta) - A(\bphi)),
     \label{eq:expfamily}
 \end{align}
-where $\bphi$ are the distribution parameters, $h(\btheta)$ is a \textit{base measure}, $\boldeta(\bphi)$ corresponds to the \textit{natural parameters}, $T(\btheta)$ are the sufficient statistics and $\log A(\bphi)$ is the \textit{log-partition}.
+where $\bphi$ are the distribution parameters, $h(\btheta)$ is a \textit{base measure}, $\boldeta(\bphi)$ corresponds to the \textit{natural parameters}, $T(\btheta)$ are the sufficient statistics and $A(\bphi)$ is the \textit{log-partition}.
 Note that any distribution can be written as an exponential family by using the trivial case where $p(\btheta) =h(\btheta)$.
 
 Formally a \textit{conjugate prior} for a likelihood
-\begin{align*}
-    p(\bx|\btheta) = h(\bx)\exp(\boldeta(\btheta)^\top T(\bx) - \log A(\btheta)),
-\end{align*}
+\begin{align}
+    p(\bx|\btheta) = h(\bx)\exp(\boldeta(\btheta)^\top T(\bx) - A(\btheta)),
+    \label{eq:explikelihood}
+\end{align}
 is a distribution $p(\btheta|\balpha)$ defined as
+\begin{align}
+    p(\btheta|\balpha) = h'(\btheta)\exp(\boldeta'(\balpha)^\top T'(\btheta) - A'(\balpha)),
+    \label{eq:expprior}
+\end{align}
+where $T'(\btheta) = \left\{\boldeta(\btheta), A(\btheta)\right\}$ and where $\balpha$ is the prior distribution parameters.
+Given a factorizable likelihood $p(\bX|\btheta) = \prod_{i=1}^N p(\bx_i|\btheta)$, the posterior will be proportional to
 \begin{align*}
-    p(\btheta|\balpha) = h'(\btheta)\exp(\boldeta'(\balpha)^\top T'(\btheta) - \log A'(\balpha)),
+    p(\btheta|\bX) \propto h'(\btheta)\exp\left(\left(\{\sum_{i=1}^N T(\bx_i), N\} + \boldeta'(\balpha)\right)^\top T'(\btheta)\right).
 \end{align*}
-where $T'(\btheta) = \boldeta(\btheta)$ and where $\balpha$ is the prior distribution parameters.
+The latter equation can easily be normalized since it is a known distribution.
+
+Such conjugate models, are very practical and cheap to compute, but due to the constraints also tend to be too simple.
+Without obtaining the posterior in closed-form it is sometimes possible to get all full-conditionals in closed-form, we can talk then about \textit{conditionally conjugate} models.
+The full-conditional is defined as $p(\theta_i|\bx, \btheta_{/i})$ where $\btheta_{/i}$ represents the set of latent variables $\btheta$ where $\theta_i$ has been omitted.
+Knowing the full-conditional distribution in closed-form means that when conditioned on the other variables, the posterior is known in closed-form.
+What we need in practice is to be able to write the likelihood conditioned on the other  for each variable $\theta_i$ (or block of variables),
 
 
 
