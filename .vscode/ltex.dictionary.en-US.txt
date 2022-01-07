@@ -5,3 +5,4 @@ quadratically
 Pòlya-Gamma
 Opper
 frequentist
+ummarginalizing

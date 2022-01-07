@@ -13,7 +13,7 @@
 % ----------------------------------------------------------------------
 
 
-Machine learning has become a wide field of research with a variety of sub-field, each dedicated to solve various problems in different ways.
+Machine learning has become a wide field of research with a variety of subfields, each dedicated to solve various problems in different ways.
 One field in particular, usually called \textit{probabilistic machine learning} aims at representing the statistical side of the different models.
 
 \begin{itemize}
@@ -47,6 +47,18 @@ A typical example is in medicine, where data is scarce, but the predictive outco
     \item Different representation lead to very different results, efficiency etc.
     \item Mention existing approaches
 \end{itemize}
+The leading thread of this thesis is \textit{representations} and how to use them to solve problem more efficiently with less work.
+When modelling statistical problems, one needs to define relations between variables (observed and latent) and choose appropriate distributions to represent those.
+Some modelling choices are equivalent conceptually but have drastic differences when it comes to inference.
+A neat example, presented in \cite{} \needcite,  is the so called Neal's funnel.
+There are two equivalent representations, where one leads to an easy Gaussian posterior and the other to an inference nightmare.
+
+\com{Add the representations nicely}
+
+In this thesis, I will focus on a specific case of modeling where variables can be represented as mixtures (or hierarchical mixtures).
+Defined later in Section \ref{sec:scale-mixtures}, variables that can be rewritten as scale-mixtures have a lot of advantages.
+By writing them explicitly as mixtures, i.e. by adding more latent variables, inference can be made much easier while still being exact.
+It brings the counter-intuitive view that adding more variables actually \textit{simplifies} the problem.
 
 
 \section{The use of Gaussian Processes}
@@ -55,6 +67,10 @@ A typical example is in medicine, where data is scarce, but the predictive outco
     \item All these things you can do with Gaussian processes
     \item why \ac{GPs} vs other things
 \end{itemize}
+
+The second large focus of this thesis is on Gaussian based model and more particularly \acf{GPs}.
+\ac{GPs} are strong tools to approximate functions using probabilistic methods.
+Although they used to be reserved to regression problems 
 
 One of the strong
 

@@ -79,9 +79,11 @@ Such conjugate models, are very practical and cheap to compute, but due to the c
 Without obtaining the posterior in closed-form it is sometimes possible to get all full-conditionals in closed-form, we can talk then about \textit{conditionally conjugate} models.
 The full-conditional is defined as $p(\theta_i|\bx, \btheta_{/i})$ where $\btheta_{/i}$ represents the set of latent variables $\btheta$ where $\theta_i$ has been omitted.
 Knowing the full-conditional distribution in closed-form means that when conditioned on the other variables, the posterior is known in closed-form.
-What we need in practice is to be able to write the likelihood conditioned on the other  for each variable $\theta_i$ (or block of variables),
-
-
+What we need in practice is to be able to write the likelihood conditioned on the other  for each variable $\theta_i$ (or block of variables).
+In the same exponential family example above, instead of looking for \eqref{eq:explikelihood}, we are interested in:
+\begin{align*}
+    p(\bx|\theta_i, \btheta_{/i}) = h(\bx, \btheta_{/i})\exp(\boldeta(\theta_i)^\top T(\bx, \btheta_{/i}) - A(\theta_i)).
+\end{align*}
 
 \section{Gaussian Processes}
 \label{sec:gps}
@@ -293,51 +295,51 @@ The algorithm is presented completely on Algorithm~\ref{alg:CAVI}.
 
 \subsubsection{Natural Gradients}
 
-One interesting aspect of \ac{CAVI}, is that it implicitly use "Natural Gradients" \cite{amariNaturalGradientWorks1998}.
-A natural gradient is a gradient with the inverse Fisher information matrix applied as a preconditioner, where the Fisher information matrix is
+One interesting aspect of \ac{CAVI}, is that it implicitly uses \textit{natural gradients} \cite{amariNaturalGradientWorks1998}.
+A natural gradient is a gradient preconditioned with the inverse Fisher information matrix defined as
 \begin{align}
     \mathcal{I}_\theta = \expec{p(\bx|\btheta)}{\left(\grad_{\btheta}\log p(\bx|\btheta)\right)\left(\grad_{\btheta} \log p(\bx|\btheta)\right)^\top} = -\expec{p(\bx|\btheta)}{\mathbf{H}(\log p(\bx|\btheta))},
     \label{eq:fisherinfomatrix}
 \end{align}
 where $\mathbf{H}(f)$ is the Hessian matrix of the function $f$.
+The Fisher information matrix is a Riemannian metric which gives the direction of the steepest descent with respect to the KL divergence.
 \com{Give more details about the meaning of the Fisher info}
-The natural gradient is therefore given by :
+The natural gradient is given by :
 \begin{align*}
     \widetilde{\grad}_{\bphi}\mathcal{F}(\bphi) = \mathcal{I}^{-1} \grad_{\bphi}\mathcal{F}(\bphi)
 \end{align*}
-This preconditioning of the gradients move the gradient descent in a different Riemannian metric.
 The natural gradient is constructed such that the metric it gives maximizes the change of the \ac{KL} divergence between the given distribution and its target.
 The reason why natural gradients are brought up here is that the updates of the \ac{CAVI} algorithm \ref{alg:CAVI} for exponential distributions, can be interpreted as natural gradient ascent updates with learning rate $1$.
 \begin{align*}
-    \phi^{t+1} = \phi^t + \mathcal{I}^{-1}\grad_{\phi}\mathcal{F}(\bphi^t) \equiv \phi^{t+1} = 
+    \phi^{t+1} = \phi^t + \mathcal{I}^{-1}\grad_{\phi}\mathcal{F}(\bphi^t) \equiv \phi^{t+1}
 \end{align*}
 
-Now that all important and necessary topics for this thesis have been overviewed, the following will present the different works presented in this thesis. 
 
 \subsection{Scale-Mixtures and conditionally conjugate likelihoods}
-
+\label{sec:scale-mixtures}
 A large part of this work is based on scale-mixtures and mixtures in general.
-The definition of a scale-mixture is a distribution with a prior on the variance parameter.
-A textbook example is the Student-T distribution which is the marginalization of such a scale-mixture:
+A scale-mixture is a continuous mixture of a distribution with a varying scale parameter.
+A textbook example is the Student-T distribution which is a Gaussian scale-mixture with a Gamma distribution on the scale weights:
 \begin{align*}
     T_\nu(x) = \int_{0}^\infty \mathcal{N}\left(x|0,\omega\right)\mathrm{Ga}\left(\omega|\frac{\nu}{2}, \frac{\nu}{2}\right)d\omega,
 \end{align*}
-where Ga is a Gamma distribution.
-Another example is the Laplace distribution which is also the marginalization of a scale-mixture:
+where $\mathrm{Ga}$ is a Gamma distribution.
+Another example is the Laplace distribution which is also a Gaussian scale-mixture:
 \begin{align*}
     \mathrm{La}(x|\beta) = \int_0^{\infty} \mathcal{N}(x|0,\omega)\mathrm{Exp}\left(\omega|\frac{1}{2b^2}\right)d\omega,
 \end{align*}
-where Exp is the exponential distribution.
+where $\mathrm{Exp}$ is the exponential distribution.
 
 Generally these representations are used to compute predictive distributions.
 For example in linear regression with a Gamma prior on the likelihood variance, the resulting posterior predictive distribution will be a Student-T distribution.
 In this thesis we show that we can use this connection the other way around.
 Given a likelihood $p(\bx|\btheta)$ which can be defined as a marginalized scale-mixture,
-we can \textit{augment} the likelihood by "de-marginalizing" the scale-mixture.
+we can \textit{augment} the likelihood by "ummarginalizing" the scale-mixture.
 We transform for example a Student-T likelihood into a Gaussian likelihood with a Gamma prior.
 This allows for so-called conditionally conjugate likelihoods.
 
 
+Now that all important and necessary topics for this thesis have been overviewed, the following will present the different works presented in this thesis. 
 % ---------------------------------------------------------------------------
 % ----------------------- end of thesis sub-document ------------------------
 % ---------------------------------------------------------------------------
