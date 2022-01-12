@@ -50,9 +50,15 @@ A typical example is in medicine, where data is scarce, but the predictive outco
 The leading thread of this thesis is \textit{representations} and how to use them to solve problem more efficiently with less work.
 When modelling statistical problems, one needs to define relations between variables (observed and latent) and choose appropriate distributions to represent those.
 Some modelling choices are equivalent conceptually but have drastic differences when it comes to inference.
-A neat example, presented in \cite{} \needcite,  is the so called Neal's funnel.
+A neat example, presented in \citet{gorinovaAutomaticReparameterisationProbabilistic2020}, is the so-called Neal's funnel.
 There are two equivalent representations, where one leads to an easy Gaussian posterior and the other to an inference nightmare.
 
+\begin{minipage}{0.5\textwidth}
+        
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+    
+\end{minipage}
 \com{Add the representations nicely}
 
 In this thesis, I will focus on a specific case of modeling where variables can be represented as mixtures (or hierarchical mixtures).
@@ -61,18 +67,21 @@ By writing them explicitly as mixtures, i.e. by adding more latent variables, in
 It brings the counter-intuitive view that adding more variables actually \textit{simplifies} the problem.
 
 
-\section{The use of Gaussian Processes}
+\section{Gaussian Processes}
 
 \begin{itemize}
     \item All these things you can do with Gaussian processes
     \item why \ac{GPs} vs other things
 \end{itemize}
 
-The second large focus of this thesis is on Gaussian based model and more particularly \acf{GPs}.
+Another large focus of this thesis are Gaussian based models and more particularly \acf{GPs}.
 \ac{GPs} are strong tools to approximate functions using probabilistic methods.
-Although they used to be reserved to regression problems 
+Although they used to be reserved to regression problems, like the original \textit{krigging problem} \needcite, they can be used to represent any kind of function in a non-parametric way.
+Compared to other general function approximators like neural networks, they have the advantage to directly contain information about the prediction's uncertainty.
+Their non-parametric nature also allows avoiding overparametrization, while modern neural networks have billions of parameters to optimize, \ac{GPs} only depend on a mean function and a kernel function.
+The Gaussianity of \ac{GPs} makes them the best candidate for the presented work on augmentation.
+The focus on the likelihood augmentations has been aiming at making augmented likelihoods conditionally conjugate with Gaussian priors.
 
-One of the strong
 
 \section{Thesis Outline}
 

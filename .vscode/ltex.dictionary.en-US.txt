@@ -6,3 +6,5 @@ Pòlya-Gamma
 Opper
 frequentist
 ummarginalizing
+krigging
+Gaussianity
