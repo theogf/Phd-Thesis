@@ -1,10 +1,11 @@
 % -*- root: ../thesis.tex -*-
 %!TEX root = ../thesis.tex
+
 % ******************************* Thesis Chapter 1 ****************************
 
 % the code below specifies where the figures are stored
 \ifpdf
-    \graphicspath{{1_introduction/figures/PNG/}{1_introduction/figures/PDF/}{1_introduction/figures/}}
+    \graphicspath{{chapters/1_introduction/figures/}}
 \else
     \graphicspath{{1_introduction/figures/EPS/}{1_introduction/figures/}}
 \fi
@@ -13,8 +14,8 @@
 % ----------------------------------------------------------------------
 
 
-Machine learning has become a wide field of research with a variety of subfields, each dedicated to solve various problems in different ways.
-One field in particular, usually called \textit{probabilistic machine learning} aims at representing the statistical side of the different models.
+\ac{ML} has become a wide field of research with a variety of subfields, each dedicated to solve various problems in different ways.
+\textit{Probabilistic machine learning}, in particular, aims at representing the different models, using paradigms and tools from statistics.
 
 \begin{itemize}
     \item Motivate the idea of Bayesian machine learning
@@ -30,8 +31,8 @@ One field in particular, usually called \textit{probabilistic machine learning} 
     \item Frequentist vs Bayesian
 \end{itemize}
 
-Some problems in machine learning have critical requirements, such as probability guarantees for the predictions or working with meaningful interpretable models.
-The Bayesian paradigm brings both by inferring probability distributions instead of point estimates.
+Some problems in \ac{ML} have critical requirements, such as probability guarantees for the predictions or working with meaningful interpretable models.
+The Bayesian framework brings both by inferring probability distributions instead of point estimates.
 For a given model, by setting a prior distribution over the parameters, the \textit{posterior} represent the updated belief we have about our model after observing some data.
 This allows to model uncertainty in a principled way and to prevent overfitting in the low-data regime.
 However, they come at a higher computational cost: a distribution contains more information than a single point, finding analytical solutions is rare and often require involved manual derivations.
@@ -41,7 +42,7 @@ A typical example is in medicine, where data is scarce, but the predictive outco
 
 
 
-\section{The underestimated importance of representation}
+\section{The underestimated power of choosing representations}
 
 \begin{itemize}
     \item Different representation lead to very different results, efficiency etc.
@@ -51,17 +52,39 @@ The leading thread of this thesis is \textit{representations} and how to use the
 When modelling statistical problems, one needs to define relations between variables (observed and latent) and choose appropriate distributions to represent those.
 Some modelling choices are equivalent conceptually but have drastic differences when it comes to inference.
 A neat example, presented in \citet{gorinovaAutomaticReparameterisationProbabilistic2020}, is the so-called Neal's funnel.
-There are two equivalent representations, where one leads to an easy Gaussian posterior and the other to an inference nightmare.
+There are two equivalent representations, called centered and non-centered, where one leads to an inference nightmare while the other is a nice and easy isotropic Gaussian distribution.
 
 \begin{minipage}{0.5\textwidth}
-        
+    \centering
+    \begin{align}
+        \begin{aligned}
+            z \sim&\; \mathcal{N}(0, 3)\\
+            x \sim&\; \mathcal{N}(0, \exp(z/2))
+        \end{aligned}
+    \end{align}
+    \includegraphics[width=\textwidth]{./chapters/1_introduction/figures/neals_funnel_centered.pdf}
+    \captionof{figure}{Neal's funnel - Centered representation}
+    \label{fig:neals_centered}
 \end{minipage}
 \begin{minipage}{0.5\textwidth}
-    
+    \centering
+    \begin{align}
+        \begin{aligned}
+            \tilde{z} \sim&\; \mathcal{N}(0, 1),\quad z = 3\tilde{z}\\
+            \tilde{x} \sim&\; \mathcal{N}(0, 1),\quad x = \exp(z/2)\tilde{x}
+        \end{aligned}
+    \end{align}
+    \includegraphics[width=\textwidth]{./chapters/1_introduction/figures/neals_funnel_non_centered.pdf}
+    \captionof{figure}{Neal's funnel - Non-centered representation}
+    \label{fig:neals_centered}
 \end{minipage}
-\com{Add the representations nicely}
+\vspace{0.5cm}
 
-In this thesis, I will focus on a specific case of modeling where variables can be represented as mixtures (or hierarchical mixtures).
+While both parametrization are one and the same, working with $p(\tilde{x},\tilde{z})$ is obviously simpler.
+It is the same idea as working with spherical coordinates instead of Euclidean ones for electrodynamics. 
+
+In this thesis, the various works presented focus on finding such representations where inference is made a lot easier and usually faster.
+In particular, I will focus on the case where variables can be represented as (hierarchical) mixtures.
 Defined later in Section \ref{sec:scale-mixtures}, variables that can be rewritten as scale-mixtures have a lot of advantages.
 By writing them explicitly as mixtures, i.e. by adding more latent variables, inference can be made much easier while still being exact.
 It brings the counter-intuitive view that adding more variables actually \textit{simplifies} the problem.
