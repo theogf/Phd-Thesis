@@ -6,7 +6,7 @@
 % ----------------------- paths to graphics ------------------------
 
 % change according to folder and file names
-\graphicspath{{2/figures/}}
+\graphicspath{{2_background/figures/}}
 % ----------------------- contents from here ------------------------
 
 A short introduction to the basic theory of \acl{GPs} as well as their extension to large datasets using inducing points \cite{Titsias2009} is given in each paper.
@@ -44,7 +44,7 @@ Note that the last term of the equation directly involves the posterior distribu
 To solve this integral, we must either be able to both know the posterior in closed form and solve the integral numerically (or analytically), or be able to sample from it and compute this integral using Monte-Carlo integration.
 
 \subsection{Posterior computations}
-
+\label{sec:posterior}
 Assuming that both the prior $p(\btheta)$ and the likelihood $p(\bx|\btheta)$ are known in closed-form, computing the posterior \eqref{eq:bayes} in closed-form involves computing the integral $p(\bx)=\int p(\bx|\btheta)p(\btheta)d\btheta$.
 For most non-trivial models, this integral is intractable and approximations to the posterior and/or sampling approaches are needed.
 These are introduced in Section~\ref{sec:approx_inf}.
@@ -204,19 +204,21 @@ For the second step automatic approaches exist but they have their issues of the
 
 \subsection{Variational Inference}
 
-\acf{VI}, sometimes called Variational Bayes, consists in approximating the posterior with another parametrized distribution.
+\acf{VI}, also called Variational Bayes, consists in approximating the posterior $p(\btheta|\bx)$ with another distribution $q(\btheta)$.
 Given a family of distributions $\mathcal{Q}$, parametrized by parameters $\bphi$ one aims to solve the following optimization problem:
 \begin{align}
-\bphi^* = \arg_{\bphi}\min \KL{q_{\bphi}(\btheta)}{p(\btheta|\bx)},
+\bphi^* = \arg_{\bphi}\min \mathcal{D}\left(q_{\bphi}(\btheta), p(\btheta|\bx)\right),
 \label{eq:prob_VI}
 \end{align}
-where the $\mathrm{KL}$ \ac{KL} divergence is defined for continuous distributions as:
+where $\mathcal{D}$ is a distance between two distributions and $q_{\bphi}$ is the distribution $q\in \mathcal{Q}$ parametrized by $\bphi$.
+One of the most used distance is the backward \ac{KL} divergence, defined for continuous distributions as:
 \begin{align}
 \KL{q(x)}{p(x)} = \int q(x) \log \frac{q(x)}{p(x)}dx
+\label{eq:kl}
 \end{align}
 
-The objective of equation~\eqref{eq:prob_VI} is generally not tractable.
-Since computing $p(\btheta|\bx)$ involves the normalization constant $p(\bx)$, one resort to a surrogate function, the \ac{VFE} (or its negative counterpart the \ac{ELBO}):
+The objective of Equation~\eqref{eq:prob_VI} or \eqref{eq:kl} is generally not directly tractable.
+Since $p(\btheta|\bx)$ involves the normalization constant $p(\bx)$, one resorts to a surrogate function, the \ac{VFE} (or its negative counterpart the \ac{ELBO}):
 \begin{align}
 \KL{q_{\bphi}(\btheta)}{p(\btheta|\bx)} =& \int q_{\bphi}(\btheta) \left(\log q_{\bphi}(\btheta) - \log p(\btheta|\bx)\right)d\btheta\\
 =&\int q_{\bphi}(\btheta) \left(\log q_{\bphi}(\btheta) - \log p(\btheta, \bx) - \log p(\bx)\right)d\btheta\\
@@ -225,60 +227,70 @@ Since computing $p(\btheta|\bx)$ involves the normalization constant $p(\bx)$, o
 \end{align}
 
 
-By minimizing the \ac{VFE}: $\VFE(\bphi)$ instead of the \ac{KL} divergence, we expect to find a solution close to the optimum of the problem stated in \eqref{eq:prob_VI}.
-A standard way is to perform gradient descent on the variational parameters $\bphi$
+By minimizing the \ac{VFE}, $\VFE(\bphi)$, instead of the \ac{KL} divergence, we can expect to find a solution close to the optimum of the problem stated in \eqref{eq:prob_VI}.
+
+A standard way to find the $\bphi^* = \arg\min \VFE(\bphi)$ is to perform gradient descent on the variational parameters $\bphi$:
 \begin{align}
 \bphi^{t+1} = \bphi^{t} - \epsilon \grad_{\bphi}\VFE(\bphi^{t}).
 \label{eq:vigraddescent}
 \end{align}
 
-Computing the gradient $\grad_{\bphi}\VFE(\bphi)$ can be non-trivial, as it involves derivatives over expectations and the number of parameters can grow extremely charge depending on the assumption on $q(\btheta)$.
+Computing the gradient $\grad_{\bphi}\VFE(\bphi)$ can be non-trivial, as it involves derivatives over expectations.
+Also, the choice of the family $\mathcal{Q}$ is a trade-off decision.
+A richer, more complex family will probably be able to approximate the posterior better but computing the distance and optimizing will be increasingly difficult.
+A standard example is the \ac{VGA}\footnote{The \ac{VGA} is explored in more details in Chapter~\ref{ch:chapter6}.}, i.e. the variational distribution $q_{\bphi}$ is a Gaussian, i.e. $\mathcal{Q} = \left\{q \sim \mathcal{N}(\boldm, S)\right\}$, and $\bphi = \{\boldm, S\}$.
+One can decide to restrict $\mathcal{Q}$ further by specifying the structure of $S$.
+Forcing it to be diagonal will simplify a lot of computations and avoid inverse operations, but all correlation information in the posterior will be completely lost.
+This is what the mean-field approximation is about.
 
 \subsubsection{Mean-Field Approximation}
 
-One problem when considering $q(\btheta)$ is that if we consider that all parameters are correlated to each other, the number of variational parameters to train grow quadratically with the dimensionality of $\btheta$.
+One problem when considering $q_{\bphi}(\btheta)$ is that if we consider that all parameters are correlated to each other, the number of variational parameters to train grow quadratically with the dimensionality of $\btheta$.
 The simplest assumption to add is the \ac{MF} approximation.
 The \ac{MF} assumption is that every component of $\btheta$ to be independent of each other.
-This variational distribution can be specified as:
+This variational family can be specified as $ = \left\{q | q \right\}$
 \begin{align}
-q^{MF}_{\bphi}(\btheta) = \prod_{i=1}^D q_{\bphi_i}(\theta_i),
+    \mathcal{Q}_{MF}= \left\{q = \prod_{i=1}^D q_{\bphi_i}(\theta_i)\right\},
 \end{align}
 where $\bphi_i$ are the variational parameters for the variable $\theta_i$.
 
 One can also build more general distributions by considering independence between blocks of variables instead.
-We can split $\mathcal{I}=\{1,2,\ldots,D\}$, the set of indices of $\theta$, into $K$ independent subsets $\mathcal{I}_k \subseteq \mathcal{I}$ such that  $\mathcal{I} = \cup_{k=1}^K \mathcal{I}_{k}$ and $\mathcal{I}_i \cap \mathcal{I}_j=\emptyset,~\mathrm{iff}~i \neq j$.
-The variational distribution based on this blocked mean-field approximation is then defined as
+Given $\mathcal{I}=\{1,2,\ldots,D\}$, the set of indices of $\theta$, we can build into $K$ independent subsets $\mathcal{I}_k \subseteq \mathcal{I}$ such that  $\mathcal{I} = \cup_{k=1}^K \mathcal{I}_{k}$ and $\mathcal{I}_i \cap \mathcal{I}_j=\emptyset,~\mathrm{iff}~i \neq j$.
+The variational distribution based on this \ac{BMF} approximation is then defined as
 \begin{align}
     q^{BMF}_{\bphi}(\btheta) = \prod_{k=1}^K q_{\bphi_k}(\btheta_{\mathcal{I}_k}),
 \end{align}
-where $\bphi_k$ are the variational parameters for the set of variable $\theta_{\mathcal{I}_k}$.
+where $\bphi_k$ are the variational parameters for the set of variable $\btheta_{\mathcal{I}_k}$.
+
 \subsubsection{Coordinate Ascent VI}
 
-Based on the \ac{MF} approach, we are interested in finding the solution for each set of parameters $\bphi_i$ to
+Based on the \ac{MF} and \ac{BMF} approach, we are interested in finding the solution for each set of parameters $\bphi_i$ to
 \begin{align}
-    \bphi_i^* = \arg_{\bphi_i}\min \VFE(\bphi_i, \bphi_{/i})
+    \bphi_i^* = \arg_{\bphi_i}\min \VFE(\bphi_i, \bphi_{/i}),
     \label{eq:optimalbphi}
 \end{align}
-which can be found either by solving
+i.e. by keeping all other parameters fixed, what is the optimal $\bphi_i^*$.
+This can be found either by solving
 \begin{align}
 \left.\grad_{\varphi_i}\VFE(\bphi)\right\vert_{\varphi_i=\varphi_i^*} = 0,
 \end{align}
 or performing the same gradient scheme as \eqref{eq:vigraddescent}.
 In some cases the solution to \eqref{eq:optimalbphi} is given by
 \begin{align}
-q_{\varphi_i}^*(\theta_i) \propto \exp\left(\expec{q_{\bphi}(\btheta_{/i})}{\log p\left(\theta_i|\btheta_{/i},\bx\right)}\right)
+q_{\bphi_i}^*(\btheta_i) \propto \exp\left(\expec{q_{\bphi}(\btheta_{/i})}{\log p\left(\btheta_i|\btheta_{/i},\bx\right)}\right)
 \end{align}
 where $\btheta_{/i}$ represent the collection of variables $\btheta_{/i} = \{\theta_j | j \neq i\}$.
+The distribution $p(\btheta_i|\btheta_{/i},\bx)$ is the full-conditional distribution as described in Section~\ref{sec:posterior}.
 
-When working with distribution coming from exponential families, it is straightforward to get the optimal variational parameters $\varphi_i$.
+When working with distribution coming from exponential families, it is straightforward to get the optimal variational parameters $\bphi$.
 By updating the parameters one after another we get a \ac{CAVI} scheme\footnote{The word ascent is used since the scheme was originally derived using the negative \ac{VFE} i.e. the \ac{ELBO}.}.
-Effectively, one update each variational parameter $\varphi_i$ by its optimum given the rest of the variational parameters $\bphi_{/i}$ via closed-form functions:
+Effectively, one updates each variational parameter $\bphi_i$ with its optimum given the rest of the variational parameters $\bphi_{/i}$ via closed-form functions:
 \begin{align}
 \varphi_i^{t+1} = f_i\left(\bphi_{1:(i-1)}^{t+1}, \bphi_{(i+1):D}^t\right).
 \end{align}
 The order of the updates do not matter as long as the variational parameters $\bphi$ are initialized in their domain.
 
-The algorithm is presented completely on Algorithm~\ref{alg:CAVI}.
+The full algorithm is presented on Algorithm~\ref{alg:CAVI}.
 
 \begin{algorithm}
     \caption{\ac{CAVI} Updates}
@@ -286,7 +298,7 @@ The algorithm is presented completely on Algorithm~\ref{alg:CAVI}.
     \begin{algorithmic}
         \While {$|\VFE^{t+1} - \VFE^t| > \epsilon$}
             \ForAll {$i \in \{1,\ldots,D\}$}
-                \State $\varphi_i^{t+1} = f_i\left(\bphi_{1:(i-1)}^{t+1}, \bphi_{(i+1):D}^t\right).$
+                \State $\bphi_i^{t+1} = f_i\left(\bphi_{1:(i-1)}^{t+1}, \bphi_{(i+1):D}^t\right).$
             \EndFor
         \EndWhile
     \end{algorithmic}
