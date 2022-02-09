@@ -20,9 +20,9 @@ In this chapter, we go a bit more into detail on the basics of probabilistic Bay
 Bayes' theorem is one of the simplest theorem in probabilities and its demonstration fits one line, yet its implications are most important.
 
 Let's give a very general modeling setting that we are going to follow for the rest of this chapter.
-Given a set of observed variables $\bx$, a set of latent (unobserved) variables $\btheta$ with a \textit{prior} distribution $p(\btheta)$, and a \textit{likelihood} function $p(\bx\mid\btheta)$, we obtain the \textit{posterior} distribution $p(\btheta|\bx)$ via Bayes' theorem:
+Given a set of observed variables $\bX$, a set of latent (unobserved) variables $\btheta$ with a \textit{prior} distribution $p(\btheta)$, and a \textit{likelihood} function $p(\bX\mid\btheta)$, we obtain the \textit{posterior} distribution $p(\btheta|\bX)$ via Bayes' theorem:
 \begin{align}
-p(\btheta|\bx) = \frac{p(\bx|\btheta)p(\btheta)}{p(\bx)} = \frac{p(\bx|\btheta)p(\btheta)}{\int p(\bx|\btheta)p(\btheta)d\btheta}
+p(\btheta|\bX) = \frac{p(\bX|\btheta)p(\btheta)}{p(\bX)} = \frac{p(\bX|\btheta)p(\btheta)}{\int p(\bX|\btheta)p(\btheta)d\btheta}
 \label{eq:bayes}
 \end{align}
 
