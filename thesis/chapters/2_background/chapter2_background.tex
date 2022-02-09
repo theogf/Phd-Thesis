@@ -178,6 +178,14 @@ The biggest advantage of Gibbs sampling is that the acceptance probability is gu
     =& \frac{p(\theta^{t+1}|\bx, \btheta^{t}_{/i})}{p(\theta^t_i|\bx,\btheta^t_{/i})}\frac{p(\btheta^t_{/i}|\bx)}{p(\btheta^t_{/i}|\bx)}\frac{p(\theta^t_i|\bx,\btheta^{t}_{/i})}{p(\theta^{t+1}_i|\bx,\btheta^t_{/i})} = 1.
 \end{align*}
 This means that all proposed samples are guaranteed to be accepted.
+This process is illustrated on a two-dimensional bimodal example on Figure~\ref{fig:gibbs_samp}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{./chapters/2_background/figures/gibbs_sampling.pdf}
+\caption{20 steps of the Gibbs sampler trajectory on the Rosenbrock distribution in 2 dimensions}
+\label{fig:gibbs_samp}
+\end{figure}
 
 However, the Gibbs sampling approach has several issues:
 First, the full-conditional distribution is rarely available in closed-form and being able to sample from it is not always easy.

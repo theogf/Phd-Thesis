@@ -1,8 +1,11 @@
 using Pkg
 Pkg.activate(@__DIR__)
+Pkg.instantiate()
 using CairoMakie
 using MeasureTheory
 using Soss
+using ColorSchemes
+sb = ColorSchemes.seaborn_colorblind
 
 m1 = @model begin
     z ~ Normal(0, 3)
@@ -17,10 +20,13 @@ end
 logdensity(m1(), (x=1, z=2))
 logdensity(m2(), (x=1, z=2))
 
+
+cg = ColorScheme(map(x->RGB(x...), include(joinpath(@__DIR__, "..", "colors", "color_flare"))))
+
 function plot_dist!(f, model; n=1000, xlabel="x", ylabel="z")
     xlin = LinRange(-5, 5, n)
     ax = Axis(f[1,1]; xlabel, ylabel, xlabelsize=30.0, ylabelsize=30.0, yticks=-5:1:5, xticks=-5:1:5)
-    contourf!(ax, xlin, xlin, (x,z)->exp(logdensity(model(), (;x, z))))
+    contourf!(ax, xlin, xlin, (x,z)->exp(logdensity(model(), (;x, z))), colormap=cg)
     resize_to_layout!(f)
     f |> display
 end
