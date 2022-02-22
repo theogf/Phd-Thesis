@@ -9,6 +9,23 @@
 % ----------------------- contents from here ------------------------
 
 
+\section{Further generalization}
+The works presented in this thesis only scratched the surface of how mixtures can be helpful and how to identify them.
+We are still exploring ways to identify larger classes of functions which can be evaluated as scale-mixture.
+In particular, the simple connection with the moment-generating function of a distribution is a promising way as it allow to work not only with continuous but discrete variables (as presented in Chapter \ref{ch:chapter4}).
+Another promising way is to identify when some augmented variables can be marginalized out while keeping the conditional conjugacy of the model.
+An example of this is quickly given in the next section \ref{sec:improve}.
+
+\section{Unfinished work}
+
+\section{Improvements on the Multi-Class Classification}
+\label{sec:improve}
+We recently figured that there were additional ways to improve the augmented models and therefore the inference going with it.
+
+\subsection{Simplex for the multi-class classification}
+In Chapter \ref{ch:chapter4}, one of the possible concerns regarding the model is that $\lambda$ has the improper prior $\mathcal{1}_{0,\infty}$, which is a proper measure but is not normalizable.
+It should be noted that since the resulting posterior is valid, no problem should arise, but from a purely Bayesian perspective this can be dissatisfactory.
+This improper prior actually rises from the fact that the model we are using is ill-conditioned.
 
 
 

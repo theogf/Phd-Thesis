@@ -202,7 +202,7 @@ Thanks to the energy conservation law, the acceptance rate is guaranteed to be c
 First, one needs to integrate differential equations based on gradients, which can be exceedingly expansive for some models.
 Second, it has parameters to tune, namely the step size of the integrator, the number of steps taken and the metric matrix used.
 Lastly, it only works for continuous variables.
-For the second step automatic approaches exist but they have their issues of their own as well.
+For the second step automatic approaches exist, but they have their issues of their own as well.
 
 
 \subsubsection{Elliptical Slice Sampling}
@@ -219,7 +219,7 @@ Given a family of distributions $\mathcal{Q}$, parametrized by parameters $\bphi
 \label{eq:prob_VI}
 \end{align}
 where $\mathcal{D}$ is a distance between two distributions and $q_{\bphi}$ is the distribution $q\in \mathcal{Q}$ parametrized by $\bphi$.
-One of the most used distance is the backward \ac{KL} divergence, defined for continuous distributions as:
+One of the most used distances is the backward \ac{KL} divergence, defined for continuous distributions as:
 \begin{align}
 \KL{q(x)}{p(x)} = \int q(x) \log \frac{q(x)}{p(x)}dx
 \label{eq:kl}
@@ -331,7 +331,7 @@ The natural gradient is given by :
 The natural gradient is constructed such that the metric it gives maximizes the change of the \ac{KL} divergence between the given distribution and its target.
 The reason why natural gradients are brought up here is that the updates of the \ac{CAVI} algorithm \ref{alg:CAVI} for exponential distributions, can be interpreted as natural gradient ascent updates with learning rate $1$.
 \begin{align*}
-    \phi^{t+1} = \phi^t + \mathcal{I}^{-1}\grad_{\phi}\mathcal{F}(\bphi^t) \equiv \phi^{t+1}
+    \bphi^{t+1} = \bphi^t + \mathcal{I}^{-1}\grad_{\bphi}\mathcal{F}(\bphi^t) \equiv \bphi^{t+1}
 \end{align*}
 
 
