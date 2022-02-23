@@ -8,3 +8,4 @@ frequentist
 ummarginalizing
 krigging
 Gaussianity
+approximators
