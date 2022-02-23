@@ -92,18 +92,18 @@ In the same exponential family example above, instead of looking for \eqref{eq:e
 \label{sec:gps}
 \acf{GPs} are a class of stochastic processes used as non-parametric probabilistic representations to functions.
 A \ac{GP} is a stochastic process $f_t$, where the joint distribution on any collection of variables $f_t$ follows a (multivariate) Gaussian distribution.
-Their Gaussian nature makes them computationally very attractive.
-Most operations on Gaussian variables can be done analytically, and they have other interesting properties (e.g. the marginal distribution of a component is also Gaussian). 
+Most operations on Gaussian variables can be done analytically which makes them computationally very interesting.
+For instance, marginals can be computed exactly and a product of Gaussian distributions is still Gaussian.
 % The Gaussian distribution is to statistics what the harmonic oscillator is to physics".
-\ac{GPs} are described to be a non-parametric, still one needs to define the covariance between each variable of the process.
-\com{Missing transition}
+
 One of the interpretation of a \ac{GP} is as a prior on functions in the \acf{RKHS}.
-In practice the \ac{RKHS} is infinite-dimensional, and to be able to perform any computation one needs to project it into a finite-dimensional space.
-Considering a function $f$ we wish to represent with a \ac{GP}, we can project it on data samples $\bX = \{\bx_i, \ldots, \bx_N\}$ and evaluate $f$ on them such that we obtain the finite-dimensional vector $\boldf$ where $f_i = f(X_i)$.
+In practice the \ac{RKHS} is infinite-dimensional.
+To be able to perform any computation one needs to project it into a finite-dimensional space.
+Considering a function $f$ we wish to represent with a \ac{GP}, we can project it on data samples $\bX = \{\bx_1, \ldots, \bx_N\}$ by evaluating $f$ on them such that we obtain the finite-dimensional vector $\boldf$ where $f_i = f(\bx_i)$.
 % \missingfigure{Put a prior of a GP}
 
-One resorts to kernel functions % TODO need to cite this.
-The kernel matrix $K$ is defined by $K_{ij} = k(x_i, x_j)$.
+\ac{GPs} are described to be non-parametric models, however one needs to define the covariance between each variable of the process via kernel functions \needcite and an underlying mean function.
+The prior on the projected \ac{GP} on $\bX$ is given by $\mathcal{N}\left(\mu_0(\bX), K_{X}\right)$ where $\mu_0(X):\mathbb{R}^{N\times D}\rightarrow \mathbb{R}^D$ is an arbitrary function and $K \in \mathbb{R}^{N\times N}$ is the kernel matrix, defined by $K_{ij} = k(x_i, x_j)$.
 $K$ is positive-definite, i.e. for $K\in \real^{D\times D}$, and $x\in \real^D$, $x^\top K x > 0$.
 
 \subsection{Gaussian Process Regression}
