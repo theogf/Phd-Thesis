@@ -9,15 +9,15 @@
 \graphicspath{{2_background/figures/}}
 % ----------------------- contents from here ------------------------
 
-A short introduction to the basic theory of \acl{GPs} as well as their extension to large datasets using inducing points \cite{Titsias2009} is given in each paper.
-In this chapter, we go a bit more into detail on the basics of probabilistic Bayesian modeling, \acl{GPs}, \acl{VI} and sampling methods.
+A short introduction to the basic theory of \acl{GPs} as well as their extension to large datasets using inducing points \cite{Titsias2009} is given in each paper on \ac{GPs}.
+In this chapter, we go a bit more into the edetails of the basics of probabilistic Bayesian modeling, \acl{GPs}, \acl{VI} and sampling methods.
 
 
 \section{Probabilistic Bayesian Modeling}
 
 \label{sec:prob_bayes}
 
-Bayes' theorem is one of the simplest theorem in probabilities and its demonstration fits one line, yet its implications are most important.
+Bayes' theorem is one of the simplest theorem in probabilities and its demonstration fits in one line, yet its implications are \com{fill in word like "so important"}.
 
 Let's give a very general modeling setting that we are going to follow for the rest of this chapter.
 Given a set of observed variables $\bX$, a set of latent (unobserved) variables $\btheta$ with a \textit{prior} distribution $p(\btheta)$, and a \textit{likelihood} function $p(\bX\mid\btheta)$, we obtain the \textit{posterior} distribution $p(\btheta|\bX)$ via Bayes' theorem:
@@ -29,10 +29,13 @@ p(\btheta|\bX) = \frac{p(\bX|\btheta)p(\btheta)}{p(\bX)} = \frac{p(\bX|\btheta)p
 The posterior allows us to obtain an estimate of the latent variables with its uncertainty given the prior $p(\btheta)$.
 The posterior is used for computing all kind of expectations of the form $\expec{p(\btheta|\bx)}{f(\btheta)} = \int f(\btheta)p(\btheta|\bx)d\btheta$.
 Expected values of interest can be statistics of the posterior like the mean $\expec{p(\btheta|\bx)}{\btheta}$ or predictions of new data points $p(\bx'|\bx) = \expec{p(\btheta|\bx)}{p(\bx'|\btheta)}$.
+
+Probabilistic models can roughly be divided in two categories: \textbf{generative}, i.e. observed data has been generated from a stochastic model, and \textbf{discriminative}, i.e. observed data can be divided in two, typically input and output, and a stochastic model connects the two.
+I will restrict the scope to discriminative models only.
 Let's take the simple example of linear logistic regression, a discriminative model:
 Given an input $\bx \in \mathbb{R}^D$ and binary label $y\in \{ 0, 1\}$, we model the generative model as:
 \begin{align}
-y \sim \Be\left(\sigma(\btheta^\top \bx)\right),
+    y \sim \Be\left(\sigma(\btheta^\top \bx)\right),
 \end{align}
 where $\Be$ is the Bernoulli distribution, $\btheta\in\mathbb{R}^D$ and $\sigma$ is the logistic function $\sigma(x) = \frac{1}{1 + \exp(-x)}$, i.e. $\sigma : \mathbb{R} \mapsto [0, 1]$.
 The likelihood function is given by: $p(y_i|\btheta,\bx_i) =\sigma\left(\btheta^\top \bx_i\right)^{y_i}\sigma\left(-\btheta^\top \bx_i\right)^{1-y_i}$ for an output label $y_i$ and input features $\bx_i$.
@@ -119,6 +122,12 @@ The prediction of $f^*$ on a new point $\bx^*$ can be evaluated by computing:
 p(f^*|\bx^*,\bX,\by) = \int p(f^*|\boldf,\bx^*)p(\boldf|\bX,\by)d\boldf.
 \end{align}	
 This integral is analytically solvable and results in $p(f^*|\bx^*,\bX,\by)=\No(f^*|m^*,s^*)$ where $m^* = K_{\bx^*,\bX}(K_{\bX,\bX} + \sigma^{2}I)^{-1}\boldy$ and $s^*=K_{\bx^*,\bx^*} - K_{\bx^*,\bX}\left(K_{\bX,\bX}+\sigma^2I\right)^{-1}K_{\bX,\bx^*}$.
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{./chapters/2_background/figures/GP_example.pdf}
+    \caption{Illustration of the realization of a Gaussian Process. The black is the true function, the blue line is the mean of the prediction, the blue area represent the confidence interval of 2 standard deviations, the orange points represent observed data. Left: prediction on a grid given no observations. Right: prediction on a grid given a set of observations}
+    \label{fig:gp_example}
+\end{figure}
 
 \subsection{Non-Conjugate Gaussian Processes}
 
