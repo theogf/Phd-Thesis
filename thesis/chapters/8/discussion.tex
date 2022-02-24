@@ -49,7 +49,15 @@ To solve the problem we define an additional bound on the original \ac{ELBO}:
     =& \min_{q(\boldg)}-\expec{q(\boldg)}{\log p(\boldy|\boldg, \bmu^*_f,\bSigma^*_f)} + \KL{q(\boldg)}{p(\boldg)} + \operatorname{KL}_f^* = \mathcal{F}_1.
 \end{align*}
 $p(\boldy|\boldg, \bmu^*_f, \bSigma^*_f)$ and $\mathrm{KL}^*_f$ are expectations computed with the optimal $q^*(\boldf)$.
-We can now use the augmentation 
+We can now use the augmentation on the expected log-likelihood (in practice we simply modified $(y_i-f_i)^2$ by $(y_i - \mu_i^2)^2 + \Sigma_{ii}$).
+
+\begin{align*}
+    \mathcal{F}_1 \leq \min_{q(\boldg)q(\bomega,\bn)} \expec{q(\boldg)q(\bomega,\bn)}{\log p(\bomega,\bn,\boldy|\boldg,\bmu_f^*,\bSigma_f^*)} + \KL{q(\boldg)}{p(\boldg)} + \operatorname{KL}_f^*=\mathcal{F}_2
+\end{align*}
+
+It is straightforward to find the optimal variational distributions $q^*(\boldg)$ and $q^*(\bomega,\bn)$ minimizing $\mathcal{F}_2$ which allows us to use \ac{CAVI} updates.
+Then, injecting the optimal distributions we can derive the optimal $\bmu_f^*$ and $\bSigma_f^*$, which once again, are obtainable in closed-form.
+
 
 \section{Using Hamilton Monte Carlo on the augmented model}
 
