@@ -12,7 +12,7 @@
 \section{Further generalization}
 The works presented in this thesis only scratched the surface of how mixtures can be helpful and how to identify them.
 We are still exploring ways to identify larger classes of functions which can be evaluated as scale-mixture.
-In particular, the simple connection with the moment-generating function of a distribution is a promising way as it allow to work not only with continuous but discrete variables (as presented in Chapter \ref{ch:chapter4}).
+In particular, the simple connection with the moment-generating function of a distribution is a promising way as it allow working not only with continuous but discrete variables (as presented in Chapter \ref{ch:chapter4}).
 Another promising way is to identify when some augmented variables can be marginalized out while keeping the conditional conjugacy of the model.
 An example of this is quickly given in the section~\ref{sec:improve}.
 
@@ -91,8 +91,15 @@ where we set $\sigma(f_K) = D$.
 
 \subsection{Reformulating the logistic-softmax link}
 
-A more general issue that arised in this paper .
-
+Another issue that rose from this paper was the logistic-softmax link limitations, especially in the many-class problem.
+Because of the bounds of the logistic function, extremely high value of $f_i$ are needed to reach class prediction probability of $1$.
+This could be easily solved by using a scaled logistic function instead.
+One could add $K$ hyperparameters $\btheta$ such that the likelihood is written as:
+\begin{align*}
+    p(y=k|\{f_i\}_{i=1}^K,\btheta) = \frac{\theta_k \sigma(f_k)}{\sum_{i=1}^K \theta_i \sigma(f_i)}.
+\end{align*}
+The $\btheta$ parameters can be optimized using the \ac{ELBO} as the other hyperparameters.
+These can also provide some information about each class, a high $\theta_i$ means that the $i$-th class has zones of very high confidence.
 
 % ---------------------------------------------------------------------------
 % ----------------------- end of thesis sub-document ------------------------
