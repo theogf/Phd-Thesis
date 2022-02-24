@@ -15,19 +15,58 @@ We are still exploring ways to identify larger classes of functions which can be
 In particular, the simple connection with the \acf{MGF} of a distribution is a promising way as it allow working not only with continuous but discrete variables (as presented in Chapter \ref{ch:multiclass}).
 
 Another promising way is to identify when some augmented variables can be marginalized out while keeping the conditional conjugacy of the model.
-An example of this is quickly given in the section~\ref{sec:improve}.
+An example of this is quickly given in the section~\ref{sec:improvemulticlass}.
 
-\section{Double bounds for intricate latent \ac{GPs}}
+\section{Double bounds for intricate latent GPs}
 
-The model developed in Chapter~\ref{ch:multiclass}
+The model developed in Chapter~\ref{ch:multiclass} paves the ways to work with multi-latent models and hierarchical augmentations.
+Another model explored is the heteroscedastic Gaussian regression model which was already explored in \cite{} \needcite.
+By having two latent \ac{GPs} $f$ and $g$, one can model simultaneously the mean and the variance.
+An important choice is the link between $g$ and the likelihood variance $\epsilon^2$.
+The most popular link is the exponential link, i.e. $\epsilon^2(x) = \exp(g(x))$, however to be able to apply our augmentations, we use the link $\epsilon^2(x) = \left(\lambda \sigma(g(x))\right)^{-1}$.
+The likelihood becomes :
+\begin{align}
+    p(y|f,g,\lambda) = \frac{\sqrt{\lambda \sigma(g)}}{\sqrt{2\pi}}\exp\left(-\frac{\lambda \sigma(g)(y-f)^2}{2}\right).\label{eq:hetero_lik}
+\end{align}
 
+The augmentations are straightforward and quite similar to the multi-class ones from Chapter~\ref{ch:multiclass}.
+\begin{align*}
+    \exp\left(-\frac{\lambda\sigma(g)(y-f)^2}{2}\right) =& \exp\left(\frac{\lambda(\sigma(-g) -1)(y-f^2)}{2}\right)\\
+    =&\sum_{n=0}^\infty \sigma^n(-g)\Po \left(n~\middle|~\frac{\lambda(y-f)^2}{2}\right),
+\end{align*}
+where we used the \ac{MGF} of the Poisson distribution.
+Now using the P\'olya-Gamma augmentation we get the final augmented likelihood:
+\begin{align*}
+    p(y,n,\omega\mid f,g,\lambda) = \frac{\sqrt{\lambda}}{2^n\sqrt{\pi}}\exp\left(\frac{1}{2}\left(g\left(\frac{1}{2}-n\right) - \frac{g^2}{\omega}\right)\right)\PG \left(\omega \mid \half + n, 0\right) \Po \left(n \mid \lambda\frac{(y-f)^2}{2}\right)
+\end{align*}
+The interesting part about this augmented likelihood is that although it is conditionally conjugate in $g$, $\omega$ and $n$, it is not clear how it works for $f$.
+It turns out that the Gibbs sampler for this model is actually extremely simple as for the full-conditional of $f$ we can simply marginalize $n$ and $\omega$, return to the original likelihood, which is conditionally conjugate, and perform a \textbf{collapsed} step for the Gibbs sampler.
+
+However, as underlined in Section~\ref{sec:cavi}, the \ac{CAVI} updates need the full-conditionals of the model, and it is not clear how a marginalized version works.
+
+
+
+\section{Using Hamilton Monte Carlo on the augmented model}
+
+The Gibbs sampler in the experiments of Chapters~\ref{ch:classification} and \ref{ch:general} outperform the state-of-the-art \ac{HMC} algorithm introduced in Section~\ref{sec:hmc}.
+A natural question to ask is: is the performance gain due to the augmentation or to the use of a Gibbs sampler?
+A first answer to this is that the \ac{HMC} sampler is not well adapted to the augmentation due to the large increase of dimensionality of the model.
+For $N$ observations, it is at least $N$ more dimensions to add, making gradients computations and the algorithm parameters tuning more complicated and expensive.
+The second issue with \ac{HMC} with the augmented model is that the \ac{pdf} of the augmented variables is not always available in closed-form.
+For example, to estimate the probability of a P\'olya-Gamma variables, a truncated series is used.
+This is not only limited in accuracy but also much more expensive to compute.
+But if one perseveres, the Figure~\ref{fig:hmc_vs_gibbs} shows the auto-correlation plots on a toy \ac{GP} classification problem.
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{example-image-a}
+    \caption{Auto-correlation of a Gibbs sampler and \ac{HMC} on the augmented model, and of \ac{HMC} on the original model}
+    \label{fig:hmc_vs_gibbs}
+\end{figure}
 
 
 \section{Improvements on the Multi-Class Classification}
-\label{sec:improve}
+\label{sec:improvemulticlass}
 We recently figured that there were additional ways to improve the augmented models and the associated inference.
-
-
 
 \subsection{Simplex for the multi-class classification}
 \label{sec:simplex}

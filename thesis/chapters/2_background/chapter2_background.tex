@@ -179,15 +179,18 @@ Next are presented briefly some important categories of choice for the proposal 
 
 \subsubsection{Gibbs Sampling}
 
-Gibbs sampling is a particular \ac{MCMC} method where each random variable or block of random variables are sampled one after another separately.
-The proposal distribution for the \ac{MH} algorithm is given by the full-conditional  $p(\theta_i|\bx,\btheta_{/i})$, where $\btheta_{/i}=\{\theta_1, \ldots \theta_{i-1}, \theta_{i+1},\ldots \theta_{D}\}$.
-The biggest advantage of Gibbs sampling is that the acceptance probability is guaranteed to be 1:
+Gibbs sampling is a particular \ac{MCMC} method where each random variable is sampled one after another.
+The proposal distribution for the \ac{MH} step is given by the full-conditional  $p(\theta_i|\bx,\btheta_{/i})$, where $\btheta_{/i}=\{\theta_1, \ldots \theta_{i-1}, \theta_{i+1},\ldots \theta_{D}\}$.
+The most prominent feature of Gibbs sampling is its acceptance probability, guaranteed to be 1:
 \begin{align*}
     A =& \frac{p(\theta^{t+1}_i,\btheta^t_{/i}|\bx)}{p(\theta^t_i,\btheta^t_{/i}|\bx)}\frac{p(\theta^t_i|\bx,\btheta^{t}_{/i})}{p(\theta^{t+1}_i|\bx,\btheta^t_{/i})}\\
     =& \frac{p(\theta^{t+1}|\bx, \btheta^{t}_{/i})}{p(\theta^t_i|\bx,\btheta^t_{/i})}\frac{p(\btheta^t_{/i}|\bx)}{p(\btheta^t_{/i}|\bx)}\frac{p(\theta^t_i|\bx,\btheta^{t}_{/i})}{p(\theta^{t+1}_i|\bx,\btheta^t_{/i})} = 1.
 \end{align*}
-This means that all proposed samples are guaranteed to be accepted.
-This process is illustrated on a two-dimensional bimodal example on Figure~\ref{fig:gibbs_samp}
+At every step, all proposed samples are therefore guaranteed to be accepted.
+Also, since we are sampling directly from the full-conditionals, regions of high density are reached pretty quickly.
+Although it is not a guarantee, the sampler will converge to the stationary distribution quickly.
+
+The path of the sampler is illustrated on a two-dimensional bimodal example on Figure~\ref{fig:gibbs_samp}.
 
 \begin{figure}
 \centering
@@ -197,12 +200,13 @@ This process is illustrated on a two-dimensional bimodal example on Figure~\ref{
 \end{figure}
 
 However, the Gibbs sampling approach has several issues:
-First, the full-conditional distribution is rarely available in closed-form and being able to sample from it is not always easy.
-Second, there can be convergence issues if the variables are heavily correlated.
-Some of these issues can be resolved by using additional techniques like "Blocked" Gibbs sampling \needcite where blocks of variables are sampled jointly or "Collapsed" Gibbs sampling \needcite where some variables are marginalized out from the full-conditional distribution.
+First, the full-conditional distributions are rarely available in closed-form and sampling from them is not always easy or even possible.
+Second, there can be exploration issues if the different variables are heavily correlated.
+Some of these issues can be resolved by using additional techniques like the \textbf{blocked Gibbs sampler} \needcite where groups of variables are sampled jointly or \textbf{collapsed Gibbs sampling} \cite{liu1994collapsed} where some variables are marginalized out from the full-conditional distribution.
+The blocked Gibbs sampler will be heavily used in the different works on augmentation as full-conditional distributions of group of variables arise naturally.
 
 \subsubsection{Hamilton/Hybrid Monte Carlo}
-
+\label{sec:hmc}
 \acf{HMC} or Hybrid Monte Carlo \cite{betancourt2017conceptual} is a \ac{MCMC} gradient-based method.
 Using Hamiltonian dynamics and augmenting the variables with a new momentum variables, one can guarantee both a high acceptance rate and a good exploration of the space.
 \ac{HMC}'s proposal is to integrate the Hamiltonian dynamics with a randomly sampled momentum for a fixed number of steps with a given symplectic integrator.
@@ -280,7 +284,7 @@ The variational distribution based on this \ac{BMF} approximation is then define
 where $\bphi_k$ are the variational parameters for the set of variable $\btheta_{\mathcal{I}_k}$.
 
 \subsubsection{Coordinate Ascent VI}
-
+\label{sec:cavi}
 Based on the \ac{MF} and \ac{BMF} approach, we are interested in finding the solution for each set of parameters $\bphi_i$ to
 \begin{align}
     \bphi_i^* = \arg_{\bphi_i}\min \VFE(\bphi_i, \bphi_{/i}),

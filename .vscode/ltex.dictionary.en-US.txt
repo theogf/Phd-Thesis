@@ -10,3 +10,5 @@ krigging
 Gaussianity
 approximators
 logistic-softmax
+Rosenbrock
+Pólya-Gamma
