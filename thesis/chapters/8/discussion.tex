@@ -42,9 +42,14 @@ Now using the P\'olya-Gamma augmentation we get the final augmented likelihood:
 The interesting part about this augmented likelihood is that although it is conditionally conjugate in $g$, $\omega$ and $n$, it is not clear how it works for $f$.
 It turns out that the Gibbs sampler for this model is actually extremely simple as for the full-conditional of $f$ we can simply marginalize $n$ and $\omega$, return to the original likelihood, which is conditionally conjugate, and perform a \textbf{collapsed} step for the Gibbs sampler.
 
-However, as underlined in Section~\ref{sec:cavi}, the \ac{CAVI} updates need the full-conditionals of the model, and it is not clear how a marginalized version works.
-
-
+However, as underlined in Section~\ref{sec:cavi}, the \ac{CAVI} updates need the full-conditionals of the model, and it is not clear how a marginalized version can work.
+To solve the problem we define an additional bound on the original \ac{ELBO}:
+\begin{align*}
+    \KL{q(\boldf)q(\boldg)}{p(\boldf,\boldg|\boldy)}\leq& \min_{q(\boldg)}-\expec{q(\boldg)}{\expec{q(\boldf)}{\log p(\boldy|\boldf,\boldg)}} + \KL{q(\boldf)q(\boldg)}{p(\boldf)p(\boldg)}\\
+    =& \min_{q(\boldg)}-\expec{q(\boldg)}{\log p(\boldy|\boldg, \bmu^*_f,\bSigma^*_f)} + \KL{q(\boldg)}{p(\boldg)} + \operatorname{KL}_f^* = \mathcal{F}_1.
+\end{align*}
+$p(\boldy|\boldg, \bmu^*_f, \bSigma^*_f)$ and $\mathrm{KL}^*_f$ are expectations computed with the optimal $q^*(\boldf)$.
+We can now use the augmentation 
 
 \section{Using Hamilton Monte Carlo on the augmented model}
 
