@@ -9,14 +9,19 @@
 % ----------------------- contents from here ------------------------
 
 
-\section{Further generalization}
+\section{Further generalizations}
 The works presented in this thesis only scratched the surface of how mixtures can be helpful and how to identify them.
 We are still exploring ways to identify larger classes of functions which can be evaluated as scale-mixture.
-In particular, the simple connection with the moment-generating function of a distribution is a promising way as it allow working not only with continuous but discrete variables (as presented in Chapter \ref{ch:chapter4}).
+In particular, the simple connection with the \acf{MGF} of a distribution is a promising way as it allow working not only with continuous but discrete variables (as presented in Chapter \ref{ch:multiclass}).
+
 Another promising way is to identify when some augmented variables can be marginalized out while keeping the conditional conjugacy of the model.
 An example of this is quickly given in the section~\ref{sec:improve}.
 
-\section{Unfinished work}
+\section{Double bounds for intricate latent \ac{GPs}}
+
+The model developed in Chapter~\ref{ch:multiclass}
+
+
 
 \section{Improvements on the Multi-Class Classification}
 \label{sec:improve}
@@ -26,7 +31,7 @@ We recently figured that there were additional ways to improve the augmented mod
 
 \subsection{Simplex for the multi-class classification}
 \label{sec:simplex}
-In Chapter \ref{ch:chapter4}, one of the possible concerns regarding the model is that $\lambda$ has the improper prior $1_{0,\infty}$, which is a proper measure but is not normalizable.
+In Chapter \ref{ch:multiclass}, one of the possible concerns regarding the model is that $\lambda$ has the improper prior $1_{0,\infty}$, which is a proper measure but is not normalizable.
 It should be noted that since the resulting posterior is valid, no problem should arise, but from a purely Bayesian perspective this can be dissatisfactory.
 This improper prior rises from the fact that the model we are using is ill-conditioned.
 Given $K$ classes, only $K-1$ latent \ac{GP} are needed since we have the additional constraint that $\sum_{k=1}^K p(y=k|\boldf) = 1$.
@@ -57,7 +62,7 @@ From there the derivations are the same, i.e. using the \ac{MGF} of a Poisson di
 Unfortunately we did not run any experiments to explore if one parametrization was more accurate or efficient than another.
 
 \subsection{Marginalizing out variables}
-In the augmentation derived in Chapter~\ref{ch:chapter4}, we add $2K + 1$ new variables per observation: $\lambda$, $\{n_i\}_{i=1}^K$ and $\{\omega_i\}_{i=1}^K$.
+In the augmentation derived in Chapter~\ref{ch:multiclass}, we add $2K + 1$ new variables per observation: $\lambda$, $\{n_i\}_{i=1}^K$ and $\{\omega_i\}_{i=1}^K$.
 However, we can reduce this number to $2K$ by marginalizing out one of the variables and therefore avoiding complicated inner loops.
 When deriving the augmentations, at some point, one ends up with the following augmented likelihood:
 \begin{align}
