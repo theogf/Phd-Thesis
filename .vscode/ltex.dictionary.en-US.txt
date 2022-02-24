@@ -9,3 +9,4 @@ ummarginalizing
 krigging
 Gaussianity
 approximators
+logistic-softmax
