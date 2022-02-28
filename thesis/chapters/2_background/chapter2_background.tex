@@ -9,8 +9,9 @@
 \graphicspath{{2_background/figures/}}
 % ----------------------- contents from here ------------------------
 
-A short introduction to the basic theory of \acl{GPs} as well as their extension to large datasets using inducing points \cite{Titsias2009} is given in each paper on \ac{GPs}.
-In this chapter, we go a bit more into the edetails of the basics of probabilistic Bayesian modeling, \acl{GPs}, \acl{VI} and sampling methods.
+For a full comprehension of the works to be presented a general overview of the concepts needed is presented here.
+A short introduction to the basic theory of \acl{GPs} as well as their extension to large datasets using inducing points \cite{Titsias2009} is given in Chapters~\ref{ch:classification},~\ref{ch:multiclass} and \ref{ch:general}, however a more thorough and basic description is given in this chapter.
+Additionally, this chapter dives more into the details of the basics of probabilistic Bayesian modeling, \acl{VI} and sampling methods.
 
 
 \section{Probabilistic Bayesian Modeling}
@@ -20,18 +21,18 @@ In this chapter, we go a bit more into the edetails of the basics of probabilist
 Bayes' theorem is one of the simplest theorem in probabilities and its demonstration fits in one line, yet its implications are \com{fill in word like "so important"}.
 
 Let's give a very general modeling setting that we are going to follow for the rest of this chapter.
-Given a set of observed variables $\bX$, a set of latent (unobserved) variables $\btheta$ with a \textit{prior} distribution $p(\btheta)$, and a \textit{likelihood} function $p(\bX\mid\btheta)$, we obtain the \textit{posterior} distribution $p(\btheta|\bX)$ via Bayes' theorem:
+Given a set of observed variables $\bX$, a set of latent (unobserved) variables $\btheta$ with a \textit{prior} distribution $p(\btheta)$, and a \textit{likelihood} function $p(\bX|\btheta)$, we obtain the \textit{posterior} distribution $p(\btheta|\bX)$ via Bayes' theorem:
 \begin{align}
 p(\btheta|\bX) = \frac{p(\bX|\btheta)p(\btheta)}{p(\bX)} = \frac{p(\bX|\btheta)p(\btheta)}{\int p(\bX|\btheta)p(\btheta)d\btheta}
 \label{eq:bayes}
 \end{align}
 
-The posterior allows us to obtain an estimate of the latent variables with its uncertainty given the prior $p(\btheta)$.
+The posterior allows us to obtain a distribution of the latent variables with its uncertainty given the prior $p(\btheta)$ and the data $\bX$.
 The posterior is used for computing all kind of expectations of the form $\expec{p(\btheta|\bx)}{f(\btheta)} = \int f(\btheta)p(\btheta|\bx)d\btheta$.
-Expected values of interest can be statistics of the posterior like the mean $\expec{p(\btheta|\bx)}{\btheta}$ or predictions of new data points $p(\bx'|\bx) = \expec{p(\btheta|\bx)}{p(\bx'|\btheta)}$.
+Expected values of interest can be statistics of the posterior like the mean ($\expec{p(\btheta|\bx)}{\btheta}$) or predictions of new data points $p(\bx'|\bx) = \expec{p(\btheta|\bx)}{p(\bx'|\btheta)}$.
 
 Probabilistic models can roughly be divided in two categories: \textbf{generative}, i.e. observed data has been generated from a stochastic model, and \textbf{discriminative}, i.e. observed data can be divided in two, typically input and output, and a stochastic model connects the two.
-I will restrict the scope to discriminative models only.
+However, this work's scope is restricted to discriminative models only.
 Let's take the simple example of linear logistic regression, a discriminative model:
 Given an input $\bx \in \mathbb{R}^D$ and binary label $y\in \{ 0, 1\}$, we model the generative model as:
 \begin{align}
@@ -39,29 +40,34 @@ Given an input $\bx \in \mathbb{R}^D$ and binary label $y\in \{ 0, 1\}$, we mode
 \end{align}
 where $\Be$ is the Bernoulli distribution, $\btheta\in\mathbb{R}^D$ and $\sigma$ is the logistic function $\sigma(x) = \frac{1}{1 + \exp(-x)}$, i.e. $\sigma : \mathbb{R} \mapsto [0, 1]$.
 The likelihood function is given by: $p(y_i|\btheta,\bx_i) =\sigma\left(\btheta^\top \bx_i\right)^{y_i}\sigma\left(-\btheta^\top \bx_i\right)^{1-y_i}$ for an output label $y_i$ and input features $\bx_i$.
-Given $\bX = \{\bx_1,\ldots,\bx_N\}$, $\boldy = \{y_1,\ldots,y_N\}$, the training data and the corresponding posterior $p(\btheta|\boldy, \bX)$ we can make predictions for new input data $\bx^*$:
+
+Now let's suppose that we have $N$ pairs of input $\bx$ and label $y$, that we assume to be \ac{iid}, we get a training set $\bX = \{\bx_1,\ldots,\bx_N\}$, $\boldy = \{y_1,\ldots,y_N\}$.
+The posterior is built as $p(\btheta|y,\bX) \propto p(\btheta)\prod_{i=1}^N p(y_i|\btheta, \bx_i)$.
+Predictions for a new input data $\bx^*$ can be then computed as:
 \begin{align}
 p(y^*|\bx^*,\boldy,\bX) = \int p(y^*, \btheta|\bx^*\boldy, \bX)d\btheta = \int p(y^*|\btheta,\bx^*) p(\btheta|\boldy,\bX)d\btheta.
 \end{align}
+
 Note that the last term of the equation directly involves the posterior distribution $p(\btheta|\by,\bX)$.
 To solve this integral, we must either be able to both know the posterior in closed form and solve the integral numerically (or analytically), or be able to sample from it and compute this integral using Monte-Carlo integration.
 
 \subsection{Posterior computations}
 \label{sec:posterior}
-Assuming that both the prior $p(\btheta)$ and the likelihood $p(\bx|\btheta)$ are known in closed-form, computing the posterior \eqref{eq:bayes} in closed-form involves computing the integral $p(\bx)=\int p(\bx|\btheta)p(\btheta)d\btheta$.
+Assuming that both the prior $p(\btheta)$ and the likelihood $p(\bx|\btheta)$ are known in closed-form, computing the posterior \eqref{eq:bayes} in closed-form means being able to compute the integral $p(\bx)=\int p(\bx|\btheta)p(\btheta)d\btheta$.
 For most non-trivial models, this integral is intractable and approximations to the posterior and/or sampling approaches are needed.
-These are introduced in Section~\ref{sec:approx_inf}.
-However, in certain settings, computing the posterior in closed-form are possible.
+Such methods are introduced in Section~\ref{sec:approx_inf}.
+However, in certain settings, computing the posterior in closed-form is possible.
 This happens when the prior is said \textit{conjugate} to the likelihood, i.e. that the posterior is of the same probability distribution family as the prior.
+We emphasize this seemingly trivial case, since we will be to exploit such property in Section~\ref{sec:scale-mixtures}.
 If we consider the distributions part of the \textit{exponential family}, i.e. distributions that can be written as:
 \begin{align}
     p(\btheta|\bphi) = h(\btheta)\exp(\boldeta(\bphi)^\top T(\btheta) - A(\bphi)),
     \label{eq:expfamily}
 \end{align}
-where $\bphi$ are the distribution parameters, $h(\btheta)$ is a \textit{base measure}, $\boldeta(\bphi)$ corresponds to the \textit{natural parameters}, $T(\btheta)$ are the sufficient statistics and $A(\bphi)$ is the \textit{log-partition}.
-Note that any distribution can be written as an exponential family by using the trivial case where $p(\btheta) =h(\btheta)$.
+where $\bphi$ are the \textit{distribution parameters}, $h(\btheta)$ is a \textit{base measure}, $\boldeta(\bphi)$ corresponds to the \textit{natural parameters}, $T(\btheta)$ are the \textit{sufficient statistics} and $A(\bphi)$ is the \textit{log-partition}.
+Note that any distribution can be written as an exponential family by using the trivial case where $p(\btheta)=h(\btheta)$.
 
-Formally a \textit{conjugate prior} for a likelihood
+Formally, a \textit{conjugate prior} for a likelihood
 \begin{align}
     p(\bx|\btheta) = h(\bx)\exp(\boldeta(\btheta)^\top T(\bx) - A(\btheta)),
     \label{eq:explikelihood}
@@ -76,10 +82,10 @@ Given a factorizable likelihood $p(\bX|\btheta) = \prod_{i=1}^N p(\bx_i|\btheta)
 \begin{align*}
     p(\btheta|\bX) \propto h'(\btheta)\exp\left(\left(\{\sum_{i=1}^N T(\bx_i), N\} + \boldeta'(\balpha)\right)^\top T'(\btheta)\right).
 \end{align*}
-The latter equation can easily be normalized since it is a known distribution.
+The latter equation can easily be normalized since it is a known distribution of the same family of the prior.
+Such conjugate models, are very practical as the posterior can be found in one step, but due to the constraints also tend to be too simple for real-world complex models.
 
-Such conjugate models, are very practical and cheap to compute, but due to the constraints also tend to be too simple.
-Without obtaining the posterior in closed-form it is sometimes possible to get all full-conditionals in closed-form, we can talk then about \textit{conditionally conjugate} models.
+If using a conjugate likelihood is not possible, a relaxation is to have all full-conditionals in closed-form, we talk then about \textit{conditionally conjugate} models.
 The full-conditional is defined as $p(\theta_i|\bx, \btheta_{/i})$ where $\btheta_{/i}$ represents the set of latent variables $\btheta$ where $\theta_i$ has been omitted.
 Knowing the full-conditional distribution in closed-form means that when conditioned on the other variables, the posterior is known in closed-form.
 What we need in practice is to be able to write the likelihood conditioned on the other  for each variable $\theta_i$ (or block of variables).
