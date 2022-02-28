@@ -114,7 +114,7 @@ $K$ is positive-definite, i.e. for $K\in \real^{D\times D}$, and $x\in \real^D$,
 
 \subsection{Gaussian Process Regression}
 
-We now have a prior on the realization of the function $\boldf$ on the data $\bX = \{\bx_i\}_{i=1}^N$, $p(\boldf) = \No(\boldf|\bmu_0, \bK)$, where $\bmu_0 = \{\bmu_0(\bx_i)\}_{i=1}^N$ is the mean function.
+We now have a prior on the realization of the function $\boldf$ on the data $\bX = \{\bx_i\}_{i=1}^N$, $p(\boldf) = \No(\boldf|\bmu_0, \bK)$, where $\bmu_0 = \{\mu_0(\bx_i)\}_{i=1}^N$ is the mean vector based on the function $\mu_0$.
 We can add noisy observations $\by = \{y_i\}_{i=1}^N$ for each respective $\bX$:
 \begin{align}
 y_i = f(X_i) + \epsilon_i,
