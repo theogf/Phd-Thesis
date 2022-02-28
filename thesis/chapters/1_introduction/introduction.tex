@@ -15,35 +15,29 @@
 
 
 \ac{ML} has become a wide field of research with a variety of subfields, each dedicated to solve various problems in different ways.
-\textit{Probabilistic machine learning}, in particular, aims at representing the different models, using paradigms and tools from statistics.
-
-\begin{itemize}
-    \item Motivate the idea of Bayesian machine learning
-    \item Bring to the concept of relation between representation and inference
-    \item Introduce each of the chapter properly
-\end{itemize}
-
+\textit{Probabilistic machine learning} in particular, aims at representing the different models, using paradigms and tools from statistics.
+One can even probably, pun intended, see probabilistic \ac{ML} as a simplified version of applied statistics, where most assumptions about models and data are set to be true. 
+Nonetheless, the recent applications of \ac{ML} models have proved there formidable expressiveness and learning power.
+ 
 
 \section{Bayes in Machine Learning}
-
-\begin{itemize}
-    \item Bayes is awesome
-    \item Frequentist vs Bayesian
-\end{itemize}
 
 Some problems in \ac{ML} have critical requirements, such as probability guarantees for predictions or working with meaningful interpretable models.
 The Bayesian framework brings both these aspects by working with probability distributions instead of point estimates.
 For a given probabilistic model, by setting a prior distribution over the parameters, the \textit{posterior} represent the updated belief we have about our model after observing some data.
 This allows to model uncertainty in a principled way and prevents overfitting in the low-data regime.
-However, Bayesian inference often comes with a higher computational cost: a distribution contains more information than a single point, finding analytical solutions is rare and often require involved manual derivations.
-
-Modern research into Bayesian machine learning goes mainly two ways: defining more complex and interesting models and finding more efficient and scalable ways to perform inference on them.
-Both aspects are important since detailed models can provide more accurate models but the amount of compute is limited.
-
-% Bayesian Machine Learning is just another name for applied statistics on clean datasets.
 A typical example is in medicine, where data is scarce, but the predictive outcome can have a dramatic effect (diagnosis, prognosis, etc...).
+Providing uncertainties is the only way to help the practitioner make a decision given the model predictions.
 
+However, Bayesian inference often comes with a higher computational cost: a distribution contains more information than a single point, finding analytical solutions mostly happens for trivial models and often requires involved manual derivations.
 
+Modern research into Bayesian \ac{ML} goes mainly two ways:
+\begin{itemize}
+    \item defining more complex and interesting models,
+    \item finding more efficient and scalable algorithms to perform inference on them.
+\end{itemize}
+Both aspects are important since detailed models can provide more accurate models but the amount of compute is limited.
+The first part of this thesis 
 
 \section{The underestimated power of representations choices}
 
@@ -51,7 +45,7 @@ A typical example is in medicine, where data is scarce, but the predictive outco
 %     \item Different representation lead to very different results, efficiency etc.
 %     \item Mention existing approaches
 % \end{itemize}
-The leading thread of this thesis is \textit{model representation} or alternatively \textit{model parameterization}, and how to use it to solve problem more efficiently and faster without compromising accuracy.
+The leading thread of this thesis is \textit{model representation}, alternatively called d \textit{model parameterization}, and its use for solving problem more efficiently and faster without compromising prediction quality.
 
 When defining probabilistic models, one needs to define relations between variables (observed and latent) and choose appropriate distributions to represent those.
 Some modelling choices are equivalent conceptually but have drastic differences when it comes to inference.
@@ -85,28 +79,28 @@ There are two equivalent representations, called centered and non-centered, wher
 \vspace{0.5cm}
 
 While both parameterizations are one and the same, working with $p(\tilde{x},\tilde{z})$ is obviously simpler.
-In the same sense that it is easier to work with spherical coordinates instead of Euclidean ones for electrodynamics. 
+An analogy in physics would be of how easier it is to work with spherical coordinates instead of Euclidean ones for electrodynamics. 
 
 The various works presented focus on finding such representations where inference is made a lot easier and usually faster.
 In particular, I will focus on the case where variables can be represented as (hierarchical) mixtures.
-Defined later in Section \ref{sec:scale-mixtures}, variables that can be rewritten as scale-mixtures have a lot of advantages.
-Writing them explicitly as mixtures, i.e. by augmenting the model with a new latent variable, makes inference much easier while keeping the original model intact.
+Defined later in Section \ref{sec:scale-mixtures}, variables that can be rewritten as scale-mixtures have a lot of advantages and interesting properties.
+Writing them explicitly as mixtures, i.e. by augmenting the model with a new latent variable, makes inference considerably easier while keeping the original model intact.
 This augmentation procedure brings the counter-intuitive view that adding more variables actually \textit{simplifies} the problem.
 
 \section{Gaussian Processes}
 
 Although these augmentations can be applied to most probabilistic models, a strong focus is made on Gaussian based models, and more particularly \acf{GPs}.
 A \ac{GP} is a strong non-parametric tool to approximate functions using probabilistic methods.
-They used to be reserved to Gaussian regression problems, like the original \textit{krigging problem} \needcite, but they can also be used as latent function for more complex problems like classification, ordinal regression and more.
+They used to be reserved to Gaussian regression problems, like the original \textit{kriging problem} \cite{cressie1990origins}, but they can also be used as latent function for more complex problems like classification, ordinal regression and more.
 Compared to other general function approximators like neural networks, they have the advantage to provide uncertainty on the prediction they make.
 Their non-parametric nature naturally avoids over-parametrization: while modern neural networks have billions of parameters to optimize, \ac{GPs} only depend on a mean function and a kernel function.
 Most importantly, as their name suggest, they are based on Gaussian distributions, making them the best candidates for the presented work on augmentation.
-A full technical introduction is given in Section~\ref{sec:gps}.
+A full technical introduction to basic \ac{GPs} and its extensions is given in Section~\ref{sec:gps}.
 
 \section{Open-source projects}
 
 All the works presented in this thesis as well as additional tools are backed-up by user-friendly packages in Julia.
-Throughout my time as a Ph.D. student I have developed numerous Julia packages and in particular was involved in the JuliaGaussianProcesses organisation to develop a flexible, efficient and easy-to-use framework to work with \ac{GPs}.
+Throughout my time as a Ph.D. student I have developed numerous Julia packages and in particular was involved in the \href{JuliaGaussianProcesses organisation}{https://github.com/JuliaGaussianProcesses} to develop a flexible, efficient and easy-to-use framework to work with \ac{GPs}.
 This is done through the different packages \href{https://github.com/JuliaGaussianProcesses/KernelFunctions.jl}{KernelFunctions.jl}~\cite{theo_galy_fajou_2022_6246597}, \href{https://github.com/JuliaGaussianProcesses/AbstractGPs.jl}{AbstractGPs.jl}~\cite{david_widmann_2022_5939997}, \href{https://github.com/JuliaGaussianProcesses/ApproximateGPs.jl}{ApproximateGPs.jl} and \href{https://github.com/JuliaGaussianProcesses/GPLikelihoods.jl}{GPLikelihoods.jl}.
 The particular strength of our work is the one-to-one mapping between theory and code.
 For example to define the posterior for some given data, the code looks like:
@@ -115,11 +109,11 @@ For example to define the posterior for some given data, the code looks like:
     fx = f(X, noise) # create a realization on the data X
     fpost = posterior(fx, y) # Create the posterior given the observations y
 \end{minted}
-Here, each computational object represent exactly its mathematical equivalent.
+Here, each computational object represents exactly its mathematical equivalent.
 
 The work of this thesis is represented as well with the package \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl}, which provide all the necessary tools to work with augmentations.
 Julia has the advantage to have an extremely strong interoperability capacity.
-This allows to use the augmentation work on specific implementation of \ac{GPs} such as temporal \ac{GPs} like in \href{https://github.com/JuliaGaussianProcesses/TemporalGPs.jl}{TemporalGPs.jl} (see examples/augmented\_inference.jl).
+This allows to use the augmentation work on specific implementation of \ac{GPs} such as temporal \ac{GPs} with a concrete example given in \href{https://github.com/JuliaGaussianProcesses/TemporalGPs.jl}{TemporalGPs.jl} (see examples/augmented\_inference.jl).
 
 Independently, \href{https://github.com/theogf/AugmentedGaussianProcesses.jl}{AugmentedGaussianProcesses.jl}~\cite{theo_galy_fajou_2021_5728215} was developed a stand-alone \ac{GP} package providing the augmentations techniques but also more standard inference techniques. 
 
@@ -127,19 +121,19 @@ Independently, \href{https://github.com/theogf/AugmentedGaussianProcesses.jl}{Au
 
 This thesis is constructed as follows:
 \begin{itemize}
-    \item Chapter \ref{ch:background} will introduce in details all the common concepts to Bayesian inference and \ac{GPs}.
+    \item Chapter~\ref{ch:background} will introduce in details all the common concepts to Bayesian inference and \ac{GPs}.
           This background is generally introduced in each of the published articles, but this chapter allows going more in-depth in the background theory.
           Bayesian inference will be properly introduced with a focus on variational inference and sampling.
-    \item Chapter \ref{ch:classification} introduces the paper \textit{Efficient Gaussian Process Classification Using P\`olya-Gamma Data Augmentation}, which was the first step of this thesis using augmentations to improve and scale up inference.
-    \item Chapter \ref{ch:multiclass} introduced the paper \textit{Multi-Class Gaussian Process Classification Made Conjugate: Efficient Inference via Data Augmentation}.
+    \item Chapter~\ref{ch:classification} introduces the paper \textit{Efficient Gaussian Process Classification Using P\`olya-Gamma Data Augmentation}, which was the first step of this thesis using augmentations to improve and scale up inference.
+    \item Chapter~\ref{ch:multiclass} introduced the paper \textit{Multi-Class Gaussian Process Classification Made Conjugate: Efficient Inference via Data Augmentation}.
           This paper brings new concepts of augmentation to a much more complex problem: multi-class classification.
-    \item Chapter \ref{ch:general} introduces the paper \textit{Automated Augmented Conjugate Inference for Non-conjugate Gaussian Process Models}.
+    \item Chapter~\ref{ch:general} introduces the paper \textit{Automated Augmented Conjugate Inference for Non-conjugate Gaussian Process Models}.
           This work was the first generalization of one type of augmentation and allowed to get a much better understanding of these concepts.
-    \item Chapter \ref{ch:chapter6} introduces the draft of the paper \textit{\com{fill in}}
-    currently under review.
-    This paper solves of the issues rising when using scalable \ac{GPs} models by using sampling and other techniques.
-    \item Chapter \ref{ch:gpf} introduces the paper \textit{Flexible and Efficient Inference with Particles for the Variational Gaussian Approximation } a completely different way of performing variational inference with Gaussian distribution by using a continuous flows and particles.
-    
+    % \item Chapter \ref{ch:chapter6} introduces the draft of the paper \textit{\com{fill in}} currently under review.
+    % This paper solves of the issues rising when using scalable \ac{GPs} models by using sampling and other techniques.
+    \item Chapter~\ref{ch:gpf} introduces the paper \textit{Flexible and Efficient Inference with Particles for the Variational Gaussian Approximation } a completely different way of performing variational inference with Gaussian distribution by using a continuous flows and particles.
+    \item Finally, Chapter~\ref{ch:discussion} introduces multiple discussions about the different works presented as well as some concrete outlooks on how new models and new generalizations could be explored.
+
     For all papers, the contribution will be detailed using a simplified view of the \href{https://mdpi-res.com/data/contributor-role-instruction.pdf}{Contributor Roles Taxonomy} (CReditT).
 
 \end{itemize}

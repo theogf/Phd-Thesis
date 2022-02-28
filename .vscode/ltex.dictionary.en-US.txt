@@ -12,3 +12,8 @@ approximators
 logistic-softmax
 Rosenbrock
 Pólya-Gamma
+parameterizations
+kriging
+AAAI
+Wenzel
+Galy-Fajou
