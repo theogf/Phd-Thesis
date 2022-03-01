@@ -9,6 +9,7 @@ using MCMCChains
 using AdvancedHMC
 using Random
 using ForwardDiff
+using Zygote
 using MLDataUtils
 using MLDatasets
 using CairoMakie
@@ -61,6 +62,37 @@ gibbs_chain = Chains(fs[501:end])
 
 ## HMC Part
 
+function sample_with_nuts(init_θ, logπ, metric)
+    hamiltonian = Hamiltonian(metric, logπ, Zygote)
+
+    # Define a leapfrog solver, with initial step size chosen heuristically
+    initial_ϵ = find_good_stepsize(hamiltonian, init_θ)
+    integrator = Leapfrog(initial_ϵ)
+
+    proposal = NUTS{MultinomialTS, GeneralisedNoUTurn}(integrator)
+    adaptor = StanHMCAdaptor(MassMatrixAdaptor(metric), StepSizeAdaptor(0.8, integrator))
+
+    t_nuts = @elapsed samples, stats = sample(hamiltonian, proposal, init_θ, 2000, adaptor, 500; progress=true)
+    nuts_chain = Chains(Ref(L) .* getindex.(samples, Ref(1:N)))
+    return t_nuts, nuts_chain
+end
+
+function sample_with_hmc(init_θ, logπ, metric)
+    hamiltonian = Hamiltonian(metric, logπ, Zygote)
+
+    # Define a leapfrog solver, with initial step size chosen heuristically
+    initial_ϵ = find_good_stepsize(hamiltonian, init_θ)
+    integrator = Leapfrog(initial_ϵ)
+
+    proposal = StaticTrajectory(integrator, 30)
+    adaptor = StanHMCAdaptor(MassMatrixAdaptor(metric), StepSizeAdaptor(0.8, integrator))
+
+    t_hmc = @elapsed samples, stats = sample(hamiltonian, proposal, init_θ, 2000, adaptor, 500; progress=true)
+    hmc_chain = Chains(Ref(L) .* getindex.(samples, Ref(1:N)))
+    return t_hmc, hmc_chain
+end
+## Run the Augmented model
+
 π_0 = aux_prior(lik)
 function logπ(θ)
     v = θ[1:N]
@@ -71,25 +103,8 @@ D = 2N
 init_θ = vcat(L \ f_init, log.(rand(rng, N)))
 logπ(init_θ)
 metric = DiagEuclideanMetric(D)
-hamiltonian = Hamiltonian(metric, logπ, Zygote)
-# hamiltonian = Hamiltonian(metric, logπ, ForwardDiff)
-
-# Define a leapfrog solver, with initial step size chosen heuristically
-initial_ϵ = find_good_stepsize(hamiltonian, init_θ)
-integrator = Leapfrog(initial_ϵ)
-
-# Define an HMC sampler, with the following components
-#   - multinomial sampling scheme,
-#   - generalised No-U-Turn criteria, and
-#   - windowed adaption for step-size and diagonal mass matrix
-proposal = NUTS{MultinomialTS, GeneralisedNoUTurn}(integrator)
-adaptor = StanHMCAdaptor(MassMatrixAdaptor(metric), StepSizeAdaptor(0.8, integrator))
-
-# Run the sampler to draw samples from the specified Gaussian, where
-#   - `samples` will store the samples
-#   - `stats` will store diagnostic statistics for each sample
-t_nuts_aug = @elapsed samples_aug, stats = sample(hamiltonian, proposal, init_θ, 2000, adaptor, 500; progress=true)
-nuts_aug_chain = Chains(getindex.(samples_aug, Ref(1:N)))
+t_nuts_aug, nuts_aug_chain = sample_with_nuts(init_θ, logπ, metric)
+t_hmc_aug, hmc_aug_chain = sample_with_hmc(init_θ, logπ, metric)
 
 ## HMC Chain
 
@@ -101,39 +116,21 @@ D = N
 init_θ = L \ f_init
 logπ(init_θ)
 metric = DiagEuclideanMetric(D)
-hamiltonian = Hamiltonian(metric, logπ, Zygote)
-# hamiltonian = Hamiltonian(metric, logπ, ForwardDiff)
-
-# Define a leapfrog solver, with initial step size chosen heuristically
-initial_ϵ = find_good_stepsize(hamiltonian, init_θ)
-integrator = Leapfrog(initial_ϵ)
-
-# Define an HMC sampler, with the following components
-#   - multinomial sampling scheme,
-#   - generalised No-U-Turn criteria, and
-#   - windowed adaption for step-size and diagonal mass matrix
-proposal = NUTS{MultinomialTS, GeneralisedNoUTurn}(integrator)
-adaptor = StanHMCAdaptor(MassMatrixAdaptor(metric), StepSizeAdaptor(0.8, integrator))
-
-# Run the sampler to draw samples from the specified Gaussian, where
-#   - `samples` will store the samples
-#   - `stats` will store diagnostic statistics for each sample
-t_nuts = @elapsed samples, stats = sample(hamiltonian, proposal, init_θ, 2000, adaptor, 500; progress=true)
-nuts_chain = Chains(Ref(L) .* samples)
-
+t_nuts, nuts_chain = sample_with_nuts(init_θ, logπ, metric)
+t_hmc, hmc_chain = sample_with_hmc(init_θ, logπ, metric)
 
 ## Exploration part 
-lags = 1:20
+lags = 1:10
 
-autocors = map((gibbs_chain, nuts_aug_chain, nuts_chain)) do chain
-    autocor_matrix = Array(DataFrame(autocor(chain; lags)[1])[!, lags .+ 1])
-    return mean(eachrow(abs.(autocor_matrix)))
+autocors = map((gibbs_chain, hmc_aug_chain, hmc_chain, nuts_aug_chain, nuts_chain)) do chain
+    autocor_matrix = Array(DataFrame(autocor(chain[1:2:end]; lags)[1])[!, lags .+ 1])
+    return mean(eachrow(autocor_matrix))
     # return autocor_matrix[rand(1:N),:]
 end
 fig = Figure()
 ax = Axis(fig[1, 1], title = "Autocorrelation", titlesize=33.0, xlabel="Lag", xlabelsize=30.0)
-ps = map(zip(autocors, ["Gibbs Sampling", "NUTS (aug. model)", "NUTS"])) do (ac, name)
-    lines!(ax, lags, ac, label=name, linewidth=5.0)
+ps = map(zip(autocors, ["Gibbs Sampling", "HMC (aug. model)", "HMC", "NUTS (aug. model)", "NUTS"])) do (ac, name)
+    lines!(ax, lags * 2, ac, label=name, linewidth=5.0)
 end
 axislegend(ax; labelsize=30.0)
 resize_to_layout!(fig)
@@ -143,10 +140,11 @@ mkpath(fig_path)
 save(joinpath(fig_path, "autocorrelation.pdf"), fig)
 fig
 ##
-plot(lags, collect(autocors), lw=3.0, title="Autocorrelation", label=[], xlabel="lag", ylims=(0, 0.4), legendfontsize=13.0)
+# plot(lags, collect(autocors), lw=3.0, title="Autocorrelation", label=[], xlabel="lag", ylims=(0, 0.4), legendfontsize=13.0)
 
-for chain in (:gibbs, :nuts_aug, :nuts)
-    ess_val = mean(Matrix(DataFrame(ess_rhat(eval(Symbol(chain, "_chain")))))[:, 2])
-    println("$chain\n\tess: $ess_val")
+for chain in (:gibbs, :nuts_aug, :nuts, :hmc_aug)
+    ess_val = mean(Matrix(DataFrame(ess_rhat(eval(Symbol(chain, "_chain"))[1:2:end, :, :])))[:, 2]) + mean(Matrix(DataFrame(ess_rhat(eval(Symbol(chain, "_chain"))[2:2:end, :, :])))[:, 2])
+    println("$chain\n\tess: $(ess_val)")
     println("\ttime: $(eval(Symbol("t_", chain)))")
+    println("\tess/s: $(ess_val / eval(Symbol("t_", chain)))")
 end
