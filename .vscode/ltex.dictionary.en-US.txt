@@ -17,3 +17,8 @@ kriging
 AAAI
 Wenzel
 Galy-Fajou
+CReditT
+Kloft
+gpf
+tex
+GPs

@@ -38,6 +38,7 @@ else
 end
 fx = gp(x, ϵ)
 K = cov(fx)
+const L = ApproximateGPs._chol_cov(fx).L
 
 ## Gibbs sampling part
 function gibbs_sample(fz, f, Ω; nsamples=200)
@@ -60,7 +61,6 @@ gibbs_chain = Chains(fs[501:end])
 
 ## HMC Part
 
-const L = ApproximateGPs._chol_cov(fx).L
 π_0 = aux_prior(lik)
 function logπ(θ)
     v = θ[1:N]
@@ -93,7 +93,6 @@ nuts_aug_chain = Chains(getindex.(samples_aug, Ref(1:N)))
 
 ## HMC Chain
 
-const L = ApproximateGPs._chol_cov(fx).L
 function logπ(θ)
     v = θ[1:N]
     return loglikelihood(Normal(), v) + sum(logpdf.(LocationScale.(L * v, 1.0, TDist(ν)), y))

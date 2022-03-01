@@ -265,7 +265,7 @@ A standard way to find the $\bphi^* = \arg\min \VFE(\bphi)$ is to perform gradie
 Computing the gradient $\grad_{\bphi}\VFE(\bphi)$ can be non-trivial, as it involves derivatives over expectations.
 Also, the choice of the family $\mathcal{Q}$ is a trade-off decision.
 A richer, more complex family will probably be able to approximate the posterior better but computing the distance and optimizing will be increasingly difficult.
-A standard example is the \ac{VGA}\footnote{The \ac{VGA} is explored in more details in Chapter~\ref{ch:chapter6}.}, i.e. the variational distribution $q_{\bphi}$ is a Gaussian, i.e. $\mathcal{Q} = \left\{q \sim \mathcal{N}(\boldm, S)\right\}$, and $\bphi = \{\boldm, S\}$.
+A standard example is the \ac{VGA}\footnote{The \ac{VGA} is explored in more details in Chapter~\ref{ch:gpf}.}, i.e. the variational distribution $q_{\bphi}$ is a Gaussian, i.e. $\mathcal{Q} = \left\{q \sim \mathcal{N}(\boldm, S)\right\}$, and $\bphi = \{\boldm, S\}$.
 One can decide to restrict $\mathcal{Q}$ further by specifying the structure of $S$.
 Forcing it to be diagonal will simplify a lot of computations and avoid inverse operations, but all correlation information in the posterior will be completely lost.
 This is what the mean-field approximation is about.

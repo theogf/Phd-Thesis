@@ -20,7 +20,7 @@ An example of this is quickly given in the section~\ref{sec:improvemulticlass}.
 \section{Double bounds for intricate latent GPs}
 
 The model developed in Chapter~\ref{ch:multiclass} paves the ways to work with multi-latent models and hierarchical augmentations.
-Another model explored is the heteroscedastic Gaussian regression model which was already explored in \cite{} \needcite.
+Another model explored is the heteroscedastic Gaussian regression model which was already explored in \cite{wangGaussianProcessRegression2012}.
 By having two latent \ac{GPs} $f$ and $g$, one can model simultaneously the mean and the variance.
 An important choice is the link between $g$ and the likelihood variance $\epsilon^2$.
 The most popular link is the exponential link, i.e. $\epsilon^2(x) = \exp(g(x))$, however to be able to apply our augmentations, we use the link $\epsilon^2(x) = \left(\lambda \sigma(g(x))\right)^{-1}$.
@@ -71,8 +71,8 @@ This is not only limited in accuracy but also much more expensive to compute.
 But if one perseveres, the Figure~\ref{fig:hmc_vs_gibbs} shows the auto-correlation plots on a toy \ac{GP} classification problem.
 
 \begin{figure}
-    \includegraphics[width=\textwidth]{example-image-a}
-    \caption{Auto-correlation of a Gibbs sampler and \ac{HMC} on the augmented model, and of \ac{HMC} on the original model}
+    \includegraphics[width=\textwidth]{./chapters/8/figures/autocorrelation.pdf}
+    \caption{Auto-correlation of a Gibbs sampler and \ac{NUTS} on the augmented model, and of \ac{NUTS} on the original model}
     \label{fig:hmc_vs_gibbs}
 \end{figure}
 
@@ -94,7 +94,7 @@ Using this formulation we get the following likelihood:
             \frac{\sigma(f_k)}{D + \sum_{i=1}^{K-1}\sigma(f_i)}, & \mathrm{if}\; 1 \leq k < K - 1\\
             \frac{D}{D + \sum_{i=1}^{K-1}\sigma(f_i)}, & \mathrm{if}\; k = K - 1 \\
     \end{array}
-    \right.
+    \right.,
 \end{align}
 where $D \in [0, 1]$.
 
@@ -139,7 +139,7 @@ More interestingly, all these derivations could have been avoided by noticing th
 \begin{align*}
     \operatorname{MGF}_{\operatorname{NM}(x_0,\boldsymbol{p})}(\boldsymbol{t}) = \left(\frac{p_0}{1-\sum_{i=1}^K p_k e^{t_i}}\right)^{x_0},
 \end{align*}
-This makes it even easier to derive the non-overparametrized model proposed in Section~\ref{sec:simplex}.
+This makes it even easier to derive the correctly parametrized model proposed in Section~\ref{sec:simplex}.
 Quickly identifying the terms in the \ac{MGF}, the augmented likelihood would be:
 \begin{align*}
     p\left(y=k,\{n_i\}_{i=1}^{K-1}|\{f_i\}_{i=1}^{K-1}\right) = \frac{\sigma(f_k)}{D}\left(\prod_{i=1}^{K-1}\sigma(-f_i)^{n_i}\right)\operatorname{NM}\left(\boldsymbol{n}\mid 1, \left\{\frac{1}{D+K-1}\right\}_{i=1}^{K-1}\right),
