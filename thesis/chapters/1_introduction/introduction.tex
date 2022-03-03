@@ -16,28 +16,28 @@
 
 \ac{ML} has become a wide field of research with a variety of subfields, each dedicated to solve various problems in different ways.
 \textit{Probabilistic machine learning} in particular, aims at representing the different models, using paradigms and tools from statistics.
-One can even probably, pun intended, see probabilistic \ac{ML} as a simplified version of applied statistics, where most assumptions about models and data are set to be true. 
-Nonetheless, the recent applications of \ac{ML} models have proved there formidable expressiveness and learning power.
+One can probably, pun intended, see probabilistic \ac{ML} as a simplified version of applied statistics, where most assumptions about models and data are just expected to be true. 
+Nonetheless, the recent applications of \ac{ML} models have proved their formidable expressiveness and learning power.
  
-
 \section{Bayes in Machine Learning}
 
 Some problems in \ac{ML} have critical requirements, such as probability guarantees for predictions or working with meaningful interpretable models.
 The Bayesian framework brings both these aspects by working with probability distributions instead of point estimates.
-For a given probabilistic model, by setting a prior distribution over the parameters, the \textit{posterior} represent the updated belief we have about our model after observing some data.
+For a given probabilistic model, by setting a \textit{prior} over the parameters, the \textit{posterior} represents the updated belief we have about our model after observing some data.
 This allows to model uncertainty in a principled way and prevents overfitting in the low-data regime.
 A typical example is in medicine, where data is scarce, but the predictive outcome can have a dramatic effect (diagnosis, prognosis, etc...).
 Providing uncertainties is the only way to help the practitioner make a decision given the model predictions.
 
-However, Bayesian inference often comes with a higher computational cost: a distribution contains more information than a single point, finding analytical solutions mostly happens for trivial models and often requires involved manual derivations.
+However, Bayesian models often come with a higher computational cost: a distribution contains more information than a single point and finding analytical solutions mostly happens for trivial models.
+This is why a lot of research focus on useful approximation algorithm to find solutions to more complex problems.
 
-Modern research into Bayesian \ac{ML} goes mainly two ways:
+Modern research into approximate inference Bayesian \ac{ML} goes mainly two ways:
 \begin{itemize}
     \item defining more complex and interesting models,
     \item finding more efficient and scalable algorithms to perform inference on them.
 \end{itemize}
 Both aspects are important since detailed models can provide more accurate models but the amount of compute is limited.
-The first part of this thesis 
+The first part of this thesis focus on making the latter 
 
 \section{The underestimated power of representations choices}
 
@@ -45,7 +45,7 @@ The first part of this thesis
 %     \item Different representation lead to very different results, efficiency etc.
 %     \item Mention existing approaches
 % \end{itemize}
-The leading thread of this thesis is \textit{model representation}, alternatively called d \textit{model parameterization}, and its use for solving problem more efficiently and faster without compromising prediction quality.
+The leading thread of this thesis is \textit{model representation}, alternatively called \textit{model parameterization}, and its use for solving problem more efficiently and faster without compromising prediction quality.
 
 When defining probabilistic models, one needs to define relations between variables (observed and latent) and choose appropriate distributions to represent those.
 Some modelling choices are equivalent conceptually but have drastic differences when it comes to inference.
@@ -132,7 +132,9 @@ This thesis is constructed as follows:
     % \item Chapter \ref{ch:chapter6} introduces the draft of the paper \textit{\com{fill in}} currently under review.
     % This paper solves of the issues rising when using scalable \ac{GPs} models by using sampling and other techniques.
     \item Chapter~\ref{ch:gpf} introduces the paper \textit{Flexible and Efficient Inference with Particles for the Variational Gaussian Approximation } a completely different way of performing variational inference with Gaussian distribution by using a continuous flows and particles.
-    \item Finally, Chapter~\ref{ch:discussion} introduces multiple discussions about the different works presented as well as some concrete outlooks on how new models and new generalizations could be explored.
+    \item Chapter~\ref{ch:discussion} introduces multiple discussions about the different works presented as well as some concrete outlooks on how new models and new generalizations could be explored.
+    \item Chapter~\ref{ch:conclusion} finished this thesis with a general conclusion.
+    \item Two additional workshop papers which do not fit the narrative of this thesis have been added in the Appendix~\ref{appendix:worshoppapers}
 
     For all papers, the contribution will be detailed using a simplified view of the \href{https://mdpi-res.com/data/contributor-role-instruction.pdf}{Contributor Roles Taxonomy} (CReditT).
 
