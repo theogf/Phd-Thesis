@@ -25,3 +25,6 @@ GPs
 Gaussians
 ICML
 Kullback-Leibler
+unmeasurably
+homoscedastic
+reparametrization

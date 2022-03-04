@@ -11,39 +11,40 @@
 
 For a full comprehension of the works to be presented a general overview of the concepts needed is presented here.
 A short introduction to the basic theory of \acl{GPs} as well as their extension to large datasets using inducing points \cite{Titsias2009} is given in Chapters~\ref{ch:classification},~\ref{ch:multiclass} and \ref{ch:general}, however a more thorough and basic description is given in this chapter.
-Additionally, this chapter dives more into the details of the basics of probabilistic Bayesian modeling, \acl{VI} and sampling methods.
+Additionally, this chapter dives more into the details of the basics of probabilistic Bayesian modeling, variational inference and sampling methods.
 
 
 \section{Probabilistic Bayesian Modeling}
 
 \label{sec:prob_bayes}
 
-Bayes' theorem is one of the simplest theorem in probabilities and its demonstration fits in one line, yet its implications are \com{fill in word like "so important"}.
+Bayes' theorem is one of the simplest theorem in probabilities and its demonstration fits in one line, yet its implications are unmeasurably important.
 
 Let's give a very general modeling setting that we are going to follow for the rest of this chapter.
-Given a set of observed variables $\bX$, a set of latent (unobserved) variables $\btheta$ with a \textit{prior} distribution $p(\btheta)$, and a \textit{likelihood} function $p(\bX|\btheta)$, we obtain the \textit{posterior} distribution $p(\btheta|\bX)$ via Bayes' theorem:
+Given a set of observed variables $\bD$, a set of latent (unobserved) variables $\bZ$ with a \textit{prior} distribution $p(\bZ)$, and a \textit{likelihood} function $p(\bD|\bZ)$, we obtain the \textit{posterior} distribution $p(\btheta|\bZ)$ via Bayes' theorem:
 \begin{align}
-p(\btheta|\bX) = \frac{p(\bX|\btheta)p(\btheta)}{p(\bX)} = \frac{p(\bX|\btheta)p(\btheta)}{\int p(\bX|\btheta)p(\btheta)d\btheta}
+p(\bZ|\bD) = \frac{p(\bD|\bZ)p(\bZ)}{p(\bD)} = \frac{p(\bD|\bZ)p(\bZ)}{\int p(\bD|\bZ)p(\bZ)d\bZ}.
 \label{eq:bayes}
 \end{align}
 
-The posterior allows us to obtain a distribution of the latent variables with its uncertainty given the prior $p(\btheta)$ and the data $\bX$.
-The posterior is used for computing all kind of expectations of the form $\expec{p(\btheta|\bx)}{f(\btheta)} = \int f(\btheta)p(\btheta|\bx)d\btheta$.
-Expected values of interest can be statistics of the posterior like the mean ($\expec{p(\btheta|\bx)}{\btheta}$) or predictions of new data points $p(\bx'|\bx) = \expec{p(\btheta|\bx)}{p(\bx'|\btheta)}$.
+Here $p(\bD)$ represents the evidence, and can be used to compare different model (the dependency on the used model is implicit here).
+The posterior allows us to obtain a distribution of the latent variables with its uncertainty given the prior $p(\bZ)$ and the data $\bD$.
+The posterior is used for computing all kind of expectations of the form $\expec{p(\bZ|\bD)}{f(\bZ)} = \int f(\bZ)p(\bZ|\bD)d\bZ$.
+Expected values of interest can be statistics of the posterior like the mean ($\expec{p(\bZ|\bD)}{\bZ}$) or predictions of new data points $p(\bx'|\bD) = \expec{p(\bZ|\bD)}{p(\bx'|\bZ)}$.
 
-Probabilistic models can roughly be divided in two categories: \textbf{generative}, i.e. observed data has been generated from a stochastic model, and \textbf{discriminative}, i.e. observed data can be divided in two, typically input and output, and a stochastic model connects the two.
-However, this work's scope is restricted to discriminative models only.
+Probabilistic models can roughly be divided in two categories: \textbf{generative}, i.e. observed data has been generated from a stochastic model, and \textbf{discriminative}, i.e. observed data has an input and an output, and a stochastic model connects the two.
+Note that the scope of this work scope is restricted to discriminative models.
 Let's take the simple example of linear logistic regression, a discriminative model:
 Given an input $\bx \in \mathbb{R}^D$ and binary label $y\in \{ 0, 1\}$, we model the generative model as:
 \begin{align}
     y \sim \Be\left(\sigma(\btheta^\top \bx)\right),
 \end{align}
-where $\Be$ is the Bernoulli distribution, $\btheta\in\mathbb{R}^D$ and $\sigma$ is the logistic function $\sigma(x) = \frac{1}{1 + \exp(-x)}$, i.e. $\sigma : \mathbb{R} \mapsto [0, 1]$.
+where $\Be$ is the Bernoulli distribution, $\btheta\in\mathbb{R}^D$ is a vector of weights (our latent variable $\bZ$), and $\sigma$ is the logistic function $\sigma(x) = \frac{1}{1 + \exp(-x)}$, i.e. $\sigma : \mathbb{R} \mapsto [0, 1]$.
 The likelihood function is given by: $p(y_i|\btheta,\bx_i) =\sigma\left(\btheta^\top \bx_i\right)^{y_i}\sigma\left(-\btheta^\top \bx_i\right)^{1-y_i}$ for an output label $y_i$ and input features $\bx_i$.
 
 Now let's suppose that we have $N$ pairs of input $\bx$ and label $y$, that we assume to be \ac{iid}, we get a training set $\bX = \{\bx_1,\ldots,\bx_N\}$, $\boldy = \{y_1,\ldots,y_N\}$.
 The posterior is built as $p(\btheta|y,\bX) \propto p(\btheta)\prod_{i=1}^N p(y_i|\btheta, \bx_i)$.
-Predictions for a new input data $\bx^*$ can be then computed as:
+Predictions for a new data input $\bx^*$ can be then computed as:
 \begin{align}
 p(y^*|\bx^*,\boldy,\bX) = \int p(y^*, \btheta|\bx^*\boldy, \bX)d\btheta = \int p(y^*|\btheta,\bx^*) p(\btheta|\boldy,\bX)d\btheta.
 \end{align}
@@ -54,11 +55,11 @@ To solve this integral, we must either be able to both know the posterior in clo
 \subsection{Posterior computations}
 \label{sec:posterior}
 Assuming that both the prior $p(\btheta)$ and the likelihood $p(\bx|\btheta)$ are known in closed-form, computing the posterior \eqref{eq:bayes} in closed-form means being able to compute the integral $p(\bx)=\int p(\bx|\btheta)p(\btheta)d\btheta$.
-For most non-trivial models, this integral is intractable and approximations to the posterior and/or sampling approaches are needed.
+For most non-trivial models, this integral is intractable and approximations to the posterior are needed.
 Such methods are introduced in Section~\ref{sec:approx_inf}.
 However, in certain settings, computing the posterior in closed-form is possible.
 This happens when the prior is said \textit{conjugate} to the likelihood, i.e. that the posterior is of the same probability distribution family as the prior.
-We emphasize this seemingly trivial case, since we will be to exploit such property in Section~\ref{sec:scale-mixtures}.
+It is worth emphasizing this seemingly trivial case, since it will be exploited such property in Section~\ref{sec:scale-mixtures}.
 If we consider the distributions part of the \textit{exponential family}, i.e. distributions that can be written as:
 \begin{align}
     p(\btheta|\bphi) = h(\btheta)\exp(\boldeta(\bphi)^\top T(\btheta) - A(\bphi)),
@@ -67,7 +68,7 @@ If we consider the distributions part of the \textit{exponential family}, i.e. d
 where $\bphi$ are the \textit{distribution parameters}, $h(\btheta)$ is a \textit{base measure}, $\boldeta(\bphi)$ corresponds to the \textit{natural parameters}, $T(\btheta)$ are the \textit{sufficient statistics} and $A(\bphi)$ is the \textit{log-partition}.
 Note that any distribution can be written as an exponential family by using the trivial case where $p(\btheta)=h(\btheta)$.
 
-Formally, a \textit{conjugate prior} for a likelihood
+Formally, a \textit{conjugate prior} to a likelihood defined as
 \begin{align}
     p(\bx|\btheta) = h(\bx)\exp(\boldeta(\btheta)^\top T(\bx) - A(\btheta)),
     \label{eq:explikelihood}
@@ -88,7 +89,7 @@ Such conjugate models, are very practical as the posterior can be found in one s
 If using a conjugate likelihood is not possible, a relaxation is to have all full-conditionals in closed-form, we talk then about \textit{conditionally conjugate} models.
 The full-conditional is defined as $p(\theta_i|\bx, \btheta_{/i})$ where $\btheta_{/i}$ represents the set of latent variables $\btheta$ where $\theta_i$ has been omitted.
 Knowing the full-conditional distribution in closed-form means that when conditioned on the other variables, the posterior is known in closed-form.
-What we need in practice is to be able to write the likelihood conditioned on the other  for each variable $\theta_i$ (or block of variables).
+In practice, we need to be able to write the likelihood conditioned on the other for each variable $\theta_i$ (or block of variables).
 In the same exponential family example above, instead of looking for \eqref{eq:explikelihood}, we are interested in:
 \begin{align*}
     p(\bx|\theta_i, \btheta_{/i}) = h(\bx, \btheta_{/i})\exp(\boldeta(\theta_i)^\top T(\bx, \btheta_{/i}) - A(\theta_i)).
@@ -98,36 +99,39 @@ In the same exponential family example above, instead of looking for \eqref{eq:e
 \label{sec:gps}
 \acf{GPs} are a class of stochastic processes used as non-parametric probabilistic representations to functions.
 A \ac{GP} is a stochastic process $f_t$, where the joint distribution on any collection of variables $f_t$ follows a (multivariate) Gaussian distribution.
-Most operations on Gaussian variables can be done analytically which makes them computationally very interesting.
+Most operations on Gaussian variables can be done analytically which makes them computationally very attractive.
 For instance, marginals can be computed exactly and a product of Gaussian distributions is still Gaussian.
 % The Gaussian distribution is to statistics what the harmonic oscillator is to physics".
 
 One of the interpretation of a \ac{GP} is as a prior on functions in the \acf{RKHS}.
-In practice the \ac{RKHS} is infinite-dimensional.
-To be able to perform any computation one needs to project it into a finite-dimensional space.
-Considering a function $f$ we wish to represent with a \ac{GP}, we can project it on data samples $\bX = \{\bx_1, \ldots, \bx_N\}$ by evaluating $f$ on them such that we obtain the finite-dimensional vector $\boldf$ where $f_i = f(\bx_i)$.
+In practice the \ac{RKHS} is infinite-dimensional and for any computations, one needs to project it into a finite-dimensional space.
+Considering a function $f$ we wish to represent with a \ac{GP}, we can project $f$ in a finite space by evaluating it on a set of data inputs $\bX = \{\bx_1, \ldots, \bx_N\}$ such that we obtain the finite-dimensional vector $\boldf$ where $f_i = f(\bx_i)$.
 % \missingfigure{Put a prior of a GP}
 
 \ac{GPs} are described to be non-parametric models, however one needs to define the covariance between each variable of the process via kernel functions \needcite and an underlying mean function.
-The prior on the projected \ac{GP} on $\bX$ is given by $\mathcal{N}\left(\mu_0(\bX), K_{X}\right)$ where $\mu_0(X):\mathbb{R}^{N\times D}\rightarrow \mathbb{R}^D$ is an arbitrary function and $K \in \mathbb{R}^{N\times N}$ is the kernel matrix, defined by $K_{ij} = k(x_i, x_j)$.
-$K$ is positive-definite, i.e. for $K\in \real^{D\times D}$, and $x\in \real^D$, $x^\top K x > 0$.
+The prior on the projected \ac{GP} on $\bX$ is given by $\mathcal{N}\left(\bmu_0(\bX), K_{X}\right)$ where $\mu_0(\bX)$ is a vector function such that $\bmu_0(\bX) = \{\mu_0(\bx_i)\}_{i=1}^N$ and $K \in \mathbb{R}^{N\times N}$ is the kernel matrix, defined by $K_{ij} = k(x_i, x_j)$.
+The important condition is that $K$ is positive-definite, i.e. for any $x\in \real^D$, $x^\top K x > 0$.
 
 \subsection{Gaussian Process Regression}
 
+Let's now have a look at the most standard
 We now have a prior on the realization of the function $\boldf$ on the data $\bX = \{\bx_i\}_{i=1}^N$, $p(\boldf) = \No(\boldf|\bmu_0, \bK)$, where $\bmu_0 = \{\mu_0(\bx_i)\}_{i=1}^N$ is the mean vector based on the function $\mu_0$.
 We can add noisy observations $\by = \{y_i\}_{i=1}^N$ for each respective $\bX$:
 \begin{align}
-y_i = f(X_i) + \epsilon_i,
+y_i = f(\bx_i) + \epsilon_i,
 \end{align}
 where $\epsilon_i \sim \No(0,\sigma^2)$.
 This leads to the likelihood $p(y_i|f_i) = \No(y_i|f_i, \sigma^2)$.
-Fortunately, multiplying Gaussian probability distributions together lead to another Gaussian distribution function.
-The posterior for $\boldf$ is given by $p(\boldf|\by) = \No(\boldf|\by, \bK + \sigma^2 I)$.
-The prediction of $f^*$ on a new point $\bx^*$ can be evaluated by computing:
+Fortunately, multiplying Gaussian probability distributions together lead to another Gaussian distribution function and the posterior for $\boldf$ is given by $p(\boldf|\by) = \No(\boldf|\by, \bK + \sigma^2 I)$.
+The prediction of $f^*$ on a new input $\bx^*$ can be evaluated by computing:
 \begin{align}
 p(f^*|\bx^*,\bX,\by) = \int p(f^*|\boldf,\bx^*)p(\boldf|\bX,\by)d\boldf.
 \end{align}	
-This integral is analytically solvable and results in $p(f^*|\bx^*,\bX,\by)=\No(f^*|m^*,s^*)$ where $m^* = K_{\bx^*,\bX}(K_{\bX,\bX} + \sigma^{2}I)^{-1}\boldy$ and $s^*=K_{\bx^*,\bx^*} - K_{\bx^*,\bX}\left(K_{\bX,\bX}+\sigma^2I\right)^{-1}K_{\bX,\bx^*}$.
+This integral is analytically tractable and results in $p(f^*|\bx^*,\bX,\by)=\No(f^*|m^*,s^*)$ where $m^* = K_{\bx^*,\bX}(K_{\bX,\bX} + \sigma^{2}I)^{-1}\boldy$ and $s^*=K_{\bx^*,\bx^*} - K_{\bx^*,\bX}\left(K_{\bX,\bX}+\sigma^2I\right)^{-1}K_{\bX,\bx^*}$.
+The prediction for $f^*$ is a Gaussian distribution, on top of knowing the mean $m^*$ we also have an uncertainty variance $s^*$.
+Note that $s^*$ depends directly on $K_{\bx^*,\bX}$, if $\bx^*$ is far from all points in $\bX$ (in the sense of the distance used in the kernel $k$), then $K_{\bx^*,\bX}$ will be very small and the variance $s^*$ maximized.
+This tells us that for new data $\bx^*$ observed far from the training, i.e. potentially different from what we observed so far, the uncertainty will be high regarding the prediction.
+A concrete example of this is shown on Figure~\ref{fig:gp_example}.
 
 \begin{figure}
     \includegraphics[width=\textwidth]{./chapters/2_background/figures/GP_example.pdf}
@@ -137,26 +141,29 @@ This integral is analytically solvable and results in $p(f^*|\bx^*,\bX,\by)=\No(
 
 \subsection{Non-Conjugate Gaussian Processes}
 
-A Gaussian prior is only conjugate\footnote{A prior is said conjugate to a given likelihood when the resulting posterior is of the same family of the prior.} to a Gaussian likelihood
-Therefore, \ac{GPs} only give a Gaussian posterior with a Gaussian likelihood, for all other cases we talk about \textit{Non-Conjugate Gaussian Processes}.
-Examples of Non-Conjugate \ac{GPs} are binary classification, regression using non-Gaussian noise such as Student-t or Laplace noise.
+A Gaussian prior is only conjugate to the mean parameter of a Gaussian likelihood.
+Therefore, the \ac{GP} posterior obtained in the previous section is only tractable for homoscedastic Gaussian likelihoods, for all other cases we talk about \textit{non-conjugate \ac{GPs}}.
+Examples of non-conjugate \ac{GPs} problems are binary classification, regression using non-Gaussian noise such as Student-t or Laplace noise, and event counting.
 Additionally, some likelihoods such as multi-class classification or heteroscedastic regression require multiple latent \ac{GPs}.
 
-In all these cases, the posterior is not analytically tractable and one has to resort to the approximation methods presented in Section~\ref{sec:approx_inf}.
+For all these problems, the posterior is not analytically tractable, and one need to resort to approximation methods such as the one presented in Section~\ref{sec:approx_inf}.
+A strong focus of this thesis is to work with these non-conjugate likelihoods and turn them into something analytically tractable again.
 
 \subsection{Sparse Gaussian Processes}
-One of the other largest issue of \ac{GPs}, regardless of the conjugacy of the likelihood, is the scalability with the number of observed samples.
+One of the other largest drawback of \ac{GPs}, regardless of the conjugacy of the likelihood, is the scalability with the number of observed samples.
 When computing the covariance, the inverse operation has a computational complexity of $\mathcal{O}(N^3)$ where $N$ is the number of samples.
-For one-dimensional inputs ($D=1$), solutions exist using state-space models representation, leading to an $\mathcal{O}(N)$ complexity but higher-dimensional problems require alternative solutions.
+For one-dimensional inputs ($D=1$), solutions exist using state-space models representation \cite{pmlr-v9-turner10a,solinInfiniteHorizonGaussianProcesses2018}, leading to an $\mathcal{O}(N)$ complexity but higher-dimensional problems require alternative solutions.
 \citet{csato2002sparse} proposed first to create an approximation of the posterior using a subset of the points only in the context of online learning.
-\citet{snelsonSparseGaussianProcesses2009} expanded this theory to the offline framework and \citet{Titsias2009} developed an alternative approximation based on KL divergence where the "inducing points" are not necessarily a subset of the training data and do not even have to belong to the same domain. \com{Cite related work}.
+\citet{snelsonSparseGaussianProcesses2009} expanded this theory to the offline framework and \citet{Titsias2009} developed an alternative approximation based on KL divergence where the "inducing points" are not necessarily a subset of the training data and do not even have to belong to the same domain \cite{NIPS2009_5ea1649a, vdw2020framework}.
 
-The rest of this thesis is based on \citet{Titsias2009} approach, where the approximation is made by defining a set of inducing points location $Z=\{\boldz_i\}_{i=1}^M$ and the respective realization of $\boldu$ where $u_i = u(\boldz_i)$
+The rest of this thesis is based on \citet{Titsias2009} approach, where the approximation is made by defining a set of inducing points location $Z=\{\boldz_i\}_{i=1}^M$ and the respective realization of $f$ on them: $\boldu$ where $u_i = u(\boldz_i)$.
+The variational distribution on $\boldu$ and $\boldf$ is
 \begin{align}
-    q(\boldu,\boldf) = q(\boldu)\prod_{i=1}^N p(f_i|\boldu)
+    q(\boldu,\boldf) = q(\boldu)\prod_{i=1}^N p(f_i|\boldu),
     \label{eq:titsias_assumption}
 \end{align}
-
+meaning that given the inducing points $\boldu$, the realizations $\boldf$ are all independent of each other.
+This is of course a strong assumption, but the inference and prediction complexity is then reduced to $\mathcal{O}(NM^2 + M^3)$, where $N$ can be reduced to a smaller batch-size $B$ when using stochastic inference approaches like in \cite{Hensman2013,Hensman2015}.
 
 \section{Approximate Bayesian Inference}
 \label{sec:approx_inf}
@@ -167,9 +174,10 @@ This problem of \textit{Approximate Bayesian Inference} is a research field of i
 \subsection{Sampling}
 
 Even if the posterior distribution $p(\btheta|\bx)$ is not available in closed-form, one might be able to draw samples from it.
-The whole collection of sampling techniques is again a whole research and the number of methods is too large to make mention of them all in this thesis.
-Therefore, the scope will be restricted to methods favored or tailored to \ac{GPs}.
-We will especially focus on \ac{MCMC} methods, where a
+The advantage of sampling is its unbiasedness, i.e. in the limit of infinitely many samples one recover the exact posterior distribution.
+The whole collection of sampling techniques is again a whole field of research and the number of methods is too large to make mention of them all in this thesis.
+Therefore, the scope is restricted to methods popular with or tailored to \ac{GPs}.
+We will especially focus on \ac{MCMC} methods.
 \subsubsection{Markov Chain Monte Carlo and Metropolis-Hastings}
 
 \acf{MCMC} methods generate a chain of variables $\btheta^t$ with the Markov assumption: $\btheta^t$ depends only on $\btheta^{t-1}$ and where the stationary distribution of $\btheta^t$ is the same as the target distribution (for our use case the posterior $p(\btheta|\bx)$).
@@ -228,6 +236,7 @@ For the second step automatic approaches exist, but they have their issues of th
 
 Another canonical sampling approach for \ac{GPs} is \ac{ESS} \citet{murrayEllipticalSliceSampling2010}.
 It is a variation of the standard random walk approach where instead of a taking a step in a random direction, the proposal is tried in various direction until a sample is found acceptable.
+\com{to finish}
 
 % TODO Finish this part
 
@@ -265,10 +274,11 @@ A standard way to find the $\bphi^* = \arg\min \VFE(\bphi)$ is to perform gradie
 \label{eq:vigraddescent}
 \end{align}
 
-Computing the gradient $\grad_{\bphi}\VFE(\bphi)$ can be non-trivial, as it involves derivatives over expectations.
-Also, the choice of the family $\mathcal{Q}$ is a trade-off decision.
-A richer, more complex family will probably be able to approximate the posterior better but computing the distance and optimizing will be increasingly difficult.
-A standard example is the \ac{VGA}\footnote{The \ac{VGA} is explored in more details in Chapter~\ref{ch:gpf}.}, i.e. the variational distribution $q_{\bphi}$ is a Gaussian, i.e. $\mathcal{Q} = \left\{q \sim \mathcal{N}(\boldm, S)\right\}$, and $\bphi = \{\boldm, S\}$.
+Computing the gradient $\grad_{\bphi}\VFE(\bphi)$ can be non-trivial, as it involves derivatives over expectations, but tricks like reparametrization \cite{titsiasDoublyStochasticVariational} help reducing the cost of these computations.
+
+The choice of the family $\mathcal{Q}$ is a trade-off decision.
+A richer, more complex family will probably be able to approximate the posterior better but computing the \ac{KL} and optimizing the variational parameters will be increasingly difficult.
+A standard example is the \ac{VGA}\footnote{The \ac{VGA} is explored in more details in Chapter~\ref{ch:gpf}.}, where the variational distribution $q_{\bphi}$ is a Gaussian, i.e. $\mathcal{Q} = \left\{q \sim \mathcal{N}(\boldm, S)\right\}$, and $\bphi = \{\boldm, S\}$.
 One can decide to restrict $\mathcal{Q}$ further by specifying the structure of $S$.
 Forcing it to be diagonal will simplify a lot of computations and avoid inverse operations, but all correlation information in the posterior will be completely lost.
 This is what the mean-field approximation is about.

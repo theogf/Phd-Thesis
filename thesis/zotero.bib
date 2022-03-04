@@ -5301,24 +5301,6 @@ arXiv: 1605.09522},
 	file = {Sawhney and Crane - Monte Carlo Geometry ProcessingA Grid-Free Approa.pdf:/home/theo/Zotero/storage/6CCMIG6M/Sawhney and Crane - Monte Carlo Geometry ProcessingA Grid-Free Approa.pdf:application/pdf;Sawhney and Crane - Monte Carlo Geometry ProcessingA Grid-Free Approa.pdf:/home/theo/Zotero/storage/TLDSCS65/Sawhney and Crane - Monte Carlo Geometry ProcessingA Grid-Free Approa.pdf:application/pdf;Sawhney and Crane - Monte Carlo Geometry ProcessingA Grid-Free Approa.pdf:/home/theo/Zotero/storage/W2CWMPUE/Sawhney and Crane - Monte Carlo Geometry ProcessingA Grid-Free Approa.pdf:application/pdf;Sawhney and Crane - Monte Carlo Geometry ProcessingA Grid-Free Approa.pdf:/home/theo/Zotero/storage/YGZDJ8EU/Sawhney and Crane - Monte Carlo Geometry ProcessingA Grid-Free Approa.pdf:application/pdf;Sawhney and Crane - Monte Carlo Geometry ProcessingA Grid-Free Approa.pdf:/home/theo/Zotero/storage/C293QTKU/Sawhney and Crane - Monte Carlo Geometry ProcessingA Grid-Free Approa.pdf:application/pdf;Sawhney and Crane - Monte Carlo Geometry ProcessingA Grid-Free Approa.pdf:/home/theo/Zotero/storage/H2NJ69A3/Sawhney and Crane - Monte Carlo Geometry ProcessingA Grid-Free Approa.pdf:application/pdf},
 }
 
-@article{Hensman2013,
-	title = {Comparison of approximate methods for handling hyperparameters},
-	volume = {11},
-	issn = {08997667},
-	doi = {10.1162/089976699300016331},
-	abstract = {I examine two approximate methods for computational implementation of Bayesian hierarchical models, that is, models that include unknown hyperparameters such as regularization constants and noise levels. In the evidence framework, the model parameters are integrated over, and the resulting evidence is maximized over the hyperparameters. The optimized hyperparameters are used to define a gaussian approximation to the posterior distribution. In the alternative MAP method, the true posterior probability is found by integrating over the hyperparameters. The true posterior is then maximized over the model parameters, and a gaussian approximation is made. The similarities of the two approaches and their relative merits are discussed, and comparisons are made with the ideal hierarchical Bayesian solution. In moderately ill-posed problems, integration over hyperparameters yields a probability distribution with a skew peak, which causes signifi-cant biases to arise in the MAP method. In contrast, the evidence fram...},
-	number = {5},
-	journal = {Neural Computation},
-	author = {MacKay, David J.C.},
-	year = {1999},
-	pmid = {80990000001},
-	note = {ZSCC: 0000290 
-arXiv: 1309.6835
-ISBN: 978-1-4503-1285-1},
-	pages = {1035--1068},
-	file = {MacKay - 1999 - Comparison of Approximate Methods for Handling Hyp.pdf:/home/theo/Zotero/storage/CLPA6MXZ/MacKay - 1999 - Comparison of Approximate Methods for Handling Hyp.pdf:application/pdf},
-}
-
 @article{rasmussenGaussianProcessesSpeed,
 	title = {Gaussian {Processes} to {Speed} up {Hybrid} {Monte} {Carlo} for {Expensive} {Bayesian} {Integrals}},
 	abstract = {Hybrid Monte Carlo (HMC) is often the method of choice for computing Bayesian integrals that are not analytically tractable. However the success of this method may require a very large number of evaluations of the (un-normalized) posterior and its partial derivatives. In situations where the posterior is computationally costly to evaluate, this may lead to an unacceptable computational load for HMC. I propose to use a Gaussian Process model of the (log of the) posterior for most of the computations required by HMC. Within this scheme only occasional evaluation of the actual posterior is required to guarantee that the samples generated have exactly the desired distribution, even if the GP model is somewhat inaccurate. The method is demonstrated on a 10 dimensional problem, where 200 evaluations sufﬁce for the generation of 100 roughly independent points from the posterior. Thus, the proposed scheme allows Bayesian treatment of models with posteriors that are computationally demanding, such as models involving computer simulation.},
@@ -7458,4 +7440,42 @@ arXiv: 1802.04220},
   publisher = {SIAM},
   doi       = {10.1137/141000671},
   url       = {https://epubs.siam.org/doi/10.1137/141000671}
+}
+
+@inproceedings{NIPS2009_5ea1649a,
+  author    = {L\'{a}zaro-Gredilla, Miguel and Figueiras-Vidal, An\'{\i}bal},
+  booktitle = {Advances in Neural Information Processing Systems},
+  editor    = {Y. Bengio and D. Schuurmans and J. Lafferty and C. Williams and A. Culotta},
+  pages     = {},
+  publisher = {Curran Associates, Inc.},
+  title     = {Inter-domain Gaussian Processes for Sparse Inference using Inducing Features},
+  url       = {https://proceedings.neurips.cc/paper/2009/file/5ea1649a31336092c05438df996a3e59-Paper.pdf},
+  volume    = {22},
+  year      = {2009}
+}
+
+@article{vdw2020framework,
+  author = {Mark van der Wilk and Vincent Dutordoir and ST John and Artem Artemev and Vincent Adam and James Hensman},
+  eprint = {arXiv:2003.01115},
+  title  = {A Framework for Interdomain and Multioutput Gaussian Processes},
+  url    = {https://arxiv.org/abs/2003.01115},
+  year   = {2020}
+}
+
+
+@inproceedings{pmlr-v9-turner10a,
+  title     = {State-Space Inference and Learning with Gaussian Processes},
+  author    = {Turner, Ryan and Deisenroth, Marc and Rasmussen, Carl},
+  booktitle = {Proceedings of the Thirteenth International Conference on Artificial Intelligence and Statistics},
+  pages     = {868--875},
+  year      = {2010},
+  editor    = {Teh, Yee Whye and Titterington, Mike},
+  volume    = {9},
+  series    = {Proceedings of Machine Learning Research},
+  address   = {Chia Laguna Resort, Sardinia, Italy},
+  month     = {13--15 May},
+  publisher = {PMLR},
+  pdf       = {http://proceedings.mlr.press/v9/turner10a/turner10a.pdf},
+  url       = {https://proceedings.mlr.press/v9/turner10a.html},
+  abstract  = {State-space inference and learning with Gaussian processes (GPs) is an unsolved problem. We propose a new, general methodology for inference and learning in nonlinear state-space models that are described probabilistically by non-parametric GP models. We apply the expectation maximization algorithm to iterate between inference in the latent state-space and learning the parameters of the underlying GP dynamics model.}
 }
