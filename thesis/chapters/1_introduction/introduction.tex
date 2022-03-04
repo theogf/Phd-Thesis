@@ -13,31 +13,28 @@
 %: ----------------------- introduction content ----------------------- 
 % ----------------------------------------------------------------------
 
+\ac{ML} is today a wide field of research with plenty of successful applications, in particular with fields such as computer vision, natural language processing or reinforcement learning \needcite.
+A particular field of interest is \textit{probabilistic} machine learning.
+When one starts to consider all quantities of interest as random variables, paradigms and tools from statistics can be used, and stronger analysis can be derived.
+% Probabilistic models provide uncertainties to results and
+It does not only produce more complete and rich results but also helps connect with more standard sciences such as physics or climatology where using statistical tools is standard practice.
 
-\ac{ML} has become a wide field of research with a variety of subfields, each dedicated to solve various problems in different ways.
-\textit{Probabilistic machine learning} in particular, aims at representing the different models, using paradigms and tools from statistics.
-One can probably, pun intended, see probabilistic \ac{ML} as a simplified version of applied statistics, where most assumptions about models and data are just expected to be true. 
-Nonetheless, the recent applications of \ac{ML} models have proved their formidable expressiveness and learning power.
- 
-\section{Bayes in Machine Learning}
+\section{Bayesian Machine Learning}
 
-Some problems in \ac{ML} have critical requirements, such as probability guarantees for predictions or working with meaningful interpretable models.
-The Bayesian framework brings both these aspects by working with probability distributions instead of point estimates.
-For a given probabilistic model, by setting a \textit{prior} over the parameters, the \textit{posterior} represents the updated belief we have about our model after observing some data.
-This allows to model uncertainty in a principled way and prevents overfitting in the low-data regime.
+Some real-world problems have critical requirements.
+For example when decision-making is involved, probability guarantees for predictions and meaningful interpretable models are essential.
+The Bayesian framework brings both these aspects by working with \textit{random variables} defined by \textit{probability distributions} instead of point estimates.
+For a given probabilistic model, by setting a \textit{prior distribution} over the parameters of interest, the \textit{posterior distribution} represents the updated belief we have about our model after observing some data.
+This allows modelling uncertainty in a principled way and prevents overfitting in the low-data regime.\needcite
 A typical example is in medicine, where data is scarce, but the predictive outcome can have a dramatic effect (diagnosis, prognosis, etc...).
 Providing uncertainties is the only way to help the practitioner make a decision given the model predictions.
 
-However, Bayesian models often come with a higher computational cost: a distribution contains more information than a single point and finding analytical solutions mostly happens for trivial models.
-This is why a lot of research focus on useful approximation algorithm to find solutions to more complex problems.
+Generally, Bayesian models come with a higher computational cost: a probability distribution needs more parameters as it contains more information than a single point, calculus with random variable is a complex science and finding analytical solutions happens almost exclusively for trivial models.
+To be able to work with more complex models, a lot of research focus on approximation algorithms, which will provide an incorrect solution that can be provably useful.
+This is the general scope of \textit{approximate Bayesian inference}.
 
-Modern research into approximate inference Bayesian \ac{ML} goes mainly two ways:
-\begin{itemize}
-    \item defining more complex and interesting models,
-    \item finding more efficient and scalable algorithms to perform inference on them.
-\end{itemize}
-Both aspects are important since detailed models can provide more accurate models but the amount of compute is limited.
-The first part of this thesis focus on making the latter 
+The research goes in many directions, but some main ones are: How to compute the most accurate posterior approximation as efficiently as possible? How can it be made scalable with larger amount of data and/or parameters? What are the guarantees of such algorithms?
+The works presented in this thesis aim at answering partially these questions for some given setups, in particular through the lens of model representation.
 
 \section{The underestimated power of representations choices}
 
@@ -45,12 +42,12 @@ The first part of this thesis focus on making the latter
 %     \item Different representation lead to very different results, efficiency etc.
 %     \item Mention existing approaches
 % \end{itemize}
-The leading thread of this thesis is \textit{model representation}, alternatively called \textit{model parameterization}, and its use for solving problem more efficiently and faster without compromising prediction quality.
+The leading thread of this thesis is \textit{model representation}, alternatively called \textit{model parameterization}, and its use for solving problems more efficiently and faster without compromising prediction quality.
 
 When defining probabilistic models, one needs to define relations between variables (observed and latent) and choose appropriate distributions to represent those.
 Some modelling choices are equivalent conceptually but have drastic differences when it comes to inference.
 A neat example, presented in \citet{gorinovaAutomaticReparameterisationProbabilistic2020}, is the so-called Neal's funnel.
-There are two equivalent representations, called centered and non-centered, where one leads to an inference nightmare while the other is a nice and easy isotropic Gaussian distribution.
+There are two equivalent representations, called centered and non-centered, shown respectively in Figure~\ref{fig:neals_centered} and~\ref{fig:neals_noncentered}, where one leads to an inference nightmare while the other is a nice and easy isotropic Gaussian distribution.
 
 \begin{minipage}{0.5\textwidth}
     \centering
@@ -81,15 +78,19 @@ There are two equivalent representations, called centered and non-centered, wher
 While both parameterizations are one and the same, working with $p(\tilde{x},\tilde{z})$ is obviously simpler.
 An analogy in physics would be of how easier it is to work with spherical coordinates instead of Euclidean ones for electrodynamics. 
 
-The various works presented focus on finding such representations where inference is made a lot easier and usually faster.
-In particular, I will focus on the case where variables can be represented as (hierarchical) mixtures.
+Working on model representations is often underestimated and are mostly considered "tricks".
+For example, when working with \acf{GPs}, it is preferable to use the so-called "whitened" representation, which corresponds to our non-centered representation in of the Neal's funnel.
+The different works in this thesis show that finding better representations can confidently make inference not only easier, but also faster and more importantly much more stable. 
+A first part will focus on how the likelihood can be represented as (hierarchical) mixtures and how the most basic inference methods can be then used.
 Defined later in Section \ref{sec:scale-mixtures}, variables that can be rewritten as scale-mixtures have a lot of advantages and interesting properties.
 Writing them explicitly as mixtures, i.e. by augmenting the model with a new latent variable, makes inference considerably easier while keeping the original model intact.
 This augmentation procedure brings the counter-intuitive view that adding more variables actually \textit{simplifies} the problem.
+The last work of the thesis will focus on the representation of the approximation, by using a non-conventional particle approach, computational bottlenecks can be lifted and more flexibility on the result. 
+
 
 \section{Gaussian Processes}
 
-Although these augmentations can be applied to most probabilistic models, a strong focus is made on Gaussian based models, and more particularly \acf{GPs}.
+The forementioned works apply to most probabilistic models, however a strong focus is made on Gaussian based models, and more particularly \acf{GPs}.
 A \ac{GP} is a strong non-parametric tool to approximate functions using probabilistic methods.
 They used to be reserved to Gaussian regression problems, like the original \textit{kriging problem} \cite{cressie1990origins}, but they can also be used as latent function for more complex problems like classification, ordinal regression and more.
 Compared to other general function approximators like neural networks, they have the advantage to provide uncertainty on the prediction they make.
@@ -99,9 +100,8 @@ A full technical introduction to basic \ac{GPs} and its extensions is given in S
 
 \section{Open-source projects}
 
-All the works presented in this thesis as well as additional tools are backed-up by user-friendly packages in Julia.
-Throughout my time as a Ph.D. student I have developed numerous Julia packages and in particular was involved in the \href{JuliaGaussianProcesses organisation}{https://github.com/JuliaGaussianProcesses} to develop a flexible, efficient and easy-to-use framework to work with \ac{GPs}.
-This is done through the different packages \href{https://github.com/JuliaGaussianProcesses/KernelFunctions.jl}{KernelFunctions.jl}~\cite{theo_galy_fajou_2022_6246597}, \href{https://github.com/JuliaGaussianProcesses/AbstractGPs.jl}{AbstractGPs.jl}~\cite{david_widmann_2022_5939997}, \href{https://github.com/JuliaGaussianProcesses/ApproximateGPs.jl}{ApproximateGPs.jl} and \href{https://github.com/JuliaGaussianProcesses/GPLikelihoods.jl}{GPLikelihoods.jl}.
+All the works presented in this thesis as well as additional tools are backed-up by user-friendly packages in Julia \cite{Julia-2017}.
+Throughout my time as a Ph.D. student I have developed numerous Julia packages and in particular was involved in the \href{https://github.com/JuliaGaussianProcesses}{JuliaGaussianProcesses organisation} to develop a flexible, efficient and easy-to-use framework to work with \ac{GPs} from the very low-end to high-end interfaces through a series of packages: \href{https://github.com/JuliaGaussianProcesses/KernelFunctions.jl}{KernelFunctions.jl}~\cite{theo_galy_fajou_2022_6246597}, \href{https://github.com/JuliaGaussianProcesses/AbstractGPs.jl}{AbstractGPs.jl}~\cite{david_widmann_2022_5939997}, \href{https://github.com/JuliaGaussianProcesses/ApproximateGPs.jl}{ApproximateGPs.jl} and \href{https://github.com/JuliaGaussianProcesses/GPLikelihoods.jl}{GPLikelihoods.jl}.
 The particular strength of our work is the one-to-one mapping between theory and code.
 For example to define the posterior for some given data, the code looks like:
 \begin{minted}[breaklines,escapeinside=||,mathescape=true, numbersep=3pt, gobble=2, frame=lines, fontsize=\small, framesep=2mm]{julia}
@@ -115,7 +115,7 @@ The work of this thesis is represented as well with the package \href{https://gi
 Julia has the advantage to have an extremely strong interoperability capacity.
 This allows to use the augmentation work on specific implementation of \ac{GPs} such as temporal \ac{GPs} with a concrete example given in \href{https://github.com/JuliaGaussianProcesses/TemporalGPs.jl}{TemporalGPs.jl} (see examples/augmented\_inference.jl).
 
-Independently, \href{https://github.com/theogf/AugmentedGaussianProcesses.jl}{AugmentedGaussianProcesses.jl}~\cite{theo_galy_fajou_2021_5728215} was developed a stand-alone \ac{GP} package providing the augmentations techniques but also more standard inference techniques. 
+Independently, I also developed \href{https://github.com/theogf/AugmentedGaussianProcesses.jl}{AugmentedGaussianProcesses.jl}~\cite{theo_galy_fajou_2021_5728215} as a stand-alone \ac{GP} package providing the augmentations techniques presented in the thesis, additional likelihoods and standard inference approaches.
 
 \section{Thesis Outline}
 
