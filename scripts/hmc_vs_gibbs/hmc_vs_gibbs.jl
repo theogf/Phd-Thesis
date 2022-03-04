@@ -13,6 +13,11 @@ using Zygote
 using MLDataUtils
 using MLDatasets
 using CairoMakie
+using DataFrames
+using Colors
+using ColorSchemes
+colors = ColorSchemes.seaborn_colorblind
+
 
 rng = MersenneTwister(42)
 ϵ = 1e-5
@@ -120,21 +125,25 @@ t_nuts, nuts_chain = sample_with_nuts(init_θ, logπ, metric)
 t_hmc, hmc_chain = sample_with_hmc(init_θ, logπ, metric)
 
 ## Exploration part 
-lags = 1:10
+lags = 1:20
 
 autocors = map((gibbs_chain, hmc_aug_chain, hmc_chain, nuts_aug_chain, nuts_chain)) do chain
-    autocor_matrix = Array(DataFrame(autocor(chain[1:2:end]; lags)[1])[!, lags .+ 1])
-    return mean(eachrow(autocor_matrix))
+    autocor_matrix = Array(DataFrame(autocor(chain; lags)[1])[!, lags .+ 1])
+    m = mean(eachrow(autocor_matrix))
+    v = vec(var(autocor_matrix, dims=1))
+    return m, v
     # return autocor_matrix[rand(1:N),:]
 end
 fig = Figure()
+alpha = 0.3
 ax = Axis(fig[1, 1], title = "Autocorrelation", titlesize=33.0, xlabel="Lag", xlabelsize=30.0)
-ps = map(zip(autocors, ["Gibbs Sampling", "HMC (aug. model)", "HMC", "NUTS (aug. model)", "NUTS"])) do (ac, name)
-    lines!(ax, lags * 2, ac, label=name, linewidth=5.0)
+ps = map(enumerate(zip(autocors, ["Gibbs Sampling", "HMC (aug. model)", "HMC", "NUTS (aug. model)", "NUTS"]))) do (i,((m, v), name))
+    lines!(ax, lags, m, label=name, linewidth=5.0, color=colors[i])
+    band!(ax, lags, m .- sqrt.(v), m .+ sqrt.(v), linewidth=5.0, color=RGBA(colors[i], alpha))
 end
 axislegend(ax; labelsize=30.0)
+tightlimits!(ax)
 resize_to_layout!(fig)
-
 fig_path = joinpath(@__DIR__, "..", "..", "thesis", "chapters", "8", "figures")
 mkpath(fig_path)
 save(joinpath(fig_path, "autocorrelation.pdf"), fig)
