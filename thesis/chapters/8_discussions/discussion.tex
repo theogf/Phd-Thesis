@@ -178,7 +178,7 @@ One could add $K$ hyperparameters $\btheta$ such that the likelihood is written 
 The $\btheta$ parameters can be optimized using the \ac{ELBO} as the other hyperparameters.
 These can also provide some information about each class, a high $\theta_i$ means that the $i$-th class has zones of very high confidence.
 
-\section{Sampling the augmented model}
+\section{Sampling from a sparse augmented model}
 
 Another work in progress regards the sampling of sparse \ac{GPs} models.
 Being able to sample directly from the augmented model is ideal as it allows recovering samples from the original posterior $p(\boldf|\bX,\boldy)$.
@@ -191,7 +191,11 @@ By considering a free-form variational distribution $q(\boldu)$ defined as a col
 
 \section{Limits}
 
-As pointed out in chapters\ref{}
+As pointed out in chapters about augmentations, working with an augmented models has its own issues.
+The main one being that the variational distribution $q(\boldf, \bOmega)$ optimized on the augmented model is not as accurate as the variational distribution $q(\boldf)$ optimized on the original model.
+Interestingly the difference of bound comes exclusively from the mean-field assumption between $q(\boldf)$ and $q(\bOmega)$.
+Since the predictive results prove to be almost as good and that the difference of bounds is not always significant, this gives us a strong sign that the two set of variables are naturally strongly decorrelated and this would give a strong clue on why the Gibbs sampling and \ac{CAVI} updates tend to be so efficient.
+In fact, in the work 
 
 
 % ---------------------------------------------------------------------------

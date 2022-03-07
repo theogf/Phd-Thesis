@@ -30,3 +30,4 @@ homoscedastic
 reparametrization
 additivity
 Titsias
+decorrelated
