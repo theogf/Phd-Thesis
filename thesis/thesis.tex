@@ -192,11 +192,11 @@
 %\chapter{Glossary}
 \begin{multicols}{2} % \begin{multicols}{#columns}[header text][space]
 \begin{footnotesize} % scriptsize(7) < footnotesize(8) < small (9) < normal (10)
-\ifCLASSINFOlangDE
-\printglossary[type=\acronymtype,title=Abkürzungsverzeichnis]
-\else
-\printglossary[type=\acronymtype,title=Abbreviations]
-\fi
+% \ifCLASSINFOlangDE
+% \printglossary[type=\acronymtype,title=Abkürzungsverzeichnis]
+% \else
+% \printglossary[type=\acronymtype,title=Abbreviations]
+% \fi
 
 \include{utils/acronyms}
 %\printglossary
@@ -206,11 +206,11 @@
 \end{footnotesize}
 \end{multicols}
 
-\begin{multicols}{2} % \begin{multicols}{#columns}[header text][space]
-\begin{footnotesize} 
-\printglossary[type=symbolslist,title=Symbols]
-\end{footnotesize}
-\end{multicols}
+% \begin{multicols}{2} % \begin{multicols}{#columns}[header text][space]
+% \begin{footnotesize} 
+% \printglossary[type=symbolslist,title=Symbols]
+% \end{footnotesize}
+% \end{multicols}
 %: --------------------------------------------------------------
 %:                  MAIN DOCUMENT SECTION
 % --------------------------------------------------------------

@@ -144,7 +144,7 @@ end
 axislegend(ax; labelsize=30.0)
 tightlimits!(ax)
 resize_to_layout!(fig)
-fig_path = joinpath(@__DIR__, "..", "..", "thesis", "chapters", "8", "figures")
+fig_path = joinpath(@__DIR__, "..", "..", "thesis", "chapters", "8_discussions", "figures")
 mkpath(fig_path)
 save(joinpath(fig_path, "autocorrelation.pdf"), fig)
 fig

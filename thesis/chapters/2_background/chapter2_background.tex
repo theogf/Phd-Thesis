@@ -9,7 +9,7 @@
 \graphicspath{{2_background/figures/}}
 % ----------------------- contents from here ------------------------
 
-For a full comprehension of the works to be presented a general overview of the concepts needed is presented here.
+For a full comprehension of the works to be presented, a general overview of the concepts needed is presented here.
 A short introduction to the basic theory of \acl{GPs} as well as their extension to large datasets using inducing points \cite{Titsias2009} is given in Chapters~\ref{ch:classification},~\ref{ch:multiclass} and \ref{ch:general}, however a more thorough and basic description is given in this chapter.
 Additionally, this chapter dives more into the details of the basics of probabilistic Bayesian modeling, variational inference and sampling methods.
 
@@ -21,7 +21,7 @@ Additionally, this chapter dives more into the details of the basics of probabil
 Bayes' theorem is one of the simplest theorem in probabilities and its demonstration fits in one line, yet its implications are unmeasurably important.
 
 Let's give a very general modeling setting that we are going to follow for the rest of this chapter.
-Given a set of observed variables $\bD$, a set of latent (unobserved) variables $\bZ$ with a \textit{prior} distribution $p(\bZ)$, and a \textit{likelihood} function $p(\bD|\bZ)$, we obtain the \textit{posterior} distribution $p(\btheta|\bZ)$ via Bayes' theorem:
+Given a set of observed variables $\bD$, a set of latent (unobserved) variables $\bZ$ with a \textbf{prior} distribution $p(\bZ)$, and a \textbf{likelihood} function $p(\bD|\bZ)$, we obtain the \textbf{posterior} distribution $p(\btheta|\bZ)$ via Bayes' theorem:
 \begin{align}
 p(\bZ|\bD) = \frac{p(\bD|\bZ)p(\bZ)}{p(\bD)} = \frac{p(\bD|\bZ)p(\bZ)}{\int p(\bD|\bZ)p(\bZ)d\bZ}.
 \label{eq:bayes}
@@ -58,17 +58,17 @@ Assuming that both the prior $p(\btheta)$ and the likelihood $p(\bx|\btheta)$ ar
 For most non-trivial models, this integral is intractable and approximations to the posterior are needed.
 Such methods are introduced in Section~\ref{sec:approx_inf}.
 However, in certain settings, computing the posterior in closed-form is possible.
-This happens when the prior is said \textit{conjugate} to the likelihood, i.e. that the posterior is of the same probability distribution family as the prior.
+This happens when the prior is said \textbf{conjugate} to the likelihood, i.e. that the posterior is of the same probability distribution family as the prior.
 It is worth emphasizing this seemingly trivial case, since it will be exploited such property in Section~\ref{sec:scale-mixtures}.
-If we consider the distributions part of the \textit{exponential family}, i.e. distributions that can be written as:
+If we consider the distributions part of the \textbf{exponential family}, i.e. distributions that can be written as:
 \begin{align}
     p(\btheta|\bphi) = h(\btheta)\exp(\boldeta(\bphi)^\top T(\btheta) - A(\bphi)),
     \label{eq:expfamily}
 \end{align}
-where $\bphi$ are the \textit{distribution parameters}, $h(\btheta)$ is a \textit{base measure}, $\boldeta(\bphi)$ corresponds to the \textit{natural parameters}, $T(\btheta)$ are the \textit{sufficient statistics} and $A(\bphi)$ is the \textit{log-partition}.
+where $\bphi$ are the \textbf{distribution parameters}, $h(\btheta)$ is a \textbf{base measure}, $\boldeta(\bphi)$ corresponds to the \textbf{natural parameters}, $T(\btheta)$ are the \textbf{sufficient statistics} and $A(\bphi)$ is the \textbf{log-partition}.
 Note that any distribution can be written as an exponential family by using the trivial case where $p(\btheta)=h(\btheta)$.
 
-Formally, a \textit{conjugate prior} to a likelihood defined as
+Formally, a \textbf{conjugate prior} to a likelihood defined as
 \begin{align}
     p(\bx|\btheta) = h(\bx)\exp(\boldeta(\btheta)^\top T(\bx) - A(\btheta)),
     \label{eq:explikelihood}
@@ -86,7 +86,7 @@ Given a factorizable likelihood $p(\bX|\btheta) = \prod_{i=1}^N p(\bx_i|\btheta)
 The latter equation can easily be normalized since it is a known distribution of the same family of the prior.
 Such conjugate models, are very practical as the posterior can be found in one step, but due to the constraints also tend to be too simple for real-world complex models.
 
-If using a conjugate likelihood is not possible, a relaxation is to have all full-conditionals in closed-form, we talk then about \textit{conditionally conjugate} models.
+If using a conjugate likelihood is not possible, a relaxation is to have all full-conditionals in closed-form, we talk then about \textbf{conditionally conjugate} models.
 The full-conditional is defined as $p(\theta_i|\bx, \btheta_{/i})$ where $\btheta_{/i}$ represents the set of latent variables $\btheta$ where $\theta_i$ has been omitted.
 Knowing the full-conditional distribution in closed-form means that when conditioned on the other variables, the posterior is known in closed-form.
 In practice, we need to be able to write the likelihood conditioned on the other for each variable $\theta_i$ (or block of variables).
@@ -142,7 +142,7 @@ A concrete example of this is shown on Figure~\ref{fig:gp_example}.
 \subsection{Non-Conjugate Gaussian Processes}
 
 A Gaussian prior is only conjugate to the mean parameter of a Gaussian likelihood.
-Therefore, the \ac{GP} posterior obtained in the previous section is only tractable for homoscedastic Gaussian likelihoods, for all other cases we talk about \textit{non-conjugate \ac{GPs}}.
+Therefore, the \ac{GP} posterior obtained in the previous section is only tractable for homoscedastic Gaussian likelihoods, for all other cases we talk about \textbf{non-conjugate \ac{GPs}}.
 Examples of non-conjugate \ac{GPs} problems are binary classification, regression using non-Gaussian noise such as Student-t or Laplace noise, and event counting.
 Additionally, some likelihoods such as multi-class classification or heteroscedastic regression require multiple latent \ac{GPs}.
 
@@ -169,7 +169,7 @@ This is of course a strong assumption, but the inference and prediction complexi
 \label{sec:approx_inf}
 The posterior distribution in Equation~\eqref{eq:bayes} cannot be computed in closed-form for non-trivial problems such as the one presented in Section~\ref{sec:gps}.
 One can nonetheless to approximate the posterior to obtain a useful estimator for predictions and computing function expectations of interest.
-This problem of \textit{Approximate Bayesian Inference} is a research field of its own, and this chapter will focus specifically on sampling and variational inference, the most used methods for \ac{GPs}.
+This problem of \textbf{Approximate Bayesian Inference} is a research field of its own, and this chapter will focus specifically on sampling and variational inference, the most used methods for \ac{GPs}.
 
 \subsection{Sampling}
 
@@ -221,22 +221,37 @@ The blocked Gibbs sampler will be heavily used in the different works on augment
 
 \subsubsection{Hamilton/Hybrid Monte Carlo}
 \label{sec:hmc}
-\acf{HMC} or Hybrid Monte Carlo \cite{betancourt2017conceptual} is a \ac{MCMC} gradient-based method.
+\acf{HMC} or Hybrid Monte Carlo \cite{duane1987hybrid, betancourt2017conceptual} is a \ac{MCMC} gradient-based method.
 Using Hamiltonian dynamics and augmenting the variables with a new momentum variables, one can guarantee both a high acceptance rate and a good exploration of the space.
 \ac{HMC}'s proposal is to integrate the Hamiltonian dynamics with a randomly sampled momentum for a fixed number of steps with a given symplectic integrator.
-Thanks to the energy conservation law, the acceptance rate is guaranteed to be close to 1, lower acceptance rates are due to numerical inaccuracies of the integrator.
+The acceptance rate directly depends on the conservation of energy during the integration.
+By using the right set of parameters and the right integrator, the acceptance rate is therefore guaranteed to be close to 1.
+An illustration of the process is given on Figure~\ref{fig:hmc}, where the given path is also illustrated via gray lines.
+
 \ac{HMC} has also multiple disadvantages: 
-First, one needs to integrate differential equations based on gradients, which can be exceedingly expansive for some models.
-Second, it has parameters to tune, namely the step size of the integrator, the number of steps taken and the metric matrix used.
-Lastly, it only works for continuous variables.
-For the second step automatic approaches exist, but they have their issues of their own as well.
+First, one needs to integrate differential equations based on gradients, which becomes increasingly expensive for high-dimensional models and complex likelihoods. 
+Second, it contains tunable parameters, namely the step size of the integrator, the number of steps taken and the metric matrix used.
+These parameters can be locally optimized, but they are without guarantees and require additional computational time.
+Last but not least, \ac{HMC} only works for continuous variables.
 
+\begin{figure}
+    \centering
+\includegraphics[width=0.5\textwidth]{./chapters/2_background/figures/hmc_sampling.pdf}
+\caption{Illustration of the HMC sampler (gray lines are the Hamiltonian dynamics)}
+\label{fig:hmc}
+\end{figure}
 
-\subsubsection{Elliptical Slice Sampling}
+There are of course other strong choices such as elliptical slice sampling \citet{murray2010elliptical} which are particularly well-fitted for Gaussian priors.
 
-Another canonical sampling approach for \ac{GPs} is \ac{ESS} \citet{murrayEllipticalSliceSampling2010}.
-It is a variation of the standard random walk approach where instead of a taking a step in a random direction, the proposal is tried in various direction until a sample is found acceptable.
-\com{to finish}
+The choice of the sampling algorithm is a complex one and is extremely problem-dependent.
+\ac{HMC} is more of a jack-of-all-trades which has its plug-and-play practicality, in particular in regard to recent advances in automatic differentiation which removed the requirement to compute gradients by hand.
+Gibbs sampling has the disadvantage of requiring upstream work and to only work in specific situations.
+Nonetheless, it proved to be an algorithm of choice in the different works presented in this thesis.
+
+% \subsubsection{Elliptical Slice Sampling}
+
+% Another canonical sampling approach for \ac{GPs} is \ac{ESS} .
+% It is a variation of the standard random walk approach where instead of a taking a step in a random direction, the proposal is tried in various direction until a sample is accepted.
 
 % TODO Finish this part
 
@@ -244,13 +259,13 @@ It is a variation of the standard random walk approach where instead of a taking
 \subsection{Variational Inference}
 
 \acf{VI}, also called Variational Bayes, consists in approximating the posterior $p(\btheta|\bx)$ with another distribution $q(\btheta)$.
-Given a family of distributions $\mathcal{Q}$, parametrized by parameters $\bphi$ one aims to solve the following optimization problem:
+Given a family of distributions $\mathcal{Q}$, parametrized by the variational parameters $\bphi$, one aims to solve the following optimization problem:
 \begin{align}
 \bphi^* = \arg_{\bphi}\min \mathcal{D}\left(q_{\bphi}(\btheta), p(\btheta|\bx)\right),
 \label{eq:prob_VI}
 \end{align}
 where $\mathcal{D}$ is a distance between two distributions and $q_{\bphi}$ is the distribution $q\in \mathcal{Q}$ parametrized by $\bphi$.
-One of the most used distances is the backward \ac{KL} divergence, defined for continuous distributions as:
+One of the most used statistical distance is the backward \ac{KL} divergence, defined for continuous distributions as:
 \begin{align}
 \KL{q(x)}{p(x)} = \int q(x) \log \frac{q(x)}{p(x)}dx
 \label{eq:kl}
@@ -329,6 +344,7 @@ Effectively, one updates each variational parameter $\bphi_i$ with its optimum g
 \varphi_i^{t+1} = f_i\left(\bphi_{1:(i-1)}^{t+1}, \bphi_{(i+1):D}^t\right).
 \end{align}
 The order of the updates do not matter as long as the variational parameters $\bphi$ are initialized in their domain.
+Note also that, similarly to the Gibbs sampling algorithm, inference can be made further by proceeding to \textbf{block updates}, working with set of variables instead one at a time.
 
 The full algorithm is presented on Algorithm~\ref{alg:CAVI}.
 
@@ -347,7 +363,7 @@ The full algorithm is presented on Algorithm~\ref{alg:CAVI}.
 
 \subsubsection{Natural Gradients}
 
-One interesting aspect of \ac{CAVI}, is that it implicitly uses \textit{natural gradients} \cite{amariNaturalGradientWorks1998}.
+One interesting aspect of \ac{CAVI}, is that it implicitly uses \textbf{natural gradients} \cite{amariNaturalGradientWorks1998}.
 A natural gradient is a gradient preconditioned with the inverse Fisher information matrix defined as
 \begin{align}
     \mathcal{I}_\theta = \expec{p(\bx|\btheta)}{\left(\grad_{\btheta}\log p(\bx|\btheta)\right)\left(\grad_{\btheta} \log p(\bx|\btheta)\right)^\top} = -\expec{p(\bx|\btheta)}{\mathbf{H}(\log p(\bx|\btheta))},
@@ -386,7 +402,7 @@ Generally these representations are used to compute predictive distributions.
 For example in linear regression with a Gamma prior on the likelihood variance, the resulting posterior predictive distribution will be a Student-T distribution.
 In this thesis we show that we can use this connection the other way around.
 Given a likelihood $p(\bx|\btheta)$ which can be defined as a marginalized scale-mixture,
-we can \textit{augment} the likelihood by "ummarginalizing" the scale-mixture.
+we can \textbf{augment} the likelihood by "ummarginalizing" the scale-mixture.
 We transform for example a Student-T likelihood into a Gaussian likelihood with a Gamma prior.
 This allows for so-called conditionally conjugate likelihoods.
 

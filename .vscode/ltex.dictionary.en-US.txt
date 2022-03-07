@@ -28,3 +28,5 @@ Kullback-Leibler
 unmeasurably
 homoscedastic
 reparametrization
+additivity
+Titsias
