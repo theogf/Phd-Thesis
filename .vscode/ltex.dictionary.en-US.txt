@@ -31,3 +31,4 @@ reparametrization
 Titsias
 decorrelated
 augmentable
+indeflectible
