@@ -29,3 +29,5 @@ unmeasurably
 homoscedastic
 reparametrization
 Titsias
+decorrelated
+augmentable

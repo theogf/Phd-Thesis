@@ -10,18 +10,20 @@
 
 
 \section{Further generalizations and understanding}
-The works presented in this thesis only scratched the surface of how mixtures can be helpful and how to identify them.
+The works presented in this thesis only scratched the surface of how mixtures can be helpful and how it is possible to identify them.
 We are still exploring ways to identify larger classes of functions which can be evaluated as scale-mixtures.
-In particular, the simple connection with the \acf{MGF} of a distribution is a promising way as it allow working not only with continuous but discrete variables.
-Examples of this are two of the augmentations of Chapter~\ref{ch:multiclass} which do not fit the framework of Chapter~\ref{ch:general}.
-The \ac{MGF} is an interesting tool to create with hierarchical models since the mixture will be of the form $\sum_{i=0}^\infty e^{ux} p(x)$ or $\int e^{ux}p(x)dx$.
-From there we can use the property that it's not only $\sigma(x)$ but $\sigma^n(x)$ in general.
-Further examples are shown in this chapter in Sections \ref{sec:improvemulticlass} and \ref{sec:heteroscedastic}.
+In particular, the connection with the \acf{MGF} of a distribution is a promising direction.
+It allows working not only with continuous but discrete variables.
+Examples of this are two of the augmentations of Chapter~\ref{ch:multiclass} which do not fit the framework introduced in Chapter~\ref{ch:general}.
+The \ac{MGF} is also an interesting tool to create hierarchical models since the mixture will be of the form $\sum_{i=0}^\infty e^{tx} p(x)$ or $\int e^{tx}p(x)dx$.
+From there, we can plug in P\'olya-Gamma augmentations, using the transformation $t=\log \sigma(x)$, in particular using the property that not only $\sigma(x)$ is augmentable but also $\sigma^n(x),~\forall n\in \mathbb{R}^+$.
+Additional examples of such constructions are shown in this chapter in Sections \ref{sec:heteroscedastic} and \ref{sec:improvemulticlass}.
 
-Another promising improvement is to identify when some augmented variables can be marginalized out while keeping the conditional conjugacy of the model.
+Another promising improvement in terms of inference is to identify when some augmented variables can be marginalized out while keeping the conditional conjugacy of the model.
 For example, in the multi-class model, one random variable can be marginalized out as shown in Section~\ref{sec:improvemulticlass}.
+This marginalization step can be avoided altogether by identifying from the start the right \ac{MGF}, but since the marginalized distribution can sometimes be some less known function this additional step can be beneficial. 
 
-Another very incomplete part of this work was to establish convergence rates (error as a function of the number of iterations) for the \ac{CAVI} algorithm.
+Finally, an incomplete part of this work was to establish convergence rates (error as a function of the number of iterations) for the \ac{CAVI} algorithm and of the correlation of the kernel for the Gibbs sampler.
 Experimental results seem to indicate that the error is going down as $\|\mathcal{L}^{*} - \mathcal{L}^{t}\|\leq C e^{-t}$, where $t$ is the number of iterations, but no formal proof could be made in this regard.
 
 \section{Double bounds for intricate latent GPs}
@@ -29,7 +31,7 @@ Experimental results seem to indicate that the error is going down as $\|\mathca
 The model developed in Chapter~\ref{ch:multiclass} paves the ways to work with multi-latent models and hierarchical augmentations.
 Another model explored, but not published, is the heteroscedastic Gaussian regression model which was already explored in \cite{wangGaussianProcessRegression2012}.
 By having two latent \ac{GPs} $f$ and $g$, one can model simultaneously the mean and the variance of the likelihood.
-An important choice is the link between $g$ and the likelihood variance $\epsilon^2$.
+An important choice is the link between $g$ and the likelihood variance $\epsilon^2$ ensuring positivity.
 The exponential link, i.e. $\epsilon^2(x) = \exp(g(x))$, is the most popular, however to be able to apply our augmentations, we use the link $\epsilon^2(x) = \left(\lambda \sigma(g(x))\right)^{-1}$.
 The likelihood becomes :
 \begin{align}
@@ -81,7 +83,6 @@ One chain of 2000 samples (plus 500 adaption  samples for \ac{HMC} and \ac{NUTS}
 From the first look, \ac{HMC} applied on the augmented model seems to indeed have a lower auto-correlation.
 When using \ac{NUTS}, the gain becomes less clear, moreover the algorithm produces antithetic chains which makes it harder to analyze.
 The Gibbs sampler is having the least intra-chain correlation, but one could argue that negative correlations are more desirable.
-
 However, \ac{HMC} and \ac{NUTS} turned out to be much slower than the Gibbs sampler:
 the Gibbs sampler took around 20 sec to run against an average of 12 minutes for \ac{HMC} and \ac{NUTS}.
 Perhaps surprisingly, there was not a big difference of time between the augmented and original models.
@@ -103,7 +104,7 @@ We recently figured that there were additional ways to improve the augmented mod
 
 \subsection{Simplex for the multi-class classification}
 \label{sec:simplex}
-In Chapter \ref{ch:multiclass}, one of the possible concerns regarding the model is that $\lambda$ has the improper prior $1_{0,\infty}$, which is a proper measure but is not normalizable.
+In Chapter \ref{ch:multiclass}, one of the possible concerns regarding the model is that $\lambda$ has the improper prior $p(\lambda) = 1_{[0,\infty)}$, which is a proper measure but is not normalizable.
 It should be noted that since the resulting posterior is valid, no problem should arise, but from a purely Bayesian perspective this can be dissatisfactory.
 This improper prior rises from the fact that the model we are using is ill-conditioned.
 Given $K$ classes, only $K-1$ latent \ac{GP} are needed since we have the additional constraint that $\sum_{k=1}^K p(y=k|\boldf) = 1$.
@@ -192,26 +193,33 @@ In other words, we want to sample from the optimal $q^*(\boldu)$ defined as:
 \end{align*}
 The straightforward option is to use \ac{HMC} as in \cite{hensmanMCMCVariationallySparse2015}, but we can also derive a Gibbs sampling algorithm to sample from this objective using our previous work.
 
-In our new setting the optimal distribution is defined as $q(\boldf,\boldu,\bOmega) = p(\boldf|\boldu)q(\boldu, \bOmega)$.
+In our new setting the optimal distribution is defined as $q(\boldf,\boldu,\bOmega) = p(\boldf|\boldu)q(\boldu, \bOmega)$, where $\bOmega$ denotes the set of augmented variables.
 Note, that unlike in the traditional \ac{VI} setting, $\boldu$ and $\bOmega$ are not assumed to be independent.
 From there, $\bOmega$ and $\boldu$ are sampled one after another using the optimal distributions $q^*(\bOmega|\boldu,\boldf)$ and $q^*(\boldu,\boldf|\bOmega)$.
 Note that $\boldu$ and $\boldf$ are sampled together since they are highly correlated.
 To identify the optimal conditional distributions, we look at the minimizer of the conditional \ac{KL} divergence, e.g. $q^*(\bOmega|\boldu,\boldf) = \arg_{q} \min \KL{q(\bOmega|\boldu,\boldf)}{p(\bOmega|\boldu,\boldf,\boldy,\bX)}$.
-The obvious minimizer here is to set $q^*=p$, and thanks to the augmentations we know $p(\bOmega|\ldots)$ in closed-form.
-We can do a similar approach for $q^*(\boldu,\boldf|\bOmega)$.
-The only parameters left are the hyperparameters (omitted in the previous equations), which can be sampled by using the more traditional \ac{HMC} algorithm, again in a Gibbs sampling setting.
-The advantage of this approach is that no gradients are necessary as all conditionals are known in closed-form and that no expectation over the log-likelihood are needed at all.
+The obvious minimizer here is to set $q^*=p$, and thanks to the augmentations, we know $p(\bOmega|\ldots)$ in closed-form.
+We can perform a similar approach for $q^*(\boldu,\boldf|\bOmega)$.
+The only parameters left are the hyperparameters (omitted in the previous equations), which can be sampled by using the more traditional \ac{HMC} algorithm, in a separate Gibbs sampling step.
+The advantage of this approach is that no gradients are necessary for the variational parameters as all full-conditionals are known in closed-form and that no expectation over the log-likelihood are needed at all.
 This opens up more possibilities over more complex problems like the multi-class or heteroscedastic one.
-
-
+For medium-sized datasets this can even prove to outperform the \ac{CAVI} algorithm as it has the same convergence speed but does not suffer from the mean-field assumption on the variational parameters.
+Hopefully, this work should be released in the near future.
 
 \section{Limits}
 
 As pointed out in chapters about augmentations, working with augmented models has its own issues.
-The main one being that the variational distribution $q(\boldf, \bOmega)$ optimized on the augmented model is not as accurate as the variational distribution $q(\boldf)$ optimized on the original model.
+The main one being of course having to identify potential for augmentations in a given model.
+The idea generalization of using \ac{MGF} is promising, but is also limited.
+Often terms need to be rearranged, identities need to be used to reach something usable.
+This is feasible for someone with expertise, but it is a very complicated problem to automatize the process, in the context of probabilistic programming for example.
+
+Another issue is the variational distribution $q(\boldf, \bOmega)$ optimized on the augmented model is not as accurate as the variational distribution $q(\boldf)$ optimized on the original model.
 Interestingly the difference of bound comes exclusively from the mean-field assumption between $q(\boldf)$ and $q(\bOmega)$.
 Since the predictive results prove to be almost as good and that the difference of bounds is not always significant, this gives us a strong sign that the two set of variables are naturally strongly decorrelated and this would give a strong clue on why the Gibbs sampling and \ac{CAVI} updates tend to be so efficient.
-In fact, in the work 
+In fact, the work of \citet{gorinovaAutomaticReparameterisationProbabilistic2020} mentioned in the introduction aims at finding a perfect balance between two parametrizations by ensuring that the posterior is as close as possible to a multivariate Gaussian with independent dimensions.
+
+
 
 
 % ---------------------------------------------------------------------------
