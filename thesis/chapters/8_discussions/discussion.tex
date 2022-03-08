@@ -186,12 +186,28 @@ Unfortunately, this does not transfer when using inducing points.
 Using inducing points naively, without using the Titsias assumption \cite{Titsias2009}, leads to an algorithm with complexity $\mathcal{O}((N+M)^3)$, defeating the point of the algorithm.
 Instead, one can resort to mix a variational approach to sampling.
 By considering a free-form variational distribution $q(\boldu)$ defined as a collection of samples one can solve the problem as in \citet{hensmanMCMCVariationallySparse2015}.
+In other words, we want to sample from the optimal $q^*(\boldu)$ defined as:
+\begin{align*}
+    \log q^*(\boldu) = \expec{p(\boldf|\boldu)}{\log p(\boldy|\boldf)} + \log p(\boldu) + C.
+\end{align*}
+The straightforward option is to use \ac{HMC} as in \cite{hensmanMCMCVariationallySparse2015}, but we can also derive a Gibbs sampling algorithm to sample from this objective using our previous work.
+
+In our new setting the optimal distribution is defined as $q(\boldf,\boldu,\bOmega) = p(\boldf|\boldu)q(\boldu, \bOmega)$.
+Note, that unlike in the traditional \ac{VI} setting, $\boldu$ and $\bOmega$ are not assumed to be independent.
+From there, $\bOmega$ and $\boldu$ are sampled one after another using the optimal distributions $q^*(\bOmega|\boldu,\boldf)$ and $q^*(\boldu,\boldf|\bOmega)$.
+Note that $\boldu$ and $\boldf$ are sampled together since they are highly correlated.
+To identify the optimal conditional distributions, we look at the minimizer of the conditional \ac{KL} divergence, e.g. $q^*(\bOmega|\boldu,\boldf) = \arg_{q} \min \KL{q(\bOmega|\boldu,\boldf)}{p(\bOmega|\boldu,\boldf,\boldy,\bX)}$.
+The obvious minimizer here is to set $q^*=p$, and thanks to the augmentations we know $p(\bOmega|\ldots)$ in closed-form.
+We can do a similar approach for $q^*(\boldu,\boldf|\bOmega)$.
+The only parameters left are the hyperparameters (omitted in the previous equations), which can be sampled by using the more traditional \ac{HMC} algorithm, again in a Gibbs sampling setting.
+The advantage of this approach is that no gradients are necessary as all conditionals are known in closed-form and that no expectation over the log-likelihood are needed at all.
+This opens up more possibilities over more complex problems like the multi-class or heteroscedastic one.
 
 
 
 \section{Limits}
 
-As pointed out in chapters about augmentations, working with an augmented models has its own issues.
+As pointed out in chapters about augmentations, working with augmented models has its own issues.
 The main one being that the variational distribution $q(\boldf, \bOmega)$ optimized on the augmented model is not as accurate as the variational distribution $q(\boldf)$ optimized on the original model.
 Interestingly the difference of bound comes exclusively from the mean-field assumption between $q(\boldf)$ and $q(\bOmega)$.
 Since the predictive results prove to be almost as good and that the difference of bounds is not always significant, this gives us a strong sign that the two set of variables are naturally strongly decorrelated and this would give a strong clue on why the Gibbs sampling and \ac{CAVI} updates tend to be so efficient.
