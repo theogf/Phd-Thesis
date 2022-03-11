@@ -8,10 +8,17 @@
 \graphicspath{{9_conclusion/figures/}}
 % ----------------------- contents from here ------------------------
 
+The aim of this thesis was to motivate the use of different representations to ease inference in probabilistic models.
+The work on scale-mixtures proves to be very efficient but still has some rough edges and the theoretical reasons for its success are not clearly understood as of now.
+Regardless, one of the biggest challenge is to popularize the use of such models, the approach of \citet{Hensman2015} is by far the most popular, partly due to the success of the \href{https://github.com/GPflow/GPflow}{GPFlow} library \cite{GPflow2017}.
+Libraries implementing various models such as the one presented here, would be a good step in popularizing them, and although there have been an effort in Julia with the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} \cite{theo_galy_fajou_2022_6347022}, implementations in \href{https://gpytorch.ai/}{GPyTorch} \cite{gardner2018gpytorch} or GPFlow would accelerate the adoption of these techniques.
+
+An intuition on why these augmentations work so well is the notion of decoupling.
+A lot of complexities in inference come from very highly-correlated variables and heavy tails.
+By separating these components into different variables, all parts become easier to model and do not suffer from the typical inference issues mentioned beforehand.
+However, this does not represent a proper theory and a more thorough theoretical analysis would be needed and could maybe give even more insights on how convergence speed and variable correlation are connected.
+
 \begin{itemize}
-    \item Remind the motivation of the work
-    \item Explain what has been done
-    \item 
     \item Make augmentations more popular via additional tools and software
     \item Understand better the mechanisms that allow to decouple information in the models to improve efficiency
     \item Extend theory to more classes of models

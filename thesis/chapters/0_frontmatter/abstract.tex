@@ -7,7 +7,16 @@
 %\begin{abstractslong}    %uncommenting this line, gives a different abstract heading
 \begin{abstracts}        %this creates the heading for the abstract page
 \addcontentsline{toc}{chapter}{Abstract}
-Probabilistic models can represent an inference challenge due to different factors.
+Performing inference on probabilistic models can represent a very strong challenge even in seemingly simple problems.
+When working with Bayesian models outside the simplistic conjugate prior/likelihood framework, approximate methods are needed, each with its pitfalls and complications.
+For instance, heavy tailed distribution can represent a challenge for sampling methods and heavily correlated variables quickly become a bottleneck for many inference algorithms.
+Instead of developing new state-of-the-art algorithm to obtain faster or scalable inference, we focus on how models can be reinterpreted and reparametrized such that standard inference algorithms, usually restricted to simpler models, are made effective.
+Augmentations for different Gaussian Process models are shown, and especially a generalization to a given class of likelihoods is given.
+Additionally, we focus on a specific approximate approach where we optimize a Gaussian variational distribution.
+We show that by representing this distribution as a set of particles instead of using its parameters, inference turns out to be more flexible but also allows proving theoretical bounds.
+The impact of these different augmentations, including their limitations is largely discussed.
+Finally, a large variety of outlooks on new research directions, including work in progress, is exposed.
+
 
 
 \end{abstracts}
