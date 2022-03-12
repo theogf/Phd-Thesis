@@ -145,9 +145,21 @@ A Gaussian prior is only conjugate to the mean parameter of a Gaussian likelihoo
 Therefore, the \ac{GP} posterior obtained in the previous section is only tractable for homoscedastic Gaussian likelihoods, for all other cases we talk about \textbf{non-conjugate \ac{GPs}}.
 Examples of non-conjugate \ac{GPs} problems are binary classification, regression using non-Gaussian noise such as Student-t or Laplace noise, and event counting.
 Additionally, some likelihoods such as multi-class classification or heteroscedastic regression require multiple latent \ac{GPs}.
+Figure~\ref{fig:gp_class_example} shows an example of 1-dimension binary classification with a \ac{GP}.
+Although the \ac{GP} does not recover exactly the true process, it is confidently in its interval.
 
 For all these problems, the posterior is not analytically tractable, and one need to resort to approximation methods such as the one presented in Section~\ref{sec:approx_inf}.
 A strong focus of this thesis is to work with these non-conjugate likelihoods and turn them into something analytically tractable again.
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{./chapters/2_background/figures/GP_classification_example.pdf}
+    \caption{Illustration of a latent Gaussian process used for a binary classification problem.
+    The Bernoulli likelihood is linked to the latent \ac{GP} via the logistic function.
+    On the left is shown the optimal variational posterior $q(f)$ in blue, compared to the true generation of $f$ in green.
+    Similarly to Figure~\ref{fig:gp_example}, the blue band represents one standard deviation.
+    On the right we show the predictive probability for $y$ given the variational posterior $q(f)$ in blue.}
+    \label{fig:gp_class_example}
+\end{figure}
 
 \subsection{Sparse Gaussian Processes}
 One of the other largest drawback of \ac{GPs}, regardless of the conjugacy of the likelihood, is the scalability with the number of observed samples.

@@ -18,10 +18,15 @@ A lot of complexities in inference come from very highly-correlated variables an
 By separating these components into different variables, all parts become easier to model and do not suffer from the typical inference issues mentioned beforehand.
 However, this does not represent a proper theory and a more thorough theoretical analysis would be needed and could maybe give even more insights on how convergence speed and variable correlation are connected.
 
+A large potential is the extension of the scale-mixture identification to a much larger class of functions.
+As pointed out in Chapter~\ref{ch:discussion}, the most important notion is the one of \acl{MGF}, but there is no clear theory at the moment to properly identify such functions.
+\citet{schwartz1952transformation} is one of the few persons who developed a theory on distributions based on their Laplace distribution, but some confusion is left as distributions can have different meaning (analytic vs probabilistic).
+
+Finally, it would be interesting to see how other kinds of representations and/or reparametrization work with such models.
+
+
+
 \begin{itemize}
-    \item Make augmentations more popular via additional tools and software
-    \item Understand better the mechanisms that allow to decouple information in the models to improve efficiency
-    \item Extend theory to more classes of models
     \item Explore other kind of representations, back to the example of the Neal's funnel, the best representation depends on the data.
 \end{itemize}
 
