@@ -35,3 +35,6 @@ indeflectible
 Ena
 filous
 GPFlow
+logit
+softmax
+additivity

@@ -12,13 +12,13 @@
 \graphicspath{{4/figures/}}
 % ----------------------- contents from here ------------------------
 
-A natural extension to the classification problem is to extend it to the multi-class classification setting.
-By drawing inspiration from \citet{donner2018efficientdensity}, new augmentations methods are used to circumvent the problem of a much more complex likelihood function.
-More specifically a new link, the logistic-softmax function, is developed.
-After three successive augmentations to a fully conditionally-conjugate model.
-Note that an extensive discussion about this model is given in Chapter~\ref{ch:discussion}.
-It includes extensions and how to potentially solve some problems faced in the paper.
+After the binary classification problem, a natural extension is the multi-class classification setting.
+By drawing inspiration from \citet{donner2018efficientdensity}, we use new augmentations methods to circumvent the problem of a much more complex likelihood function involving multiple latent \ac{GPs}.
+More specifically, we introduce a new link, the logistic-softmax function.
+We turn the model into a fully conditionally-conjugate model with three successive augmentations.
+A thorough analysis is made to compare this new model with other links and approaches, including standard choices like the softmax link.  
 
+Note that an extensive discussion about this model is given in Chapter~\ref{ch:discussion} with potential model extensions and solutions to some problems faced in the paper.
 
 \textbf{\underline{Authors:}}\\
 Th\'eo Galy-Fajou,$^{1,*}$, Florian Wenzel,$^{1,*}$, Christian Donner,$^{1}$ Manfred Opper$^1$\\

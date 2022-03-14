@@ -8,11 +8,12 @@
 % change according to folder and file names
 \graphicspath{{7/figures/}}
 % ----------------------- contents from here ------------------------
-This last published work is a bit different from the rest of the previous chapters.
-Instead of focusing on the representation of the model, this works aims at changing the variational distribution representation.
-The original motivation behind this work was to answer the question: can we fit a full Gaussian variational distribution to a target distribution while never have to compute any matrix inverses, log determinant or second-order derivative?
-The answer resulted in a particle approach: the mean and covariance are replaced by an arbitrary number of points in the variable domain.
-Although the method might not be a state-of-the-art approach for variational inference, it brings a lot of insights concerning convergence speed, and accuracy of the given posterior.
+This last published work is different from the previous chapters.
+Instead of focusing on the representation of the model, we aim at changing the variational distribution representation.
+The original motivation behind this work was to answer the question: 
+Can we fit a full Gaussian variational distribution to a target distribution without matrix inverses, log-determinant, or second-order derivative computations?
+The answer resulted in a particle approach: we parametrize the distribution with an arbitrary number of points in the variable domain instead of the mean and covariance.
+Although the method might not be a state-of-the-art approach for variational inference, it brings insights concerning convergence speed and accuracy of the given posterior.
 
 \textbf{\underline{Authors:}}\\
 Th\'eo Galy-Fajou,$^{1}$, Valerio Perrone,$^{2}$, Manfred Opper$^{1,3}$\\

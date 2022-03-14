@@ -1,16 +1,21 @@
 % -*- root: ../thesis.tex -*-
 %!TEX root = ../thesis.tex
 % ******************************* Thesis Appendix A ****************************
-\chapter{Additional works} 
+\chapter{Additional work} 
 \label{appendix:worshoppapers}
-The following work does not fit the storyline of the thesis and is therefore presented here only.
-It was extended further due to a lack of time and/or inconclusive results.
+The following work does not fit the storyline of the thesis and is therefore presented here only as a side project.
 
 \section{Adaptive Inducing Points Selection for Gaussian Processes}
 
-Two important questions raised when using the inducing sparse \ac{GPs} are: how should the inducing points be located and how many points do I need to reach my desired level of accuracy?
-This work tries to answer this by creating an adaptive algorithm which also works in an online setting.
-A final paper was never written as the parameters regulating the inducing point selection is extremely correlated with the model parameters, and it was complicated to produce a stable algorithm.
+Two important questions raised when using the sparse \ac{GPs} presented in Section~\ref{sec:sparsegps} are:
+How should the inducing points be located?
+How many points does one need to reach a desired level of accuracy?
+This work tries to answer these questions by proposing an adaptive algorithm, working in $\mathcal{O}(N)$ time and also valid in an online setting.
+
+Although the algorithm proves to be more efficient than standard methods and to have interesting theoretical properties related to Determinantal Point Processes \cite{Kulesza2012}, it has serious tuning issues.
+The parameters regulating the algorithm, how often one adds a point or removes one, are tightly correlated to the kernel hyperparameters.
+When optimizing hyperparameters during training, an unstable behavior may lead to picking all points as inducing points or selecting none.
+I presented this work in the Continual Learning Workshop of ICML 2020.
 
 \textbf{\underline{Authors:}}\\
 Th\'eo Galy-Fajou$^1$, Manfred Opper$^1$\\
@@ -21,7 +26,7 @@ Type: Workshop article\\
 Submitted: June 2020\\
 Accepted: July 2020\\
 URL: \url{https://drive.google.com/file/d/1IPTUBfY_b2WElTWBIVU4lrbHcXnbTWdB/view}\\
-Conference: Workshop Continual Learning (ICML 2020)\\
+Workshop: Continual Learning (ICML 2020)\\
 
 
 \includepdf[pages=-,pagecommand={},scale=0.95]{./papers/28_CameraReadySubmission_cl_workshop_onlinegp.pdf}

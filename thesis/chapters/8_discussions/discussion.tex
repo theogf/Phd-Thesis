@@ -10,33 +10,35 @@
 
 
 \section{Further generalizations and understanding}
-The works presented in this thesis only scratched the surface of how helpful mixtures and representations are and opened the way on identifying them.
-We are still exploring ways to identify larger classes of functions which can be evaluated as scale-mixtures.
-In particular, the connection with the \acf{MGF} of a distribution is a promising direction since we know how to directly sample from them \cite{ridout2009generating}.
-\ac{MGF} allow us working not only with continuous but also discrete and multivariate variables.
-Examples of this are two of the augmentations of Chapter~\ref{ch:multiclass} which do not fit the framework introduced in Chapter~\ref{ch:general}.
-The \ac{MGF} is also an interesting tool to create hierarchical models since the mixture will be of the form $\sum_{i=0}^\infty e^{tx} p(x)$ or $\int e^{tx}p(x)dx$.
+The works presented in this thesis only scratched the surface of how helpful mixtures and representations are and opened the way to their identification.
+We are still exploring ways to identify larger classes of functions equivalent to scale mixtures.
+In particular, the connection with the \acf{MGF} of a distribution is a promising direction since we know how to sample from them \cite{ridout2009generating}.
+\ac{MGF} allow us to work not only with continuous but also discrete and multivariate variables.
+For example, two of the augmentations of Chapter~\ref{ch:multiclass} do not fit the framework introduced in Chapter~\ref{ch:general} and as shown in Section~\ref{sec:improvemulticlass} are simply \ac{MGF} transformations.
+The \ac{MGF} is also an interesting tool to create hierarchical models since scale-mixture are of the form $\sum_{i=0}^\infty e^{tx} p(x)$ or $\int e^{tx}p(x)dx$.
 From there, we can plug in P\'olya-Gamma augmentations, using the transformation $t=\log \sigma(x)$, in particular using the property that not only $\sigma(x)$ is augmentable but also $\sigma^n(x)$, for any $n\in \mathbb{R}^+$.
 Additional examples of such constructions are shown in this chapter in Sections \ref{sec:heteroscedastic} and \ref{sec:improvemulticlass}.
 
-Another promising improvement in terms of inference is to identify when some augmented variables can be marginalized out while keeping the conditional conjugacy of the model.
-For example, in the multi-class model from Chapter~\ref{ch:multiclass}, one random variable can be marginalized out as shown in Section~\ref{sec:improvemulticlass}.
-This marginalization step can be avoided altogether by identifying from the start the right \ac{MGF}, but since the marginalized distribution can sometimes be some less known function this additional step can be beneficial. 
+A potential improvement for augmented models is the identification of marginalizable augmented variables that keep the conditional conjugacy of the model.
+For example, in the multi-class model from Chapter~\ref{ch:multiclass}, the augmented variable $\lambda$ can be marginalized, out as shown in Section~\ref{sec:improvemulticlass}.
+We can then reduce the dimensionality of the model and avoid tricky situations like the inner loop updates in Chapter~\ref{ch:multiclass}.
+This marginalization step can be avoided altogether by identifying from the start the right \ac{MGF}, but the marginalized distributions are sometimes less known.
+Augmenting first then marginalizing can then be easier mathematically.
 
 Finally, an unfinished work (despite trying) is to establish convergence rates (error as a function of the number of iterations) for the \ac{CAVI} algorithm and of the correlation of the kernel for the Gibbs sampler.
-Experimental results indicate that the error is decreasing as $\|\mathcal{L}^{*} - \mathcal{L}^{t}\|\leq C e^{-t}$, where $t$ is the number of iterations, but no formal proof could be made in this regard.
+Experimental results indicate that the error is decreasing as $\|\mathcal{L}^{*} - \mathcal{L}^{t}\|\leq C e^{-t}$, where $t$ is the number of iterations, but we did not manage to form a formal proof.
 
 % TODO add more outlooks
 
 \section{Double bounds for intricate latent GPs}
 \label{sec:heteroscedastic}
 The model developed in Chapter~\ref{ch:multiclass} paves the ways to work with multi-latent models and hierarchical augmentations.
-Another model explored, but not published, is the heteroscedastic regression model which was already explored for example in \cite{wangGaussianProcessRegression2012,lazaro-gredillaVariationalHeteroscedasticGaussian}.
-By having two latent \ac{GPs} $f$ and $g$, one can model simultaneously the mean and the variance of a likelihood.
+Another model I worked on but did not publish, is the heteroscedastic regression model,  already explored in \cite{wangGaussianProcessRegression2012,lazaro-gredillaVariationalHeteroscedasticGaussian}.
+It consists in simultaneously modeling the mean and variance of a regression likelihood with two latent \ac{GPs} $f$ and $g$.
 
 \subsection{Heteroscedastic Gaussian Likelihood}
 
-An important choice is the link between $g$ and the likelihood variance $\epsilon^2$ ensuring positivity.
+A crucial model choice is the function mapping $g$ to the likelihood variance $\epsilon^2$.
 The exponential link, i.e. $\epsilon^2(x) = \exp(g(x))$, is the most popular, however to be able to apply our augmentations, we use the link $\epsilon^2(x) = \left(\lambda \sigma(g(x))\right)^{-1}$.
 Let's look at the case of the heteroscedastic Gaussian likelihood, defined as:
 \begin{align}
@@ -53,26 +55,27 @@ Now using the P\'olya-Gamma augmentation and the additivity property of P\'olya-
 \begin{align}
     p(y,n,\omega\mid f,g,\lambda) = \frac{\sqrt{\lambda}}{2^n\sqrt{\pi}}\exp\left(\frac{1}{2}\left(g\left(\frac{1}{2}-n\right) - \frac{g^2}{\omega}\right)\right)\PG \left(\omega \mid \half + n, 0\right) \Po \left(n \mid \lambda\frac{(y-f)^2}{2}\right)\label{eq:heteroscedastic}
 \end{align}
-The interesting part about this augmented likelihood is that although it is conditionally conjugate in $g$, $\omega$ and $n$, it is not clear how inference works for $f$.
-It turns out that the Gibbs sampler for this model is actually very simple: for the full-conditional of $f$, we can simply marginalize $n$ and $\omega$, return to the original likelihood, which is conditionally conjugate, and perform a \textbf{collapsed step} for the Gibbs sampler.
+The interesting part about this augmented likelihood is that although it is conditionally conjugate in $g$, $\omega$ and, $n$, it is unclear how to infer $f$.
+It turns out that the Gibbs sampler for this model is very simple.
+For the full-conditional of $f$, we marginalize $n$ and $\omega$, return to the original likelihood, which is conditionally conjugate, and perform a \textbf{collapsed step} for the Gibbs sampler with the marginalized full conditional $p(f|g,y)$.
 
-However, as underlined in Section~\ref{sec:cavi}, the \ac{CAVI} updates need the full-conditionals of the model, and the marginalizing one of them does not guarantee to get correct updates.
-To solve this problem, we need to reverse engineer how \ac{CAVI} updates are obtained and  define a first bound on the \ac{KL} divergence:
+However, as underlined in Section~\ref{sec:cavi}, the \ac{CAVI} updates need the full-conditionals of the model, and the marginalization one of them does not guarantee to get correct updates.
+To solve this problem, we need to reverse-engineer how \ac{CAVI} updates are obtained and start with a first bound on the \ac{KL} divergence:
 \begin{align*}
     \KL{q(\boldf)q(\boldg)}{p(\boldf,\boldg|\boldy)}\leq& \min_{q(\boldg)}-\expec{q(\boldg)}{\expec{q(\boldf)}{\log p(\boldy|\boldf,\boldg)}} + \KL{q(\boldf)q(\boldg)}{p(\boldf)p(\boldg)}\\
     =& \min_{q(\boldg)}-\expec{q(\boldg)}{\log p(\boldy|\boldg, \bmu^*_f,\bSigma^*_f)} + \KL{q(\boldg)}{p(\boldg)} + \operatorname{KL}_f^* = \mathcal{F}_1.
 \end{align*}
-$p(\boldy|\boldg, \bmu^*_f, \bSigma^*_f)$ and $\mathrm{KL}^*_f$ are expectations computed with the optimal $q^*(\boldf)$.
-We can now use the augmentations from equation~\ref{eq:heteroscedastic} on the expected log-likelihood, where we replaced $(y_i-f_i)^2$ by $(y_i - \mu_i^2)^2 + \Sigma_{ii}$, and build a second bound.
+$p(\boldy|\boldg, \bmu^*_f, \bSigma^*_f)$ and $\mathrm{KL}^*_f$ are expectations computed with the optimal $q^*(\boldf)=\mathcal{N}\left(\boldf|\bmu_f^*,\bSigma_f^*\right)$.
+We can now use the augmentations from equation~\ref{eq:heteroscedastic} on the expected log-likelihood, where we replaced $(y_i-f_i)^2$ by $(y_i - (\bmu_f^*)_i)^2 + (\Sigma_f^*)_{ii}$, and build a second bound.
 
 \begin{align*}
     \mathcal{F}_1 \leq \min_{q(\boldg)q(\bomega,\bn)} \expec{q(\boldg)q(\bomega,\bn)}{\log p(\bomega,\bn,\boldy|\boldg,\bmu_f^*,\bSigma_f^*)} + \KL{q(\boldg)}{p(\boldg)} + \operatorname{KL}_f^*=\mathcal{F}_2
 \end{align*}
 
 It is straightforward to find the optimal variational distributions $q^*(\boldg)$ and $q^*(\bomega,\bn)$ minimizing $\mathcal{F}_2$ which allows us to use \ac{CAVI} updates.
-Then, injecting the optimal distributions we can derive the optimal $\bmu_f^*$ and $\bSigma_f^*$, which once again, are obtainable in closed-form.
+Then, injecting the optimal distributions, we can derive the optimal $\bmu_f^*$ and $\bSigma_f^*$, all obtainable in closed-form.
 
-This double bound approach is very similar to \citet{lazaro-gredillaVariationalHeteroscedasticGaussian}, although they are using the exponential bound and require some extra computations. 
+This double-bound approach is very similar to \citet{lazaro-gredillaVariationalHeteroscedasticGaussian}, although they are using the exponential link and need some extra computations.
 
 \subsection{Heteroscedastic Non-Gaussian Likelihood}
 
