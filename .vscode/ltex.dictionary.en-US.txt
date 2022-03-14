@@ -38,3 +38,4 @@ GPFlow
 logit
 softmax
 additivity
+boundedness
