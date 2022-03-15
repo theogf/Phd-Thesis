@@ -81,8 +81,8 @@ This double-bound approach is very similar to \citet{lazaro2011variational}, alt
 \begin{algorithm}[H]
     \caption{\ac{CAVI} Updates for the Heteroscedastic Gaussian likelihood}
     \begin{algorithmic}
-        \State \textbf{Input:} $q(\boldf,\boldg) = \mathcal{N}(\boldf|\bmu_f,\bSigma_f)\mathcal{N}(\boldg|\bmu_g,\bSigma_g)$, $p(\boldf,\boldg) = \mathcal{N}(\boldf|\bmu^0_f, K)\mathcal{N}(\boldg|\bmu^0_g, K)$, $\boldy$.
-        \While{!convergence}
+        \State \textbf{input:} $q(\boldf,\boldg) = \mathcal{N}(\boldf|\bmu_f,\bSigma_f)\mathcal{N}(\boldg|\bmu_g,\bSigma_g)$, $p(\boldf,\boldg) = \mathcal{N}(\boldf|\bmu^0_f, K)\mathcal{N}(\boldg|\bmu^0_g, K)$, $\boldy$ and $\lambda$.
+        \While{convergence criteria is not met}
             \State $\psi^i = \widetilde{q}(g^i)$
             \State $\gamma^i = \frac{\lambda}{2} \psi^i  \sqrt{(y^i - \mu_f^i)^2 + \Sigma_f^{ii}}$
             \State $c^i = \sqrt{(\mu_g^i)^2 + \Sigma^{ii}_g}$
@@ -93,14 +93,14 @@ This double-bound approach is very similar to \citet{lazaro2011variational}, alt
             \State $\bmu_g = \bSigma_g\left(K^{-1}\bmu_g^0 + \frac{0.5 + \bgamma}{2}\right)$
         \EndWhile
     \end{algorithmic}
-    where $q(\boldn, \bomega) = \prod_{i=1}^N \PG(\omega^i|0.5 + n, c^i)\Po(n^i|\gamma^i)$ and $\widetilde{\sigma}(q(g^i)) = \frac{e^{-\mu_g^i/2}}{\sqrt{(\mu_g^i)^2 + \Sigma^{ii}_k} / 2}$ is an approximation to $\expec{q(g^i)}{\sigma(-g^i)}$.
+    where $q(\boldn, \bomega) = \prod_{i=1}^N \PG(\omega^i|0.5 + n, c^i)\Po(n^i|\gamma^i)$ and $\widetilde{\sigma}(q(g^i)) = \frac{e^{-\mu_g^i/2}}{\sqrt{(\mu_g^i)^2 + \Sigma^{ii}_k} / 2}$ can be seen as a close approximation to $\expec{q(g^i)}{\sigma(-g^i)}$.
 \end{algorithm}
 
 \begin{algorithm}[H]
     \caption{Gibbs sampling for the Heteroscedastic Gaussian likelihood}
     \begin{algorithmic}
-        \State \textbf{Input:} $\boldf,\boldg$, $p(\boldf,\boldg) = \mathcal{N}(\boldf|\bmu^0_f, K)\mathcal{N}(\boldg|\bmu^0_g,\bSigma_g)$, $\boldy$.
-        \For{$t$ in $1:$\# samples}
+        \State \textbf{input:} $\boldf,\boldg$, $p(\boldf,\boldg) = \mathcal{N}(\boldf|\bmu^0_f, K)\mathcal{N}(\boldg|\bmu^0_g, K)$, $\boldy$, $\lambda$.
+        \For{$t$ in $1:$ N samples}
             \State Draw $n^i \sim p(n^i|f^i, g^i, \lambda) = \Po(\lambda \sigma(g^i) \frac{(y^i - f^i)^2}{2})$
             \State Draw $\omega^i \sim p(\omega^i|n^i,g^i) = \PG(0.5 + n^i, |g^i)$
             \State Draw $\boldg \sim p(\boldg|\boldn, \bomega) = \mathcal{N}(\bmu_g,\bSigma_g)$
@@ -190,7 +190,7 @@ Using this formulation, the first augmentation that led to an improper prior :
 becomes the known \ac{MGF} of a Gamma distribution with a proper mixture:
 \begin{align*}
     \frac{1}{D + \sum_{i=1}^{K-1} \sigma(f_i)} =& \frac{1}{D + \sum_{i=1}^{K-1} \sigma(f_i)} = \frac{1}{D}\frac{1}{1+\frac{1}{D}\sum_{i=1}^{K=1}\sigma(f_i)}\\
-    =& \frac{1}{D}\int_0^\infty e^{\lambda \sum_{i=1}^{K-1} \sigma(f_i)}\Ga \left(1, \frac{1}{D}\right)d\lambda
+    =& \frac{1}{D}\int_0^\infty e^{-\lambda \sum_{i=1}^{K-1} \sigma(f_i)}\Ga \left(1, \frac{1}{D}\right)d\lambda.
 \end{align*}
 Note that an important condition to use the \ac{MGF} is that $-\sum_{i=1}^{K-1} \sigma(f_i) < D$ which is true as long as $D > 0$.
 This condition would not hold with the over-parametrized version which would lead to $D=0$.
@@ -204,7 +204,7 @@ Since $D$ is fixed, the probability for classes other than $K$ will be bounded $
 Taking $D=0.5$ would lead to a maximum probability of $2/3$.
 On the other hand, if $D=0$, the probability of the class $K$ will always be $0$.
 This is not an issue with the softmax link since the exponential function is not bounded.
-A potential solution is presented in Section~\ref{sec:scale_multiclass}
+A potential solution is presented in Section~\ref{sec:scale_multiclass}.
 
 \subsection{Marginalizing out variables}
 
@@ -256,8 +256,8 @@ These can also provide information about each class, a high $\theta_i$ meaning t
 \begin{algorithm}[H]
     \caption{\ac{CAVI} updates: $\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}$ latent \ac{GPs} for $K$ classes}
     \begin{algorithmic}
-    \State \textbf{Input:} $q(\boldsymbol{F}) = \prod_{k=1}^{\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}} q(\boldf_k|\bmu_k, \bSigma_k)$, $p(\boldsymbol{F} = \prod_{k=1}^{\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}} p(\boldf_k|\bmu_0, K_{XX})$, $Y=\{\boldy^i\}_{i=1}^N$ (one-hot encoded)
-    \While{!convergence}
+    \State \textbf{input:} $q(\boldsymbol{F}) = \prod_{k=1}^{\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}} q(\boldf_k|\bmu_k, \bSigma_k)$, $p(\boldsymbol{F} = \prod_{k=1}^{\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}} p(\boldf_k|\bmu_0, K)$, $Y=\{\boldy^i\}_{i=1}^N$ (one-hot encoded)
+    \While{convergence criteria is not met}
         \State $c^i_k = \sqrt{(\mu^i_k)^2 + \Sigma_k^{ii}}$
         \State $p^i_k = \textcolor{sb1}{\frac{\widetilde{\sigma}(q(f_k^i))}{K}}/\textcolor{sb2}{\frac{\widetilde{\sigma}(q(f_k^i))}{D + \sum_{j=1}^{K-1}\widetilde{\sigma}(q_j^i)}}$
         \State $\bgamma^i = \expec{q(\boldsymbol{n}^i)}{\boldsymbol{n}^i} = \frac{\boldsymbol{p}^i}{1 - \sum_{i=1}^K p^i_k}$
@@ -274,8 +274,8 @@ The Gibbs sampling updates are of course very similar:
 \begin{algorithm}[H]
     \caption{Gibbs sampling updates: $\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}$ latent \ac{GPs} for $K$ classes}
     \begin{algorithmic}
-    \State \textbf{Input:} $\boldsymbol{F} = \{\boldf_k\}_{k=1}^K$, $p(\boldsymbol{F}) = \prod_{k=1}^{\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}} p(\boldf_k|\bmu_0, K_{XX})$, $Y=\{\boldy^i\}_{i=1}^N$ (one-hot encoded)
-    \For{1:nsamples}
+    \State \textbf{input:} $\boldsymbol{F} = \{\boldf_k\}_{k=1}^K$, $p(\boldsymbol{F}) = \prod_{k=1}^{\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}} p(\boldf_k|\bmu_0, K_{XX})$, $Y=\{\boldy^i\}_{i=1}^N$ (one-hot encoded)
+    \For{$t$ in 1: \# samples}
         \State Draw $\boldsymbol{n}^i \sim p(\boldsymbol{n}^i|\boldsymbol{F}) = \mathrm{NM}(1, \boldsymbol{p}^i)$ where 
         $p_k^i = \textcolor{sb1}{\frac{\sigma(-f_k^i)}{K}}/\textcolor{sb2}{\frac{\sigma(-f_k^i)}{D + \sum_{j=1}^{K-1} \sigma(-f_j^i)}}$
         \State Draw $\omega_k^i \sim p(\omega_k^i|f_k^i, n_k^i, y_k^i) = \PG(y_k^i + n^i_k, |f_k^i|)$

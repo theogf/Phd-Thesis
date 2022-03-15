@@ -18,7 +18,7 @@ Additionally, this chapter dives more into the details of the basics of probabil
 
 \label{sec:prob_bayes}
 
-Bayes' theorem is one of the simplest theorem in probabilities and its demonstration fits in one line, yet its implications are unmeasurably important.
+Bayes' theorem is one of the simplest theorems in probability theory, and its proof fits in one line, yet its implications are unmeasurably important.
 
 Let's give a very general modeling setting that we are going to follow for the rest of this chapter.
 Given a set of observed variables $\bD$, a set of latent (unobserved) variables $\bZ$ with a \textbf{prior} distribution $p(\bZ)$, and a \textbf{likelihood} function $p(\bD|\bZ)$, we obtain the \textbf{posterior} distribution $p(\btheta|\bZ)$ via Bayes' theorem:
@@ -27,23 +27,24 @@ p(\bZ|\bD) = \frac{p(\bD|\bZ)p(\bZ)}{p(\bD)} = \frac{p(\bD|\bZ)p(\bZ)}{\int p(\b
 \label{eq:bayes}
 \end{align}
 
-Here $p(\bD)$ represents the evidence, and can be used to compare different model (the dependency on the used model is implicit here).
+Here $p(\bD)$ represents the so-called evidence, and can be used to compare different model (the dependency on the used model is implicit here).
 The posterior allows us to obtain a distribution of the latent variables with its uncertainty given the prior $p(\bZ)$ and the data $\bD$.
-The posterior is used for computing all kind of expectations of the form $\expec{p(\bZ|\bD)}{f(\bZ)} = \int f(\bZ)p(\bZ|\bD)d\bZ$.
+The posterior is used for computing all kinds of expectations of the form $\expec{p(\bZ|\bD)}{f(\bZ)} = \int f(\bZ)p(\bZ|\bD)d\bZ$.
 Expected values of interest can be statistics of the posterior like the mean ($\expec{p(\bZ|\bD)}{\bZ}$) or predictions of new data points $p(\bx'|\bD) = \expec{p(\bZ|\bD)}{p(\bx'|\bZ)}$.
 
 Probabilistic models can roughly be divided in two categories: \textbf{generative}, i.e. observed data has been generated from a stochastic model, and \textbf{discriminative}, i.e. observed data has an input and an output, and a stochastic model connects the two.
 Note that the scope of this work scope is restricted to discriminative models.
 Let's take the simple example of linear logistic regression, a discriminative model:
-Given an input $\bx \in \mathbb{R}^D$ and binary label $y\in \{ 0, 1\}$, we model the generative model as:
+Given an input $\bx \in \mathbb{R}^D$ and binary label $y\in \{ 0, 1\}$, we model the process as:
 \begin{align}
     y \sim \Be\left(\sigma(\btheta^\top \bx)\right),
 \end{align}
 where $\Be$ is the Bernoulli distribution, $\btheta\in\mathbb{R}^D$ is a vector of weights (our latent variable $\bZ$), and $\sigma$ is the logistic function $\sigma(x) = \frac{1}{1 + \exp(-x)}$, i.e. $\sigma : \mathbb{R} \mapsto [0, 1]$.
 The likelihood function is given by: $p(y_i|\btheta,\bx_i) =\sigma\left(\btheta^\top \bx_i\right)^{y_i}\sigma\left(-\btheta^\top \bx_i\right)^{1-y_i}$ for an output label $y_i$ and input features $\bx_i$.
 
-Now let's suppose that we have $N$ pairs of input $\bx$ and label $y$, that we assume to be \ac{iid}, we get a training set $\bX = \{\bx_1,\ldots,\bx_N\}$, $\boldy = \{y_1,\ldots,y_N\}$.
+Now let's suppose that we have $N$ pairs of input $\bx_i$ and label $y_i$, that we assume to be \ac{iid}, we get a training set $\bX = \{\bx_1,\ldots,\bx_N\}$, $\boldy = \{y_1,\ldots,y_N\}$.
 The posterior is built as $p(\btheta|y,\bX) \propto p(\btheta)\prod_{i=1}^N p(y_i|\btheta, \bx_i)$.
+\com{introduce the prior}
 Predictions for a new data input $\bx^*$ can be then computed as:
 \begin{align}
 p(y^*|\bx^*,\boldy,\bX) = \int p(y^*, \btheta|\bx^*\boldy, \bX)d\btheta = \int p(y^*|\btheta,\bx^*) p(\btheta|\boldy,\bX)d\btheta.
@@ -54,11 +55,11 @@ To solve this integral, we must either be able to both know the posterior in clo
 
 \subsection{Posterior computations}
 \label{sec:posterior}
-Assuming that both the prior $p(\btheta)$ and the likelihood $p(\bx|\btheta)$ are known in closed-form, computing the posterior \eqref{eq:bayes} in closed-form means being able to compute the integral $p(\bx)=\int p(\bx|\btheta)p(\btheta)d\btheta$.
+Assuming that both the prior $p(\btheta)$ and the likelihood $p(\bx|\btheta)$ are known analytically, computing the posterior \eqref{eq:bayes} in closed-form means being able to compute the integral $p(\bx)=\int p(\bx|\btheta)p(\btheta)d\btheta$.
 For most non-trivial models, this integral is intractable and approximations to the posterior are needed.
 Such methods are introduced in Section~\ref{sec:approx_inf}.
 However, in certain settings, computing the posterior in closed-form is possible.
-This happens when the prior is said \textbf{conjugate} to the likelihood, i.e. that the posterior is of the same probability distribution family as the prior.
+This happens when the prior is said \textbf{conjugate} to the likelihood i.e. that the posterior is of the same probability distribution family as the prior.
 It is worth emphasizing this seemingly trivial case, since it will be exploited such property in Section~\ref{sec:scale-mixtures}.
 If we consider the distributions part of the \textbf{exponential family}, i.e. distributions that can be written as:
 \begin{align}
@@ -83,11 +84,11 @@ Given a factorizable likelihood $p(\bX|\btheta) = \prod_{i=1}^N p(\bx_i|\btheta)
 \begin{align*}
     p(\btheta|\bX) \propto h'(\btheta)\exp\left(\left(\{\sum_{i=1}^N T(\bx_i), N\} + \boldeta'(\balpha)\right)^\top T'(\btheta)\right).
 \end{align*}
-The latter equation can easily be normalized since it is a known distribution of the same family of the prior.
+The latter equation can easily be normalized since it is a known distribution of the same family of the prior. \com{remove this}
 Such conjugate models, are very practical as the posterior can be found in one step, but due to the constraints also tend to be too simple for real-world complex models.
 
-If using a conjugate likelihood is not possible, a relaxation is to have all full-conditionals in closed-form, we talk then about \textbf{conditionally conjugate} models.
-The full-conditional is defined as $p(\theta_i|\bx, \btheta_{/i})$ where $\btheta_{/i}$ represents the set of latent variables $\btheta$ where $\theta_i$ has been omitted.
+If a conjugate prior does not exist or not desirable, a relaxation is to have all full-conditionals in closed-form, we talk then about \textbf{conditionally conjugate} models.
+The full-conditional is defined as $p(\theta_i|\bX, \btheta_{/i})$ where $\btheta_{/i}$ represents the set of latent variables $\btheta$ where $\theta_i$ has been omitted.
 Knowing the full-conditional distribution in closed-form means that when conditioned on the other variables, the posterior is known in closed-form.
 In practice, we need to be able to write the likelihood conditioned on the other for each variable $\theta_i$ (or block of variables).
 In the same exponential family example above, instead of looking for \eqref{eq:explikelihood}, we are interested in:
@@ -98,40 +99,40 @@ In the same exponential family example above, instead of looking for \eqref{eq:e
 \section{Gaussian Processes}
 \label{sec:gps}
 \acf{GPs} are a class of stochastic processes used as non-parametric probabilistic representations to functions.
-A \ac{GP} is a stochastic process $f_t$, where the joint distribution on any collection of variables $f_t$ follows a (multivariate) Gaussian distribution.
-Most operations on Gaussian variables can be done analytically which makes them computationally very attractive.
-For instance, marginals can be computed exactly and a product of Gaussian distributions is still Gaussian.
+A \ac{GP} is a stochastic process $f(X)$\com{to rewrite}, where the joint distribution on any collection of variables $f_t$ follows a (multivariate) Gaussian distribution.
+Linear operations on Gaussian variables can be done analytically which makes them computationally very attractive.
+For instance, marginals can be computed exactly and a product of Gaussian distributions of the same variable is proportional to another Gaussian.
 % The Gaussian distribution is to statistics what the harmonic oscillator is to physics".
 
-One of the interpretation of a \ac{GP} is as a prior on functions in the \acf{RKHS}.
-In practice the \ac{RKHS} is infinite-dimensional and for any computations, one needs to project it into a finite-dimensional space.
-Considering a function $f$ we wish to represent with a \ac{GP}, we can project $f$ in a finite space by evaluating it on a set of data inputs $\bX = \{\bx_1, \ldots, \bx_N\}$ such that we obtain the finite-dimensional vector $\boldf$ where $f_i = f(\bx_i)$.
+One of the interpretations of a \ac{GP} is as a prior on functions in the \acf{RKHS}.
+In practice, the \ac{RKHS} is infinite-dimensional and for any computations, one needs to project it into a finite-dimensional space.
+Considering a function $f$ we wish to represent with a \ac{GP}, we can project $f$ into a finite space by evaluating it on a set of data inputs $\bX = \{\bx_1, \ldots, \bx_N\}$ such that we obtain the finite-dimensional vector $\boldf$ where $f_i = f(\bx_i)$.
 % \missingfigure{Put a prior of a GP}
 
 \ac{GPs} are described to be non-parametric models, however one needs to define the covariance between each variable of the process via kernel functions \needcite and an underlying mean function.
-The prior on the projected \ac{GP} on $\bX$ is given by $\mathcal{N}\left(\bmu_0(\bX), K_{X}\right)$ where $\mu_0(\bX)$ is a vector function such that $\bmu_0(\bX) = \{\mu_0(\bx_i)\}_{i=1}^N$ and $K \in \mathbb{R}^{N\times N}$ is the kernel matrix, defined by $K_{ij} = k(x_i, x_j)$.
+The prior on the projected \ac{GP} on $\bX$ is given by $\mathcal{N}\left(\bmu_0(\bX), K_{X}\right)$ where $\mu_0(\bX)$ is a vector function such that $\bmu_0(\bX) = \{\mu_0(\bx_i)\}_{i=1}^N$ and $K \in \mathbb{R}^{N\times N}$ is the kernel matrix, defined by $K_{ij} = k(\bx_i, \bx_j)$.
 The important condition is that $K$ is positive-definite, i.e. for any $x\in \real^D$, $x^\top K x > 0$.
 
 \subsection{Gaussian Process Regression}
 
-Let's now have a look at the most standard
-We now have a prior on the realization of the function $\boldf$ on the data $\bX = \{\bx_i\}_{i=1}^N$, $p(\boldf) = \No(\boldf|\bmu_0, \bK)$, where $\bmu_0 = \{\mu_0(\bx_i)\}_{i=1}^N$ is the mean vector based on the function $\mu_0$.
-We can add noisy observations $\by = \{y_i\}_{i=1}^N$ for each respective $\bX$:
+Let us have a look at the most standard problem: Gaussian regression.
+We have a prior on the realization of the function $\boldf$ on the data $\bX = \{\bx_i\}_{i=1}^N$, $p(\boldf) = \No(\boldf|\bmu_0, \bK)$, where $\bmu_0 = \{\mu_0(\bx_i)\}_{i=1}^N$ is the mean vector based on the function $\mu_0$.
+We can add noisy observations $\by = \{y_i\}_{i=1}^N$ for each respective $\bx_i$:
 \begin{align}
 y_i = f(\bx_i) + \epsilon_i,
 \end{align}
 where $\epsilon_i \sim \No(0,\sigma^2)$.
 This leads to the likelihood $p(y_i|f_i) = \No(y_i|f_i, \sigma^2)$.
 Fortunately, multiplying Gaussian probability distributions together lead to another Gaussian distribution function and the posterior for $\boldf$ is given by $p(\boldf|\by) = \No(\boldf|\by, \bK + \sigma^2 I)$.
-The prediction of $f^*$ on a new input $\bx^*$ can be evaluated by computing:
+The predictive distribution of $f^*=f(\bx^*)$ on a new input $\bx^*$ can be evaluated by computing:
 \begin{align}
 p(f^*|\bx^*,\bX,\by) = \int p(f^*|\boldf,\bx^*)p(\boldf|\bX,\by)d\boldf.
 \end{align}	
 This integral is analytically tractable and results in $p(f^*|\bx^*,\bX,\by)=\No(f^*|m^*,s^*)$ where $m^* = K_{\bx^*,\bX}(K_{\bX,\bX} + \sigma^{2}I)^{-1}\boldy$ and $s^*=K_{\bx^*,\bx^*} - K_{\bx^*,\bX}\left(K_{\bX,\bX}+\sigma^2I\right)^{-1}K_{\bX,\bx^*}$.
-The prediction for $f^*$ is a Gaussian distribution, on top of knowing the mean $m^*$ we also have an uncertainty variance $s^*$.
+The prediction for $f^*$ is a Gaussian distribution, on top of knowing the mean $m^*$ we also have a measure of uncertainty given by the variance $s^*$.
 Note that $s^*$ depends directly on $K_{\bx^*,\bX}$, if $\bx^*$ is far from all points in $\bX$ (in the sense of the distance used in the kernel $k$), then $K_{\bx^*,\bX}$ will be very small and the variance $s^*$ maximized.
-This tells us that for new data $\bx^*$ observed far from the training, i.e. potentially different from what we observed so far, the uncertainty will be high regarding the prediction.
-A concrete example of this is shown on Figure~\ref{fig:gp_example}.
+This tells us that for a new input $\bx^*$ observed far from the training data, i.e. potentially different from what we observed so far, the predictive uncertainty will be high.
+A concrete example is shown on Figure~\ref{fig:gp_example}.
 
 \begin{figure}
     \includegraphics[width=\textwidth]{./chapters/2_background/figures/GP_example.pdf}
@@ -142,14 +143,14 @@ A concrete example of this is shown on Figure~\ref{fig:gp_example}.
 \subsection{Non-Conjugate Gaussian Processes}
 
 A Gaussian prior is only conjugate to the mean parameter of a Gaussian likelihood.
-Therefore, the \ac{GP} posterior obtained in the previous section is only tractable for homoscedastic Gaussian likelihoods, for all other cases we talk about \textbf{non-conjugate \ac{GPs}}.
+Therefore, the \ac{GP} posterior obtained in the previous section is only tractable for homoscedastic \com{define this} Gaussian likelihoods, for all other cases we talk about \textbf{non-conjugate \ac{GPs}}.
 Examples of non-conjugate \ac{GPs} problems are binary classification, regression using non-Gaussian noise such as Student-t or Laplace noise, and event counting.
 Additionally, some likelihoods such as multi-class classification or heteroscedastic regression require multiple latent \ac{GPs}.
 Figure~\ref{fig:gp_class_example} shows an example of 1-dimension binary classification with a \ac{GP}.
 Although the \ac{GP} does not recover exactly the true process, it is confidently in its interval.
 
-For all these problems, the posterior is not analytically tractable, and one need to resort to approximation methods such as the one presented in Section~\ref{sec:approx_inf}.
-A strong focus of this thesis is to work with these non-conjugate likelihoods and turn them into something analytically tractable again.
+For all these problems, the posterior is not analytically tractable, and one needs to resort to approximation methods such as the one presented in Section~\ref{sec:approx_inf}.
+A strong focus of this thesis is to work with these non-conjugate likelihoods and turn them into something analytically tractable \com{change this}.
 
 \begin{figure}
     \includegraphics[width=\textwidth]{./chapters/2_background/figures/GP_classification_example.pdf}
@@ -163,9 +164,11 @@ A strong focus of this thesis is to work with these non-conjugate likelihoods an
 
 \subsection{Sparse Gaussian Processes}
 \label{sec:sparsegps}
-One of the other largest drawback of \ac{GPs}, regardless of the conjugacy of the likelihood, is the scalability with the number of observed samples.
-When computing the covariance, the inverse operation has a computational complexity of $\mathcal{O}(N^3)$ where $N$ is the number of samples.
-For one-dimensional inputs ($D=1$), solutions exist using state-space models representation \cite{pmlr-v9-turner10a,solinInfiniteHorizonGaussianProcesses2018}, leading to an $\mathcal{O}(N)$ complexity but higher-dimensional problems require alternative solutions.
+One of the other largest drawbacks of \ac{GPs}, regardless of the conjugacy of the likelihood, is the scalability with the number of observed samples.
+When computing the predictive mean and covariance, the inverse operation has a computational complexity of $\mathcal{O}(N^3)$ where $N$ is the number of samples.
+For one-dimensional inputs ($D=1$), solutions exist for specific kernels using state-space models representation \cite{pmlr-v9-turner10a,solinInfiniteHorizonGaussianProcesses2018}, leading to an $\mathcal{O}(N)$ complexity but higher-dimensional problems require alternative solutions.
+\com{Add the nystrom approximation (Williams)}
+\com{also cite Csato's thesis}
 \citet{csato2002sparse} proposed first to create an approximation of the posterior using a subset of the points only in the context of online learning.
 \citet{snelsonSparseGaussianProcesses2009} expanded this theory to the offline framework and \citet{Titsias2009} developed an alternative approximation based on KL divergence where the "inducing points" are not necessarily a subset of the training data and do not even have to belong to the same domain \cite{NIPS2009_5ea1649a, vdw2020framework}.
 
@@ -175,27 +178,29 @@ The variational distribution on $\boldu$ and $\boldf$ is
     q(\boldu,\boldf) = q(\boldu)\prod_{i=1}^N p(f_i|\boldu),
     \label{eq:titsias_assumption}
 \end{align}
+\com{Enrich this section and give details}
 meaning that given the inducing points $\boldu$, the realizations $\boldf$ are all independent of each other.
 This is of course a strong assumption, but the inference and prediction complexity is then reduced to $\mathcal{O}(NM^2 + M^3)$, where $N$ can be reduced to a smaller batch-size $B$ when using stochastic inference approaches like in \cite{Hensman2013,Hensman2015}.
 
 \section{Approximate Bayesian Inference}
 \label{sec:approx_inf}
 The posterior distribution in Equation~\eqref{eq:bayes} cannot be computed in closed-form for non-trivial problems such as the one presented in Section~\ref{sec:gps}.
-One can nonetheless to approximate the posterior to obtain a useful estimator for predictions and computing function expectations of interest.
+One can nonetheless approximate the posterior to obtain a useful estimator for predictions and computing function expectations of interest.
 This problem of \textbf{Approximate Bayesian Inference} is a research field of its own, and this chapter will focus specifically on sampling and variational inference, the most used methods for \ac{GPs}.
 
 \subsection{Sampling}
 
-Even if the posterior distribution $p(\btheta|\bx)$ is not available in closed-form, one might be able to draw samples from it.
-The advantage of sampling is its unbiasedness, i.e. in the limit of infinitely many samples one recover the exact posterior distribution.
-The whole collection of sampling techniques is again a whole field of research and the number of methods is too large to make mention of them all in this thesis.
+Even if the posterior distribution $p(\btheta|\bX)$ is not available in closed-form, one might be able to draw samples from it.
+The advantage of sampling is its unbiasedness, i.e. in the limit of infinitely many samples one recovers the exact posterior expectation.
+The collection of sampling techniques is a whole field of research and the number of methods is too large to make mention of them all in this thesis.
 Therefore, the scope is restricted to methods popular with or tailored to \ac{GPs}.
-We will especially focus on \ac{MCMC} methods.
+We restrict the focus on \ac{MCMC} methods.
+
 \subsubsection{Markov Chain Monte Carlo and Metropolis-Hastings}
 
-\acf{MCMC} methods generate a chain of variables $\btheta^t$ with the Markov assumption: $\btheta^t$ depends only on $\btheta^{t-1}$ and where the stationary distribution of $\btheta^t$ is the same as the target distribution (for our use case the posterior $p(\btheta|\bx)$).
-\ac{MCMC} methods require a transition probability $t(\btheta^{t+1}|\btheta)$ which leaves the target stationary distribution invariant, i.e. $p(\btheta) = \int t(\btheta|\btheta')p(\btheta')d\btheta'$.
-Other properties such as detailed balance (a chain has the same probability to go backward and forward in time) and ergodicity (the chain should be able to explore all the parameter space and be aperiodic) need to be satisfied as well.
+\acf{MCMC} methods generate a chain of variables $\btheta^t$ with the Markov assumption: $\btheta^t$ depends only on $\btheta^{t-1}$ and where the stationary distribution of $\btheta^t$ is the same as the target distribution $\pi(\btheta)$ (for our use case the posterior $p(\btheta|\bX)$).
+\ac{MCMC} methods require a transition probability $t(\btheta^{t+1}|\btheta)$ which leaves the target stationary distribution invariant, i.e. $\pi(\btheta) = \int t(\btheta|\btheta')\pi(\btheta')d\btheta'$.
+Other properties such as detailed balance and ergodicity need to be satisfied as well \cite{brooks2011handbook, o2004kendall}.
 
 One the most common algorithm to run a Markov Chain sampling directly from a distribution $p(\btheta)$ is the \acf{MH} algorithm.
 The \ac{MH} algorithm consists in having a proposal distribution $q(\btheta'|\btheta)$ suggesting a new sample.
@@ -206,18 +211,18 @@ Next are presented briefly some important categories of choice for the proposal 
 
 \subsubsection{Gibbs Sampling}
 
-Gibbs sampling is a particular \ac{MCMC} method where each random variable is sampled one after another.
+Gibbs sampling is a particular \ac{MCMC} method where each component of the random vector is sampled one after another.
 The proposal distribution for the \ac{MH} step is given by the full-conditional  $p(\theta_i|\bx,\btheta_{/i})$, where $\btheta_{/i}=\{\theta_1, \ldots \theta_{i-1}, \theta_{i+1},\ldots \theta_{D}\}$.
 The most prominent feature of Gibbs sampling is its acceptance probability, guaranteed to be 1:
 \begin{align*}
     A =& \frac{p(\theta^{t+1}_i,\btheta^t_{/i}|\bx)}{p(\theta^t_i,\btheta^t_{/i}|\bx)}\frac{p(\theta^t_i|\bx,\btheta^{t}_{/i})}{p(\theta^{t+1}_i|\bx,\btheta^t_{/i})}\\
-    =& \frac{p(\theta^{t+1}|\bx, \btheta^{t}_{/i})}{p(\theta^t_i|\bx,\btheta^t_{/i})}\frac{p(\btheta^t_{/i}|\bx)}{p(\btheta^t_{/i}|\bx)}\frac{p(\theta^t_i|\bx,\btheta^{t}_{/i})}{p(\theta^{t+1}_i|\bx,\btheta^t_{/i})} = 1.
+    =& \frac{p(\theta^{t+1}_i|\bx, \btheta^{t}_{/i})}{p(\theta^t_i|\bx,\btheta^t_{/i})}\frac{p(\btheta^t_{/i}|\bx)}{p(\btheta^t_{/i}|\bx)}\frac{p(\theta^t_i|\bx,\btheta^{t}_{/i})}{p(\theta^{t+1}_i|\bx,\btheta^t_{/i})} = 1.
 \end{align*}
 At every step, all proposed samples are therefore guaranteed to be accepted.
-Also, since we are sampling directly from the full-conditionals, regions of high density are reached pretty quickly.
+Also, since we are sampling from the full-conditionals, regions of high density are reached pretty quickly.
 Although it is not a guarantee, the sampler will converge to the stationary distribution quickly.
 
-The path of the sampler is illustrated on a two-dimensional bimodal example on Figure~\ref{fig:gibbs_samp}.
+We illustrate the path of the sampler on a two-dimensional bimodal example on Figure~\ref{fig:gibbs_samp}.
 
 \begin{figure}
 \centering
@@ -230,21 +235,21 @@ However, the Gibbs sampling approach has several issues:
 First, the full-conditional distributions are rarely available in closed-form and sampling from them is not always easy or even possible.
 Second, there can be exploration issues if the different variables are heavily correlated.
 Some of these issues can be resolved by using additional techniques like the \textbf{blocked Gibbs sampler} \needcite where groups of variables are sampled jointly or \textbf{collapsed Gibbs sampling} \cite{liu1994collapsed} where some variables are marginalized out from the full-conditional distribution.
-The blocked Gibbs sampler will be heavily used in the different works on augmentation as full-conditional distributions of group of variables arise naturally.
+The blocked Gibbs sampler will be heavily used in the different works on augmentation as full-conditional distributions of group of variables arise naturally. \com{change tone}
 
 \subsubsection{Hamilton/Hybrid Monte Carlo}
 \label{sec:hmc}
 \acf{HMC} or Hybrid Monte Carlo \cite{duane1987hybrid, betancourt2017conceptual} is a \ac{MCMC} gradient-based method.
-Using Hamiltonian dynamics and augmenting the variables with a new momentum variables, one can guarantee both a high acceptance rate and a good exploration of the space.
-\ac{HMC}'s proposal is to integrate the Hamiltonian dynamics with a randomly sampled momentum for a fixed number of steps with a given symplectic integrator.
-The acceptance rate directly depends on the conservation of energy during the integration.
-By using the right set of parameters and the right integrator, the acceptance rate is therefore guaranteed to be close to 1.
+Using Hamiltonian dynamics and augmenting the variables with an extra momentum term, one can guarantee both a high acceptance rate and a good exploration of the space.
+\ac{HMC}'s proposal is generated by integrating the Hamiltonian dynamics with a randomly sampled momentum for a fixed number of steps with a given symplectic integrator.
+The acceptance rate depends on the conservation of energy during the integration.
+A proper tuning of the algorithm guarantees the acceptance rate to be close to 1.
 An illustration of the process is given on Figure~\ref{fig:hmc}, where the given path is also illustrated via gray lines.
 
-\ac{HMC} has also multiple disadvantages: 
-First, one needs to integrate differential equations based on gradients, which becomes increasingly expensive for high-dimensional models and complex likelihoods. 
-Second, it contains tunable parameters, namely the step size of the integrator, the number of steps taken and the metric matrix used.
-These parameters can be locally optimized, but they are without guarantees and require additional computational time.
+\ac{HMC} also has multiple disadvantages: 
+First, one needs to integrate differential equations based on gradients, which becomes increasingly expensive for high-dimensional models and complex likelihoods.  \com{clarify better what is meant}
+Second, it contains tunable parameters, namely the step size of the integrator, the number of steps taken, and the momentum parameters used.
+These parameters can be locally optimized, but they are without guarantees and require additional computational time. \com{change the guarantee speech}
 Last but not least, \ac{HMC} only works for continuous variables.
 
 \begin{figure}
@@ -260,14 +265,6 @@ The choice of the sampling algorithm is a complex one and is extremely problem-d
 \ac{HMC} is more of a jack-of-all-trades which has its plug-and-play practicality, in particular in regard to recent advances in automatic differentiation which removed the requirement to compute gradients by hand.
 Gibbs sampling has the disadvantage of requiring upstream work and to only work in specific situations.
 Nonetheless, it proved to be an algorithm of choice in the different works presented in this thesis.
-
-% \subsubsection{Elliptical Slice Sampling}
-
-% Another canonical sampling approach for \ac{GPs} is \ac{ESS} .
-% It is a variation of the standard random walk approach where instead of a taking a step in a random direction, the proposal is tried in various direction until a sample is accepted.
-
-% TODO Finish this part
-
 
 \subsection{Variational Inference}
 
