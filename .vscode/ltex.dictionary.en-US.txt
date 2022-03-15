@@ -39,3 +39,4 @@ logit
 softmax
 additivity
 boundedness
+Nyström

@@ -698,7 +698,7 @@ export LC_ALL		?= C
 # * DVI files are now removed on first invocation if ANY file is missing
 # * Added a simple grayscale approach: if a file ends with -gray.gpi, it
 #     is created from the corresponding .gpi file with a special
-#     comment ##GRAY in its header, which causes coloring to be
+#     ##GRAY in its header, which causes coloring to be
 #     turned off.
 # * Fixed a bug in the handling of .tex.sh files.  For some reason I had
 #     neglected to define file stems for scripted output.
@@ -3342,7 +3342,7 @@ endif
 	$(QUIET)$(call echo-build,$<,$@)
 	$(QUIET)$(call make-gpi-d,$<,$@)
 
-# Get source specials, e.g., paper size and special %% comments.
+# Get source specials, e.g., paper size and special %% .
 %.specials.make: %.tex
 	$(QUIET)$(call get-source-specials,$<,$@)
 

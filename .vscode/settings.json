@@ -20,7 +20,15 @@
             "env": {}
         },
     ],
-    "todo-tree.regex.regex": "((//|#|%|<!--|;|/\\*|^)\\s*($TAGS)|^\\s*- \\[ \\])",
+    "todo-tree.regex.regex": "((//|#|<!--|;|/\\*|^|%|\\\\)\\s*($TAGS)\\{*|^\\s*- \\[ \\])",
+    // "todo-tree.regex.regex": "((//|#|%|<!--|;|/\\*|^)\\s*($TAGS|\\comment)|^\\s*- \\[ \\])",
+    "todo-tree.general.tags": [
+        "BUG",
+        "HACK",
+        "FIXME",
+        "TODO",
+        "com{"
+    ],
     "grammarly.overrides": [
         {
             "files": [
