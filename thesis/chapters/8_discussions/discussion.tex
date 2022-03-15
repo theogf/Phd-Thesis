@@ -100,7 +100,7 @@ This double-bound approach is very similar to \citet{lazaro2011variational}, alt
     \caption{Gibbs sampling for the Heteroscedastic Gaussian likelihood}
     \begin{algorithmic}
         \State \textbf{Input:} $\boldf,\boldg$, $p(\boldf,\boldg) = \mathcal{N}(\boldf|\bmu^0_f, K)\mathcal{N}(\boldg|\bmu^0_g,\bSigma_g)$, $\boldy$.
-        \For{1:nsamples}
+        \For{$t$ in $1:$\# samples}
             \State Draw $n^i \sim p(n^i|f^i, g^i, \lambda) = \Po(\lambda \sigma(g^i) \frac{(y^i - f^i)^2}{2})$
             \State Draw $\omega^i \sim p(\omega^i|n^i,g^i) = \PG(0.5 + n^i, |g^i)$
             \State Draw $\boldg \sim p(\boldg|\boldn, \bomega) = \mathcal{N}(\bmu_g,\bSigma_g)$
@@ -294,39 +294,44 @@ Note that an implementation as well as detailed derivations can be found in the 
 
 Another work in progress regards the sampling of sparse \ac{GPs} models.
 Being able to sample directly from the augmented model is ideal as it allows recovering samples from the original posterior $p(\boldf|\bX,\boldy)$.
-Unfortunately, this does not transfer when using inducing points.
-Using inducing points naively, without using the Titsias assumption \cite{Titsias2009}, leads to an algorithm with complexity $\mathcal{O}((N+M)^3)$, defeating the point of the algorithm.
-Instead, one can resort to mixing a variational approach to sampling.
-By considering a free-form variational distribution $q(\boldu)$ defined as a collection of samples one can solve the problem as in \citet{hensmanMCMCVariationallySparse2015}.
-In other words, we want to sample from the optimal $q^*(\boldu)$ defined as:
+Unfortunately, this does not transfer when using sparse \ac{GPs}.
+Naively using an additional set of points, without using the \citet{Titsias2009} assumption, leads to an algorithm with complexity $\mathcal{O}((N+M)^3)$, defeating the point of the algorithm.
+However, one can resort to mixing a variational approach to sampling.
+Instead of optimizing the parameters of the distribution $q(\boldu)$, we consider a free-form variational distribution defined as a collection of samples $\{\boldu_i\}_{i=1}^T$ coming from the optimal variational distribution $q^*(\boldu)$ \cite{hensmanMCMCVariationallySparse2015}.
+In other words, we want to sample from the optimal $q^*(\boldu)$ which minimizes the \ac{KL} divergence with $p(\boldu|\bX,\boldy)$:
 \begin{align*}
     \log q^*(\boldu) = \expec{p(\boldf|\boldu)}{\log p(\boldy|\boldf)} + \log p(\boldu) + C.
 \end{align*}
-The straightforward option is to use \ac{HMC} as in \cite{hensmanMCMCVariationallySparse2015}, but we can also derive a Gibbs sampling algorithm to draw samples from this objective using our previous work.
+The straightforward option is to use \ac{HMC} as in \cite{hensmanMCMCVariationallySparse2015} to sample from this objective.
+We can also derive a Gibbs sampling algorithm to draw samples from this objective using our previous work on augmentations.
 
 In our new setting the optimal distribution is defined as $q(\boldf,\boldu,\bOmega) = p(\boldf|\boldu)q(\boldu, \bOmega)$, where $\bOmega$ denotes the set of augmented variables.
 Note that, unlike in the traditional \ac{VI} setting, $\boldu$ and $\bOmega$ are not assumed to be independent.
-From there, $\bOmega$ and $\boldu$ are sampled one after another using the optimal distributions $q^*(\bOmega|\boldu,\boldf)$ and $q^*(\boldu,\boldf|\bOmega)$.
+From there, $\bOmega$, $\boldu$ and $\boldf$ are sampled one after another using the optimal distributions $q^*(\bOmega|\boldu,\boldf)$ and $q^*(\boldu,\boldf|\bOmega)$.
 Note that we sample $\boldu$ and $\boldf$ together since they are highly correlated.
 To identify the optimal conditional distributions, we look at the minimizer of the conditional \ac{KL} divergence, e.g. $q^*(\bOmega|\boldu,\boldf) = \arg_{q} \min \KL{q(\bOmega|\boldu,\boldf)}{p(\bOmega|\boldu,\boldf,\boldy,\bX)}$.
 The obvious minimizer here is to set $q^*=p$, and thanks to the augmentations, we know $p(\bOmega|\ldots)$ in closed-form.
 We can perform a similar approach for $q^*(\boldu,\boldf|\bOmega)$.
 The only parameters left are the hyperparameters (omitted in the previous equations), which can be sampled by using the more traditional \ac{HMC} algorithm in a separate Gibbs sampling step.
-The advantage of this approach is that no gradients are necessary for the variational parameters as all full-conditionals are known in closed-form and that no expectation over the log-likelihood are needed at all.
-This opens up more possibilities over more complex problems like the multi-class or heteroscedastic one.
+The advantage of this approach is that no gradients are necessary as all full-conditionals are known in closed-form and we do not need any expectation over the log-likelihood.
+This opens up more possibilities over more complex problems like the multi-class or heteroscedastic one where computing expectations would be a limitation.
 For medium-sized datasets this can even prove to outperform the \ac{CAVI} algorithm as it has the same convergence speed but does not suffer from the mean-field assumption on the variational parameters.
 Hopefully, this work should be released in the near future.
 
 \section{Limits}
 
 As pointed out in chapters about augmentations, working with augmented models has its own issues.
-The main one being of course having to identify potential for augmentations in a given model.
+The main one being of course having to identify potential augmentations in a given model and to compute lengthy derivations to arrive at the right result.
 The idea generalization of using \ac{MGF} is promising, but is also limited.
 Often terms need to be rearranged, identities need to be used to reach something usable.
-This is feasible for someone with expertise, but it is a very complicated problem to automatize the process, in the context of probabilistic programming for example.
+This is feasible for someone with expertise, but it is a complicated problem to automatize the process, in the context of probabilistic programming for example.
+Current progress in symbolic programming could eventually help in this direction.
+By having a lookup table of augmentable functions and the ability to transform equations, this process can be automatized.
 
-Another issue is the variational distribution $q(\boldf, \bOmega)$ optimized on the augmented model is not as accurate as the variational distribution $q(\boldf)$ optimized on the original model.
+Another issue is the variational distribution $q(\boldf, \bOmega)$ (or $q(\boldu, \bOmega)$) optimized on the augmented model is not as accurate as the variational distribution $q(\boldf)$ (or $q(\boldu)$) optimized on the original model.
 Interestingly the difference of bound comes exclusively from the mean-field assumption between $q(\boldf)$ and $q(\bOmega)$.
+We can even identify these bound differences via the interpretation of \citet{} as missing terms from a Taylor series.
+
 Since the predictive results prove to be almost as good and that the difference of bounds is not always significant, this gives us a strong sign that the two set of variables are naturally strongly decorrelated and this would give a strong clue on why the Gibbs sampling and \ac{CAVI} updates tend to be so efficient.
 In fact, the work of \citet{gorinovaAutomaticReparameterisationProbabilistic2020} mentioned in the introduction aims at finding a perfect balance between two parametrizations by ensuring that the posterior is as close as possible to a multivariate Gaussian with independent dimensions.
 
