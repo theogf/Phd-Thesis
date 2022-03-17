@@ -33,7 +33,7 @@ Experimental results indicate that the error is decreasing as $\|\mathcal{L}^{*}
 \section{Double bounds for intricate latent GPs}
 \label{sec:heteroscedastic}
 The model developed in Chapter~\ref{ch:multiclass} paves the ways to work with multi-latent models and hierarchical augmentations.
-Another model I worked on but did not publish, is the heteroscedastic regression model,  already explored in \cite{wangGaussianProcessRegression2012,lazaro-gredillaVariationalHeteroscedasticGaussian}.
+Another model I worked on but did not publish, is the heteroscedastic regression model \cite{wangGaussianProcessRegression2012,lazaro2011variational}.
 It consists in simultaneously modeling the mean and variance of a regression likelihood with two latent \ac{GPs} $f$ and $g$.
 
 \subsection{Heteroscedastic Gaussian Likelihood}
@@ -55,9 +55,10 @@ Now using the P\'olya-Gamma augmentation and the additivity property of P\'olya-
 \begin{align}
     p(y,n,\omega\mid f,g,\lambda) = \frac{\sqrt{\lambda}}{2^n\sqrt{\pi}}\exp\left(\frac{1}{2}\left(g\left(\frac{1}{2}-n\right) - \frac{g^2}{\omega}\right)\right)\PG \left(\omega \mid \half + n, 0\right) \Po \left(n \mid \lambda\frac{(y-f)^2}{2}\right)\label{eq:heteroscedastic}
 \end{align}
-The interesting part about this augmented likelihood is that although it is conditionally conjugate in $g$, $\omega$ and, $n$, it is unclear how to infer $f$.
+The interesting part about this augmented likelihood is that although it is conditionally conjugate in $g$, $\omega$ and $n$, it is unclear how to infer $f$.
 It turns out that the Gibbs sampler for this model is very simple.
 For the full-conditional of $f$, we marginalize $n$ and $\omega$, return to the original likelihood, which is conditionally conjugate, and perform a \textbf{collapsed step} for the Gibbs sampler with the marginalized full conditional $p(f|g,y)$.
+All Gibbs sampling steps are given in Algorithm~\ref{alg:gibbs_hetero}.
 
 However, as underlined in Section~\ref{sec:cavi}, the \ac{CAVI} updates need the full-conditionals of the model, and the marginalization one of them does not guarantee to get correct updates.
 To solve this problem, we need to reverse-engineer how \ac{CAVI} updates are obtained and start with a first bound on the \ac{KL} divergence:
@@ -74,9 +75,34 @@ We can now use the augmentations from equation~\ref{eq:heteroscedastic} on the e
 
 It is straightforward to find the optimal variational distributions $q^*(\boldg)$ and $q^*(\bomega,\bn)$ minimizing $\mathcal{F}_2$ which allows us to use \ac{CAVI} updates.
 Then, injecting the optimal distribution $q^*(\boldg)q(\bomega,\bn)$ in $\mathcal{F}_2$, we can derive the optimal $\bmu_f^*$ and $\bSigma_f^*$, obtainable in closed-form.
+The resulting \ac{CAVI} updates are given in Algorithm~\ref{alg:cavi_hetero}.
 
 This double-bound approach is very similar to \citet{lazaro2011variational}, although they are using the exponential link and need some extra computations.
-% TODO add a plot to show it works
+
+So far, we have excluded the $\lambda$ parameter from inference.
+By putting a Gamma prior $\Ga(\lambda|\alpha, \beta)$, where $\alpha$ is the shape and $\beta$ is the scale, the collapsed full-conditional is available in closed-form:
+\begin{align*}
+    p(\lambda|\boldf, \boldf, \boldy) = \Ga(\lambda| \alpha + \frac{N}{2}, \beta + \sum_{i=1}^N \frac{\sigma(g^i)}{2}(y_i + f_i)^2).
+\end{align*}
+
+Similarly, we can use the second bound to obtain a maximum-likelihood estimate on $\lambda$, given as well in Algorithm~\ref{alg:cavi_hetero}.
+
+\begin{algorithm}[H]
+    \caption{Gibbs sampling for the Heteroscedastic Gaussian likelihood}
+    \begin{algorithmic}
+        \State \textbf{input:} $\boldf,\boldg, \lambda, \boldy$, $p(\boldf,\boldg) = \mathcal{N}(\boldf|\bmu^0_f, K)\mathcal{N}(\boldg|\bmu^0_g, K)$, $p(\lambda|\alpha,\beta)$.
+        \For{$t$ in $1:$ N samples}
+            \State Draw $\lambda \sim p(\lambda|\boldf,\boldg,\boldy) = \Ga(\lambda| \alpha + \frac{N}{2}, \beta + \sum_{i=1}^N \frac{\sigma(g^i)}{2}(y_i + f_i)^2).$
+            \State Draw $n^i \sim p(n^i|f^i, g^i, \lambda) = \Po(\lambda \sigma(-g^i) \frac{(y^i - f^i)^2}{2})$
+            \State Draw $\omega^i \sim p(\omega^i|n^i,g^i) = \PG(0.5 + n^i, |g^i)$
+            \State Draw $\boldg \sim p(\boldg|\boldn, \bomega) = \mathcal{N}(\bmu_g,\bSigma_g)$
+            \State \quad where $\bSigma_g=  \left(K^{-1} + \diag(\bomega)\right)^{-1}$ and $\bmu_g = \bSigma_g\left(K^{-1}\bmu^0_g + \frac{0.5 - \boldn}{2}\right)$
+            \State Draw $\boldf \sim p(\boldf | \boldg, \lambda) = \mathcal{N}(\bmu_f,\bSigma_f)$
+            \State \quad where $\bSigma_f = \left(K^{-1} + \lambda\diag(\sigma(\boldg))\right)^{-1}$ and $\bmu_f = \bSigma_f\left(K^{-1}\bmu_f^0 + \lambda\diag(\sigma(\boldg))\frac{\boldy}{2}\right)$
+        \EndFor
+    \end{algorithmic}
+    \label{alg:gibbs_hetero}
+\end{algorithm}
 
 \begin{algorithm}[H]
     \caption{\ac{CAVI} Updates for the Heteroscedastic Gaussian likelihood}
@@ -84,6 +110,7 @@ This double-bound approach is very similar to \citet{lazaro2011variational}, alt
         \State \textbf{input:} $q(\boldf,\boldg) = \mathcal{N}(\boldf|\bmu_f,\bSigma_f)\mathcal{N}(\boldg|\bmu_g,\bSigma_g)$, $p(\boldf,\boldg) = \mathcal{N}(\boldf|\bmu^0_f, K)\mathcal{N}(\boldg|\bmu^0_g, K)$, $\boldy$ and $\lambda$.
         \While{convergence criteria is not met}
             \State $\psi^i = \widetilde{\sigma}(q(g^i))$
+            \State $\lambda = \frac{N}{2 \sum_{i=1}^N (1 - \psi^i)\sqrt{(y^i - \mu_f^i)^2 + \Sigma_f^{ii}}}$
             \State $\gamma^i = \frac{\lambda}{2} \psi^i  \sqrt{(y^i - \mu_f^i)^2 + \Sigma_f^{ii}}$
             \State $c^i = \sqrt{(\mu_g^i)^2 + \Sigma^{ii}_g}$
             \State $\theta^i = \expec{q(\omega^i|n^i)q(n^i)}{\omega^i} = \frac{0.5 + \gamma^i}{2c^i}\tanh\left(\frac{c^i}{2}\right)$
@@ -97,21 +124,7 @@ This double-bound approach is very similar to \citet{lazaro2011variational}, alt
     \label{alg:cavi_hetero}
 \end{algorithm}
 
-\begin{algorithm}[H]
-    \caption{Gibbs sampling for the Heteroscedastic Gaussian likelihood}
-    \begin{algorithmic}
-        \State \textbf{input:} $\boldf,\boldg$, $p(\boldf,\boldg) = \mathcal{N}(\boldf|\bmu^0_f, K)\mathcal{N}(\boldg|\bmu^0_g, K)$, $\boldy$, $\lambda$.
-        \For{$t$ in $1:$ N samples}
-            \State Draw $n^i \sim p(n^i|f^i, g^i, \lambda) = \Po(\lambda \sigma(-g^i) \frac{(y^i - f^i)^2}{2})$
-            \State Draw $\omega^i \sim p(\omega^i|n^i,g^i) = \PG(0.5 + n^i, |g^i)$
-            \State Draw $\boldg \sim p(\boldg|\boldn, \bomega) = \mathcal{N}(\bmu_g,\bSigma_g)$
-            \State \quad where $\bSigma_g=  \left(K^{-1} + \diag(\bomega)\right)^{-1}$ and $\bmu_g = \bSigma_g\left(K^{-1}\bmu^0_g + \frac{0.5 - \boldn}{2}\right)$
-            \State Draw $\boldf \sim p(\boldf | \boldg, \lambda) = \mathcal{N}(\bmu_f,\bSigma_f)$
-            \State \quad where $\bSigma_f = \left(K^{-1} + \lambda\diag(\sigma(\boldg))\right)^{-1}$ and $\bmu_f = \bSigma_f\left(K^{-1}\bmu_f^0 + \lambda\diag(\sigma(\boldg))\frac{\boldy}{2}\right)$
-        \EndFor
-    \end{algorithmic}
-    \label{alg:gibbs_hetero}
-\end{algorithm}
+
 
 A 1-dimensional toy example is shown on Figure~\ref{fig:heteroscedastic} with the results of the inference algorithms.
 
@@ -129,6 +142,8 @@ Note that an implementation as well as detailed derivations can be found in the 
 We can expand this work to non-Gaussian likelihoods as well.
 Let's take the example of the heteroscedastic Laplace likelihood, where we model $\beta(x) = \sqrt{2\beta \sigma(g)}$, where $\beta \in \mathbb{R}^+$.
 
+% TODO replace by student-t
+
 Similarly to Equation~\ref{eq:hetero_lik} we get the likelihood:
 \begin{align*}
     p(y|f,g,\beta) = \frac{\sqrt{\beta\sigma(g)}}{\sqrt{2}}\exp\left(-\sqrt{2\beta(\sigma(g))}|y-f|\right)
@@ -140,15 +155,16 @@ Similarly to Equation~\ref{eq:hetero_lik} we get the likelihood:
 
 The Gibbs sampler in the experiments of Chapters~\ref{ch:classification} and \ref{ch:general} outperforms the state-of-the-art \ac{HMC} algorithm introduced in Section~\ref{sec:hmc}.
 A recurrent question I got is:
-Is the performance gain due only to the augmentation or to the Gibbs sampler?
+Is the performance gain due only to the augmentation or the Gibbs sampler?
 
 First, the augmentation is not in favor of the \ac{HMC} sample due to the increase of dimensionality of the model.
 For $N$ observations, we need $KN$ more dimensions (where $K$ depends on the model).
 This makes gradients computations and algorithm tuning more expensive.
 On the other hand, since the likelihood is simplified to a quadratic problem, the computational complexity of each step can decrease!
-The second issue with using \ac{HMC} on the augmented model is that the \ac{pdf} of the prior distribution on augmented variables is not always available in closed-form.
+The second issue with using \ac{HMC} on the augmented model is that the \ac{pdf} of the prior distribution on augmented variables is not always available in closed-form or not usable at all.
 For example, one estimates the probability of a P\'olya-Gamma variable with a truncated alternating series,
 Truncated series are not only computationally expensive but can also be biased and unstable!
+Additionally, \ac{HMC} only works with continuous variables and some augmentations directly involve discrete variables like the Poisson in the multi-class setting.
 
 To have a better idea, Figure~\ref{fig:hmc_vs_gibbs} shows the auto-correlation plots on \ac{GP} regression problem with a Student-t likelihood with 3 degrees of freedom applied on the Boston housing dataset (506 data points, 13 dimensions) \cite{harrison1978hedonic}.
 We draw one chain of 2000 samples (plus 500 adaption samples for \ac{HMC} and \ac{NUTS}) for both the original and augmented model.
@@ -163,7 +179,7 @@ Perhaps surprisingly, there was no significant time difference between the augme
 
 These results should be considered as preliminary, as a simple likelihood was used and the dataset should be considered trivial.
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{./chapters/8_discussions/figures/autocorrelation.pdf}
     \caption{Auto-correlation function of the Gibbs sampler, \ac{HMC} and \ac{NUTS} on the augmented model, and \ac{HMC} and \ac{NUTS} on the original model.
@@ -199,7 +215,7 @@ Using this formulation, the first augmentation that led to an improper prior :
 \begin{align*}
     \frac{1}{ \sum_{i=1}^{K} \sigma(f_i)} = \int_0^\infty e^{-\lambda  \sum_{i=1}^{K} \sigma(f_i)}d\lambda
 \end{align*}
-becomes the known \ac{MGF} of a Gamma distribution with a proper mixture:
+becomes the known \ac{MGF} of a Gamma distribution with the following mixture:
 \begin{align*}
     \frac{1}{D + \sum_{i=1}^{K-1} \sigma(f_i)} =& \frac{1}{D + \sum_{i=1}^{K-1} \sigma(f_i)} = \frac{1}{D}\frac{1}{1+\frac{1}{D}\sum_{i=1}^{K=1}\sigma(f_i)}\\
     =& \frac{1}{D}\int_0^\infty e^{-\lambda \sum_{i=1}^{K-1} \sigma(f_i)}\Ga \left(1, \frac{1}{D}\right)d\lambda.
@@ -209,17 +225,19 @@ This condition would not hold with the over-parametrized version which would lea
 
 From this point, the derivations are identical.
 We use the \ac{MGF} of the Poisson distribution and finally the P\'olya-Gamma augmentation.
+
+% TODO introduce discussion on exchangeability
 Unfortunately, we did not run any experiments to explore if one parametrization was more accurate or efficient than another.
 
 Although it is mathematically simpler, a major issue with this model is the choice of $D$.
 Since $D$ is fixed, the probability for classes other than $K$ will be bounded $\frac{1}{D + 1}$.
-Taking $D=0.5$ would lead to a maximum probability of $2/3$.
+Taking $D=0.5$ would lead to a maximum probability of $2/3$ for all other $K-1$ classes.
 On the other hand, if $D=0$, the probability of the class $K$ will always be $0$.
 This is not an issue with the softmax link since the exponential function is not bounded.
 A potential solution is presented in Section~\ref{sec:scale_multiclass}.
 
 \subsection{Marginalizing out variables}
-
+\label{sec:marg_multiclass}
 In the augmentation derived in Chapter~\ref{ch:multiclass}, we add $2K + 1$ new variables per observation: $\lambda$, $\{n_i\}_{i=1}^K$ and $\{\omega_i\}_{i=1}^K$.
 However, we can reduce this number to $2K$ and avoid unnecessary inner loops by marginalizing out $\lambda$.
 When deriving the augmentations, one ends up with the following augmented likelihood:
@@ -253,6 +271,8 @@ Quickly identifying the terms in the \ac{MGF}, the augmented likelihood would be
 \end{align*}
 where we set $\sigma(f_K) = D$.
 
+Both the Gibbs sampling and \ac{CAVI} updates based on this marginalization are described in Algorithms~\ref{alg:gibbs_multiclass} and~\ref{alg:cavi_multiclass}
+
 \subsection{Reformulating the logistic-softmax link}
 \label{sec:scale_multiclass}
 Another issue from this paper was the logistic-softmax link predictions bounds, in particular with many classes.
@@ -264,6 +284,21 @@ We add $K$ hyperparameters $\btheta=\{\theta_{i}\}_{i=1}^K$ such that the likeli
 \end{align*}
 The $\btheta$ parameters can be optimized using the \ac{ELBO} with the other hyperparameters.
 These can also provide information about each class, a high $\theta_i$ meaning that the $i$-th class has zones of very high confidence.
+
+\begin{algorithm}[H]
+    \caption{Gibbs sampling updates: $\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}$ latent \ac{GPs} for $K$ classes}
+    \begin{algorithmic}
+    \State \textbf{input:} $\boldsymbol{F} = \{\boldf_k\}_{k=1}^K$, $p(\boldsymbol{F}) = \prod_{k=1}^{\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}} p(\boldf_k|\bmu_0, K_{XX})$, $Y=\{\boldy^i\}_{i=1}^N$ (one-hot encoded)
+    \For{$t$ in 1: \# samples}
+        \State Draw $\boldsymbol{n}^i \sim p(\boldsymbol{n}^i|\boldsymbol{F}) = \mathrm{NM}(1, \boldsymbol{p}^i)$ where 
+        $p_k^i = \textcolor{sb1}{\frac{\sigma(-f_k^i)}{K}}/\textcolor{sb2}{\frac{\sigma(-f_k^i)}{D + K - 1}}$
+        \State Draw $\omega_k^i \sim p(\omega_k^i|f_k^i, n_k^i, y_k^i) = \PG(y_k^i + n^i_k, |f_k^i|)$
+        \State Draw $\boldf_k \sim p(\boldf_k|\bomega_k,\boldsymbol{n}_k, \boldsymbol{Y}) = \mathcal{N}(\boldm_k, \boldsymbol{S}_k)$
+        \State where $\boldsymbol{S}_k = \left(K^{-1} + \diag(\bomega_k)\right)^{-1}$ and $\boldm_k = \boldsymbol{S}_k\left(K^{-1}\bmu_0 + \frac{\boldy_k - \boldsymbol{n}_k}{2}\right)$
+    \EndFor
+    \end{algorithmic}
+    \label{alg:gibbs_multiclass}
+\end{algorithm}
 
 \begin{algorithm}[H]
     \caption{\ac{CAVI} updates: $\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}$ latent \ac{GPs} for $K$ classes}
@@ -282,25 +317,22 @@ These can also provide information about each class, a high $\theta_i$ meaning t
     \label{alg:cavi_multiclass}
 \end{algorithm}
 
-The Gibbs sampling updates are of course very similar:
-\begin{algorithm}[H]
-    \caption{Gibbs sampling updates: $\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}$ latent \ac{GPs} for $K$ classes}
-    \begin{algorithmic}
-    \State \textbf{input:} $\boldsymbol{F} = \{\boldf_k\}_{k=1}^K$, $p(\boldsymbol{F}) = \prod_{k=1}^{\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}} p(\boldf_k|\bmu_0, K_{XX})$, $Y=\{\boldy^i\}_{i=1}^N$ (one-hot encoded)
-    \For{$t$ in 1: \# samples}
-        \State Draw $\boldsymbol{n}^i \sim p(\boldsymbol{n}^i|\boldsymbol{F}) = \mathrm{NM}(1, \boldsymbol{p}^i)$ where 
-        $p_k^i = \textcolor{sb1}{\frac{\sigma(-f_k^i)}{K}}/\textcolor{sb2}{\frac{\sigma(-f_k^i)}{D + K - 1}}$
-        \State Draw $\omega_k^i \sim p(\omega_k^i|f_k^i, n_k^i, y_k^i) = \PG(y_k^i + n^i_k, |f_k^i|)$
-        \State Draw $\boldf_k \sim p(\boldf_k|\bomega_k,\boldsymbol{n}_k, \boldsymbol{Y}) = \mathcal{N}(\boldm_k, \boldsymbol{S}_k)$
-        \State where $\boldsymbol{S}_k = \left(K^{-1} + \diag(\bomega_k)\right)^{-1}$ and $\boldm_k = \boldsymbol{S}_k\left(K^{-1}\bmu_0 + \frac{\boldy_k - \boldsymbol{n}_k}{2}\right)$
-    \EndFor
-    \end{algorithmic}
-    \label{alg:gibbs_multiclass}
-\end{algorithm}
+We show 1-dimensional examples with 3 classes with and without the bijection on Figure~\ref{fig:bijective_multiclass} and~\ref{fig:multiclass}
 
-% TODO Give proper introduction to the algorithms explicit models under this setup
+\begin{figure}
+    \includegraphics[width=\textwidth]{./chapters/8_discussions/figures/categorical_bijective.pdf}
+    \caption{Illustration of Algorithms~\ref{alg:gibbs_multiclass} and~\ref{alg:cavi_multiclass} with the bijective link introduced in Section~\ref{sec:simplex} and the marginalization of Section~\ref{sec:marg_multiclass}.
+    Each color represents a class, and we compare the true process to the inferred one for both Gibbs sampling and variational inference.}
+    \label{fig:bijective_multiclass}
+\end{figure}
+\begin{figure}
+    \includegraphics[width=\textwidth]{./chapters/8_discussions/figures/categorical_nonbijective.pdf}
+    \caption{Illustration of Algorithms~\ref{alg:gibbs_multiclass} and~\ref{alg:cavi_multiclass} with the non-bijective link with the marginalization of Section~\ref{sec:marg_multiclass}.
+    Each color represents a class, and we compare the true process to the inferred one for both Gibbs sampling and variational inference.}
+    \label{fig:multiclass}
+\end{figure}
 
-Note that an implementation as well as detailed derivations can be found in the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} package \cite{theo_galy_fajou_2022_6347022}.
+A Julia implementation as well as detailed derivations can be found in the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} package \cite{theo_galy_fajou_2022_6347022}.
 
 \section{Sampling from a sparse augmented model}
 
@@ -327,8 +359,8 @@ We can perform a similar approach for $q^*(\boldu,\boldf|\bOmega)$.
 The only parameters left are the hyperparameters (omitted in the previous equations), which can be sampled by using the more traditional \ac{HMC} algorithm in a separate Gibbs sampling step.
 The advantage of this approach is that no gradients are necessary as all full-conditionals are known in closed-form and we do not need any expectation over the log-likelihood.
 This opens up more possibilities over more complex problems like the multi-class or heteroscedastic one where computing expectations would be a limitation.
-For medium-sized datasets this can even prove to outperform the \ac{CAVI} algorithm as it has the same convergence speed but does not suffer from the mean-field assumption on the variational parameters.
-Hopefully, this work should be released in the near future.
+For medium-sized datasets, this outperforms the \ac{CAVI} algorithm as it has the same convergence speed but does not suffer from the mean-field assumption on the variational parameters.
+Hopefully, this work will be released in the near future.
 
 \section{Limits}
 
