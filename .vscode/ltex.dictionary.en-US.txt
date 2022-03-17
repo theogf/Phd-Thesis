@@ -41,3 +41,4 @@ additivity
 boundedness
 Nyström
 unbiasedness
+reparametrizable

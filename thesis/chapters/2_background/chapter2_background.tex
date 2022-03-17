@@ -52,7 +52,7 @@ To solve this integral, we must either know the posterior distribution and compu
 \subsection{Posterior computations}
 \label{sec:posterior}
 Given a prior $p(\btheta)$ and a likelihood $p(\bx|\btheta)$, computing the posterior \eqref{eq:bayes} in closed-form requires the integral $p(\bx)=\int p(\bx|\btheta)p(\btheta)d\btheta$.
-\com{the integral is not enough}
+\mycom{the integral is not enough}
 For most non-trivial models, this integral is intractable, and approximations to the posterior are needed.
 Such methods are introduced in Section~\ref{sec:approx_inf}.
 However, in specific settings, computing the posterior in closed-form is possible.
@@ -126,7 +126,7 @@ This integral is analytically tractable and results in
 where $m_* = K_{\bx_*,\bX}(K_{\bX,\bX} + \sigma^{2}I)^{-1}\boldy$ and $s_*=K_{\bx_*,\bx_*} - K_{\bx_*,\bX}\left(K_{\bX,\bX}+\sigma^2I\right)^{-1}K_{\bX,\bx_*}$.
 The predictive distribution for $f_*$ is Gaussian, with a known mean $m_*$ and a measure of uncertainty given by the variance $s_*$.
 Note that $s_*$ depends directly on $K_{\bx_*,\bX}$: if $\bx_*$ is far from all points in $\bX$ (in the sense of the distance used in the kernel $k$), then $K_{\bx_*,\bX}$ will be very small and the variance $s_*$ maximized.
-When new inputs $\bx_*$ are distant from the training data $\bX$, the predictive uncertainty will be high.\com{to come back to clarify}
+When new inputs $\bx_*$ are distant from the training data $\bX$, the predictive uncertainty will be high.\mycom{to clarify}
 A concrete example is shown on Figure~\ref{fig:gp_example}.
 
 \begin{figure}
@@ -253,17 +253,13 @@ The proposal at time $L\Delta t$ is accepted or rejected based on the acceptance
 \end{align*}
 The Hamiltonian is normally perfectly conserved when using a symplectic integrator like the leapfrog algorithm.
 We get high acceptance rates while the dynamics lower the correlation between each sample by exploring the parameter space more freely than a basic random walk.
-We give an illustration of the process in Figure~\ref{fig:hmc}, where we draw the Hamiltonian dynamics path with gray lines.
+We can tune the \ac{HMC} algorithm parameters $M$, $L$, and $\Delta t$ by drawing a series of adaptive samples and by adjusting to the local geometry of the potential function $-\log\pi(\btheta)$.
+Figure~\ref{fig:hmc} illustrates the sampling process with the Hamiltonian dynamics paths drawn with gray lines.
 
-The \ac{HMC} algorithm requires the tuning of its parameters $M$, $L$, and $\Delta t$, which can be done by running 
-A proper tuning of the algorithm guarantees the acceptance rate to be close to 1.
-
-
-\ac{HMC} also has multiple disadvantages: 
-First, one needs to integrate differential equations based on gradients, which becomes increasingly expensive for high-dimensional models and complex likelihoods.  \com{clarify better what is meant}
-Second, it contains tunable parameters, namely the step size of the integrator, the number of steps taken, and the momentum parameters used.
-These parameters can be locally optimized, but they are without guarantees and require additional computational time. \com{change the guarantee speech}
-Last but not least, \ac{HMC} only works for continuous variables.
+\ac{HMC} is very popular due to its plug-and-play characteristics but suffers from different issues.
+It is gradient-based and can not sample discrete variables.
+The integration of the Hamiltonian dynamics requires $2L$ gradients per proposal.
+This computational cost can be prohibitively expensive for high-dimensional problems or $\pi(\btheta)$ distributions with costly computations.
 
 \begin{figure}[H]
     \centering
@@ -273,13 +269,15 @@ Last but not least, \ac{HMC} only works for continuous variables.
 \end{figure}
 
 
-\paragraph{The choice of sampler}\mbox{}\\
-There are other strong choices such as elliptical slice sampling \citet{murray2010elliptical} which are particularly well-fitted for Gaussian priors.
-
-The choice of the sampling algorithm is a complex one and is extremely problem-dependent.
-\ac{HMC} is more of a jack-of-all-trades which has its plug-and-play practicality, in particular in regard to recent advances in automatic differentiation which removed the requirement to compute gradients by hand.
-Gibbs sampling has the disadvantage of requiring upstream work and to only work in specific situations.
-Nonetheless, it proved to be an algorithm of choice in the different works presented in this thesis.
+\paragraph{Other samplers}\mbox{}\\
+There are other solid choices for sampling from \ac{GPs}.
+For example, elliptical slice sampling \citet{murray2010elliptical} is particularly well-fitted for Gaussian priors.
+The \ac{NUTS} algorithm \cite{hoffman2014no} is an extension of \ac{HMC} where $L$ is chosen automatically.
+We run the path integration with both $\boldsymbol{p}$ and $-\boldsymbol{p}$\footnote{Details are skipped here} until one of the particles goes backward or if one of the Hamiltonian estimates becomes too inaccurate.
+The proposal is finally sampled randomly from both paths.
+\ac{NUTS} is good at avoiding oscillatory dynamics and is particularly strong for quadratic problems, which appear regularly in \ac{GPs} problems.
+Finally, another orthogonal approach to sample from predictive distributions with a known \ac{GP} posterior is pathwise sampling \cite{wilson2021pathwise}.
+By taking a mix of random Fourier features, specific to a particular class of kernels, the sampling complexity can be reduced from $\mathcal{O}(N^3)$ to $\mathcal{O}(T^3)$ where $N$ is the number of test inputs, and $T$ is the chosen number of basis.
 
 \subsection{Variational Inference}
 \label{sec:vi}
@@ -289,7 +287,7 @@ Given a family of distributions $\mathcal{Q}$, parametrized by the variational p
 \bphi^* = \arg_{\bphi}\min \mathcal{D}\left(q_{\bphi}(\btheta), p(\btheta|\bx)\right),
 \label{eq:prob_VI}
 \end{align}
-where $\mathcal{D}$ is a distance between two distributions and $q_{\bphi}$ is the distribution $q\in \mathcal{Q}$ parametrized by $\bphi$.
+where $\mathcal{D}$ is a dissimilarity measure between two distributions and $q_{\bphi}$ is the distribution $q\in \mathcal{Q}$ parametrized by $\bphi$.
 One of the most used dissimilarity measure is the backward \ac{KL} divergence, defined for continuous distributions as:
 \begin{align}
 \KL{q(x)}{p(x)} = \int q(x) \log \frac{q(x)}{p(x)}dx
@@ -299,92 +297,94 @@ One of the most used dissimilarity measure is the backward \ac{KL} divergence, d
 The objective of Equation~\eqref{eq:prob_VI} or \eqref{eq:kl} is generally not directly tractable when the normalizer is not known.
 Since $p(\btheta|\bx)$ involves the normalization constant $p(\bx)$, one resorts to a surrogate function, the \ac{VFE} (or its negative counterpart the \ac{ELBO}):
 \begin{align}
-\KL{q_{\bphi}(\btheta)}{p(\btheta|\bx)} =& \int q_{\bphi}(\btheta) \left(\log q_{\bphi}(\btheta) - \log p(\btheta|\bx)\right)d\btheta\\
-=&\int q_{\bphi}(\btheta) \left(\log q_{\bphi}(\btheta) - \log p(\btheta, \bx) - \log p(\bx)\right)d\btheta\\
-=&\underbrace{- \log p(\bx)}_{:=C} + \int q_{\bphi}(\btheta) \left(\log q_{\bphi}(\btheta) - \log p(\bx|\btheta)- \log p(\btheta) \right)d\btheta\\
-=& C -\expec{q_{\bphi}}{\log p(\bx|\theta)} + \KL{q_{\bphi}(\btheta)}{p(\btheta)} = \VFE(\bphi) + C
+\KL{q_{\bphi}(\btheta)}{p(\btheta|\bx)} =& \int q_{\bphi}(\btheta) \left(\log q_{\bphi}(\btheta) - \log p(\btheta|\bx)\right)d\btheta\nonumber\\
+=&\int q_{\bphi}(\btheta) \left(\log q_{\bphi}(\btheta) - \log p(\btheta, \bx) - \log p(\bx)\right)d\btheta\nonumber\\
+=&\underbrace{- \log p(\bx)}_{:=C} + \int q_{\bphi}(\btheta) \left(\log q_{\bphi}(\btheta) - \log p(\bx|\btheta)- \log p(\btheta) \right)d\btheta\nonumber\\
+=& C -\expec{q_{\bphi}}{\log p(\bx|\theta)} + \KL{q_{\bphi}(\btheta)}{p(\btheta)} = \VFE(\bphi) + C.\label{eq:vfe}
 \end{align}
 
 
-By minimizing the \ac{VFE}, $\VFE(\bphi)$, instead of the \ac{KL} divergence, we can expect to find a solution close to the optimum of the problem stated in \eqref{eq:prob_VI}.\com{fix comment on minimizing}
+By minimizing $\VFE(\bphi)$ instead of the \ac{KL} divergence, we can expect to find a solution close to the optimum of the problem stated in Equation~\eqref{eq:prob_VI}.
 
-A standard way to find the $\bphi^* = \arg\min \VFE(\bphi)$ is to perform gradient descent on the variational parameters $\bphi$:
+A standard way to find the $\bphi^* = \arg_{\bphi}\min \VFE(\bphi)$ is to perform gradient descent on the variational parameters $\bphi$:
 \begin{align}
 \bphi^{t+1} = \bphi^{t} - \epsilon \grad_{\bphi}\VFE(\bphi^{t}).
 \label{eq:vigraddescent}
 \end{align}
 
-Computing the gradient $\grad_{\bphi}\VFE(\bphi)$ can be non-trivial, as it involves derivatives over expectations, but tricks like reparametrization \cite{titsiasDoublyStochasticVariational} help reducing the cost of these computations.
+Computing the gradient $\grad_{\bphi}\VFE(\bphi)$ can be non-trivial.
+It involves derivatives over expectations, but "tricks" like reparametrization \cite{titsiasDoublyStochasticVariational} help to reduce the cost of these computations.
 
 The choice of the family $\mathcal{Q}$ is a trade-off decision.
-A richer, more complex family will probably be able to approximate the posterior better but computing the \ac{KL} and optimizing the variational parameters will be increasingly difficult.
-A standard example is the \ac{VGA}\footnote{The \ac{VGA} is explored in more details in Chapter~\ref{ch:gpf}.}, where the variational distribution $q_{\bphi}$ is a Gaussian, i.e. $\mathcal{Q} = \left\{q \sim \mathcal{N}(\boldm, S)\right\}$, and $\bphi = \{\boldm, S\}$.
-One can decide to restrict $\mathcal{Q}$ further by specifying the structure of $S$.
-Forcing it to be diagonal will simplify a lot of computations and avoid inverse matrix operations, but all variable dependencies are lost.
-This is what the mean-field approximation is about.
+A richer, more complex family might be able to approximate the posterior better, but computing the \ac{KL} and optimizing the variational parameters will be increasingly difficult.
+A standard example for continuous variables is the \ac{VGA}\footnote{The \ac{VGA} is explored in more details in Chapter~\ref{ch:gpf}.}, where the variational distribution $q_{\bphi}$ is a Gaussian, i.e. $\mathcal{Q} = \left\{q \sim \mathcal{N}(\boldm, S)\right\}$, and $\bphi = \{\boldm, S\}$.
+Many expectations can be computed analytically under \ac{VGA}, in particular when the prior on $\btheta$ is Gaussian as well.
+The Gaussian distribution is easily reparametrizable, and it is straightforward to sample from it.
+Many operations will be of the cost $\mathcal{O}(D^3)$ where $D$ is the dimensionality of $\btheta$.
+Restricting $\mathcal{Q}$ further by constraining $S$ can reduce this cost.
+For example, setting $S$ to be diagonal will reduce the number of variational parameters and avoid inverse matrix operations.
 
 \paragraph{Mean-Field Approximation}\mbox{}\\
-One problem when considering $q_{\bphi}(\btheta)$ is that if we consider that all parameters are correlated to each other, the number of variational parameters to train grow quadratically with the dimensionality of $\btheta$.
-The simplest assumption is the \ac{MF} approximation. \com{reformulate}
-The \ac{MF} assumption is that every component of $\btheta$ to be independent of each other.
-This variational family can be specified as:
+We need assumptions on $\mathcal{Q}$ to reduce the computational cost of variational inference and scale with high-dimensional $\btheta$.
+The \ac{MF} assumption imposes that every component of $\btheta$ is independent of each other.
+A \ac{MF} variational family can be specified as:
 \begin{align}
     \mathcal{Q}_{MF}= \left\{q = \prod_{i=1}^D q_{\bphi_i}(\theta_i)\right\},
 \end{align}
 where $\bphi_i$ are the variational parameters for the variable $\theta_i$.
+Under the \ac{MF} approximation, the number of variational parameters grows linearly with the dimensionality of $\btheta$ instead of quadratically.
+Additionally, some integrals in Equation~\ref{eq:vfe} turn out to be one-dimensional and more easily solvable.
+However, \ac{MF} can not capture potential posterior correlations between the components of $\btheta$.
+The \ac{MF} assumptions
 
-One can also build more general distributions by considering independence between blocks of variables instead.
-Given $\mathcal{I}=\{1,2,\ldots,D\}$, the set of indices of $\theta$, we can build into $K$ independent subsets $\mathcal{I}_k \subseteq \mathcal{I}$ such that  $\mathcal{I} = \cup_{k=1}^K \mathcal{I}_{k}$ and $\mathcal{I}_i \cap \mathcal{I}_j=\emptyset,~\mathrm{iff}~i \neq j$.
+An intermediate solution is to assume independence between blocks of variables instead, similarly to the blocked Gibbs sampler.
+Given $\mathcal{I}=\{1,2,\ldots,D\}$, the set of indices of $\btheta$, we can build into $K$ independent subsets $\mathcal{I}_k \subseteq \mathcal{I}$ such that  $\mathcal{I} = \cup_{k=1}^K \mathcal{I}_{k}$ and $\mathcal{I}_i \cap \mathcal{I}_j=\emptyset,~\mathrm{iff}~i \neq j$.
 The variational distribution based on this \ac{BMF} approximation is then defined as
 \begin{align}
     q^{BMF}_{\bphi}(\btheta) = \prod_{k=1}^K q_{\bphi_k}(\btheta_{\mathcal{I}_k}),
 \end{align}
 where $\bphi_k$ are the variational parameters for the set of variable $\btheta_{\mathcal{I}_k}$.
+The \ac{BMF} can capture correlations inside blocks of variables but lose some of \ac{MF}'s computational attractiveness.
 
 \paragraph{Coordinate Ascent VI}\mbox{}\\
 \label{sec:cavi}
-Based on the \ac{MF} and \ac{BMF} approach, we are interested in finding the solution for each set of parameters $\bphi_i$ to
+The \ac{CAVI}\footnote{The word ascent is used since the scheme was originally derived using the negative \ac{VFE}, the \ac{ELBO}.} approach is an alternative to the gradient descent approach of Equation~\ref{eq:vigraddescent}.
+Instead of moving all parameters at once in the gradient direction, we are interested in finding the optimal solution for each set of variational parameters $\bphi_i$ one after another by keeping the others fixed:
 \begin{align}
     \bphi_i^* = \arg_{\bphi_i}\min \VFE(\bphi_i, \bphi_{/i}),
     \label{eq:optimalbphi}
 \end{align}
-i.e. by keeping all other parameters fixed, what is the optimal $\bphi_i^*$.
-This can be found either by solving
+where $\bphi_{/i} = \{\bphi_j | j \neq i\}$.
+Using the \ac{BMF} approximation, we can update blocks of variational parameters at once.
+The optimal $\bphi_i^*$ can be found by solving:
 \begin{align}
 \left.\grad_{\varphi_i}\VFE(\bphi)\right\vert_{\varphi_i=\varphi_i^*} = 0,
 \end{align}
-or performing the same gradient scheme as Equation~\eqref{eq:vigraddescent}.
-The solution to Equation~\eqref{eq:optimalbphi} is given by
+or performing a partial version of the gradient descent from Equation~\eqref{eq:vigraddescent}.
+The solution to Equation~\eqref{eq:optimalbphi} is always given by
 \begin{align}
-q_{\bphi_i}^*(\btheta_i) \propto \exp\left(\expec{q_{\bphi}(\btheta_{/i})}{\log p\left(\btheta_i|\btheta_{/i},\bx\right)}\right)
+q_{\bphi_i}^*(\btheta_i) \propto \exp\left(\expec{q_{\bphi}(\btheta_{/i})}{\log p\left(\btheta_i|\btheta_{/i},\bx\right)}\right)\label{eq:optdist_vi}
 \end{align}
-where $\btheta_{/i}$ represent the collection of variables $\btheta_{/i} = \{\theta_j | j \neq i\}$.\com{mention only normalizable sometimes}
-The distribution $p(\btheta_i|\btheta_{/i},\bx)$ is the full-conditional distribution as described in Section~\ref{sec:posterior}.
+where $\btheta_{/i}$ represent the collection of variables $\btheta_{/i} = \{\theta_j | j \neq i\}$ \cite{murphyMachineLearningProbabilistic2012}.
+Note that Equation~\ref{eq:optdist_vi} is not always normalizable, but we are usually only interested in the different moments of $q_{\bphi_i}(\btheta_i)$.
 
-When working with distribution coming from exponential families, it is straightforward to get the optimal variational parameters $\bphi$.
-By updating the parameters one after another we get a \ac{CAVI} scheme\footnote{The word ascent is used since the scheme was originally derived using the negative \ac{VFE} i.e. the \ac{ELBO}.}.
-Effectively, one updates each variational parameter $\bphi_i$ with its optimum given the rest of the variational parameters $\bphi_{/i}$ via closed-form functions:
-\begin{align}
-\varphi_i^{t+1} = f_i\left(\bphi_{1:(i-1)}^{t+1}, \bphi_{(i+1):D}^t\right).
-\end{align}
-\com{define f}
+Algorithm~\ref{alg:CAVI} summarizes the \ac{CAVI} algorithm.
 The order of the updates does not matter as long as the variational parameters $\bphi$ are initialized in their domain.
-Note also that, similarly to the Gibbs sampling algorithm, inference can be made further by proceeding to \textbf{block updates}, working with set of variables instead one at a time.
-
-The full algorithm is presented on Algorithm~\ref{alg:CAVI}.
 
 \begin{algorithm}
-    \caption{\ac{CAVI} Updates}
+    \caption{\ac{CAVI} algorithm}
     \label{alg:CAVI}
     \begin{algorithmic}
         \While {$|\VFE^{t+1} - \VFE^t| > \epsilon$}
-            \ForAll {$i \in \{1,\ldots,D\}$}
-                \State $\bphi_i^{t+1} = f_i\left(\bphi_{1:(i-1)}^{t+1}, \bphi_{(i+1):D}^t\right).$
+            \For {$i \in \{1,\ldots,D\}$}
+                \State $\bphi_i^{t+1} = \arg_{\bphi_i}\min \VFE(\bphi^{t+1}_{1:(i-1)},\bphi_i, \bphi^t_{(i+1):D})$,
             \EndFor
         \EndWhile
     \end{algorithmic}
 \end{algorithm}
 
+The \ac{CAVI} and Gibbs sampling algorithms are very similar in nature.
+The observations on Gibbs sampling also apply: \ac{CAVI} updates on a distribution with \ac{MF} is easily computable but has slower convergence, while updates with the \ac{BMF} approach are more complex, avoid some \ac{MF} pitfalls, and provide a richer distribution.
 
 \paragraph{Natural Gradients}
 
@@ -395,8 +395,8 @@ A natural gradient is a gradient preconditioned with the inverse Fisher informat
     \label{eq:fisherinfomatrix}
 \end{align}
 where $\mathbf{H}(f)$ is the Hessian matrix of the function $f$.
-The Fisher information matrix is a Riemannian metric which gives the direction of the steepest descent with respect to the KL divergence.
-\com{Give more details about the meaning of the Fisher info}
+The Fisher information matrix is a Riemannian metric which gives the direction of the steepest descent with respect to the \ac{KL} divergence.
+\mycom{Give more details about the meaning of the Fisher info}
 The natural gradient is given by :
 \begin{align*}
     \widetilde{\grad}_{\bphi}\mathcal{F}(\bphi) = \mathcal{I}^{-1} \grad_{\bphi}\mathcal{F}(\bphi)
@@ -406,12 +406,12 @@ The reason why natural gradients are brought up here is that the updates of the 
 \begin{align*}
     \bphi^{t+1} = \bphi^t + \mathcal{I}^{-1}_\theta\grad_{\bphi}\mathcal{F}(\bphi^t) \equiv \bphi^{t+1}
 \end{align*}
-\com{maybe be more explicit about this}
+\mycom{maybe be more explicit about this}
 
 \subsection{Scale-Mixtures and conditionally conjugate likelihoods}
 \label{sec:scale-mixtures}
 A large part of this work is based on scale-mixtures and mixtures in general.
-A scale-mixture is a continuous mixture of a distribution with a varying scale parameter.
+A scale mixture is a continuous mixture of a distribution with a varying scale parameter.
 A textbook example is the Student-T distribution which is a Gaussian scale-mixture with a Gamma distribution on the scale weights:
 \begin{align*}
     T_\nu(x) = \int_{0}^\infty \mathcal{N}\left(x|0,\omega\right)\mathrm{Ga}\left(\omega|\frac{\nu}{2}, \frac{\nu}{2}\right)d\omega,
@@ -423,16 +423,13 @@ Another example is the Laplace distribution which is also a Gaussian scale-mixtu
 \end{align*}
 where $\mathrm{Exp}$ is the exponential distribution.
 
-Generally these representations appear in the computation of predictive distributions.
-For example in linear regression with a Gamma prior on the likelihood variance, the resulting posterior predictive distribution will be a Student-T distribution.
-In this thesis we show that we can use this connection the other way around.
+Generally, these representations appear in the computation of predictive distributions.
+For example, in linear regression with a Gamma prior on the likelihood variance, the resulting posterior predictive distribution will be a Student-T distribution.
+In this thesis, we show that we can use this connection the other way around.
 Given a likelihood $p(\bx|\btheta)$ which can be defined as a marginalized scale-mixture,
 we can \textbf{augment} the likelihood by "unmarginalizing" the scale-mixture.
-We transform for example a Student-T likelihood into a Gaussian likelihood with a Gamma prior.
+We transform, for example, a Student-T likelihood into a Gaussian likelihood with a Gamma prior.
 This allows for so-called conditionally conjugate likelihoods.
-
-
-Now that all important and necessary topics for this thesis have been overviewed, the following will present the different works presented in this thesis. 
 % ---------------------------------------------------------------------------
 % ----------------------- end of thesis sub-document ------------------------
 % ---------------------------------------------------------------------------

@@ -8,8 +8,9 @@
 \graphicspath{{9_conclusion/figures/}}
 % ----------------------- contents from here ------------------------
 
-The aim of this thesis was to motivate the use of different representations to ease inference in probabilistic models.
-The work on scale-mixtures proves to be very efficient but still has some rough edges and the theoretical reasons for its success are not clearly understood as of now.
+\mycom{make a clear statement about how we can use Blocked Gibbs sampling and BMF with our augmentations, resolving their limits and reaping their benefits.}
+With this thesis, I want to motivate the use of different representations to ease inference in probabilistic models.
+The work on scale mixtures proves to be very efficient but still has some rough edges and the theoretical reasons for its success are not clearly understood as of now.
 Regardless, one of the biggest challenge is to popularize the use of such models, the approach of \citet{Hensman2015} is by far the most popular, partly due to the success of the \href{https://github.com/GPflow/GPflow}{GPFlow} library \cite{GPflow2017}.
 Libraries implementing various models such as the one presented here, would be a good step in popularizing them, and although there have been an effort in Julia with the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} \cite{theo_galy_fajou_2022_6347022}, implementations in \href{https://gpytorch.ai/}{GPyTorch} \cite{gardner2018gpytorch} or GPFlow would accelerate the adoption of these techniques.
 

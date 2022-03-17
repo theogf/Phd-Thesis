@@ -104,7 +104,7 @@ end;
 ## 
 sb = ColorSchemes.seaborn_colorblind
 GPtheme = Theme(palette=sb, linewidth=10.0)
-
+aem = Char(0x200B)
 tit = ["K-1", "K"]
 isbij = ["_bijective", "_nonbijective"]
 for i in 1:2
@@ -185,8 +185,8 @@ for i in 1:2
         leg_labels = [L"y", latexstring("""\$p(y=k|\${\$f_j\$}\$)\$"""), latexstring("""\$E_{q(f_j)}[p(y=k|\${\$f_j\$}\$)]\$""")]
         Legend(fig[1, 2], [elem_1, elem_2, elem_3], leg_labels, tellwidth=false, halign=:center, valign=:top, margin=(2, 2, 2, 2), nbanks=3, framevisible=false, labelsize=ls-2)
         Legend(fig[1, 3], [elem_2, elem_4], [latexstring("""{\$f_j\$}"""), latexstring("""{\$q(f_j)\$}""")], tellwidth=false, framevisible=false, nbanks=2, valign=:top, halign=:center, labelsize=ls)
-        Legend(fig[2, 2], [elem_2], [latexstring("""{\$p(y=k|\${\$f_j\$}\$ㅤ^s)\$}\$ㅤ_{s=1}^S\$""")], tellwidth=false, halign=:center, valign=:top, margin=(2, 2, 2, 2), nbanks=3, framevisible=false, labelsize=ls)
-        Legend(fig[2, 3], [elem_2], [latexstring("""{{\$f_j\$}\$ㅤ^s\$}\$ㅤ_{s=1}^S\$""")], tellwidth=false, halign=:center, valign=:top, margin=(2, 2, 2, 2), nbanks=3, framevisible=false, labelsize=ls)
+        Legend(fig[2, 2], [elem_2], [latexstring("""{\$p(y=k|\${\$f_j\$}\$$(aem)^s)\$}\$$(aem)_{s=1}^S\$""")], tellwidth=false, halign=:center, valign=:top, margin=(2, 2, 2, 2), nbanks=3, framevisible=false, labelsize=ls)
+        Legend(fig[2, 3], [elem_2], [latexstring("""{{\$f_j\$}\$$(aem)^s\$}\$$(aem)_{s=1}^S\$""")], tellwidth=false, halign=:center, valign=:top, margin=(2, 2, 2, 2), nbanks=3, framevisible=false, labelsize=ls)
         
         # Legend(fig[2, 2], [elem_2],  [L"""\left(p(y|f_i,g_i)\right)_{i=1}^S"""], tellwidth=false, halign=:right, valign=:top, margin=(10, 10, 10, 10))
         # Legend(fig[2, 3], [elem_4], [L"""\left(f_i,g_i\right)_{i=1}^S\sim p(f,g|y)"""],tellwidth=false, halign=:right, valign=:top, margin=(10, 10, 10, 10))

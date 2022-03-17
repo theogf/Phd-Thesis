@@ -141,7 +141,7 @@ Note that an implementation as well as detailed derivations can be found in the 
 
 We can expand this work to non-Gaussian likelihoods as well.
 Let's take the example of the heteroscedastic Laplace likelihood, where we model $\beta(x) = \sqrt{2\beta \sigma(g)}$, where $\beta \in \mathbb{R}^+$.
-
+\mycom{finish this part}
 % TODO replace by student-t
 
 Similarly to Equation~\ref{eq:hetero_lik} we get the likelihood:
@@ -226,6 +226,7 @@ This condition would not hold with the over-parametrized version which would lea
 From this point, the derivations are identical.
 We use the \ac{MGF} of the Poisson distribution and finally the P\'olya-Gamma augmentation.
 
+\mycom{talk about exchangeability}
 % TODO introduce discussion on exchangeability
 Unfortunately, we did not run any experiments to explore if one parametrization was more accurate or efficient than another.
 
@@ -361,14 +362,16 @@ The advantage of this approach is that no gradients are necessary as all full-co
 This opens up more possibilities over more complex problems like the multi-class or heteroscedastic one where computing expectations would be a limitation.
 For medium-sized datasets, this outperforms the \ac{CAVI} algorithm as it has the same convergence speed but does not suffer from the mean-field assumption on the variational parameters.
 Hopefully, this work will be released in the near future.
+\mycom{to finish}
+
 
 \section{Limits}
 
 As pointed out in chapters about augmentations, working with augmented models has its own issues.
-The main one being of course having to identify potential augmentations in a given model and to compute lengthy derivations to arrive at the right result.
-The idea generalization of using \ac{MGF} is promising, but is also limited.
-Often terms need to be rearranged, identities need to be used to reach something usable.
-This is feasible for someone with expertise, but it is a complicated problem to automatize the process, in the context of probabilistic programming for example.
+The main one is to identify potential augmentations in a given model and to compute lengthy derivations to arrive at the right result.
+The idea generalization of using \ac{MGF} is promising but is also limited.
+Often we need to rearrange terms and use special identities.
+This is feasible for someone with expertise, but automatizing the process is complicated.
 Current progress in symbolic programming could eventually help in this direction.
 By having a lookup table of augmentable functions and the ability to transform equations, this process can be automatized.
 
@@ -376,10 +379,9 @@ Another issue is the variational distribution $q(\boldf, \bOmega)$ (or $q(\boldu
 Interestingly the difference of bound comes exclusively from the mean-field assumption between $q(\boldf)$ and $q(\bOmega)$.
 We can even identify these bound differences via the interpretation of \citet{} as missing terms from a Taylor series.
 
-Since the predictive results prove to be almost as good and that the difference of bounds is not always significant, this gives us a strong sign that the two set of variables are naturally strongly decorrelated and this would give a strong clue on why the Gibbs sampling and \ac{CAVI} updates tend to be so efficient.
+Since the predictive results prove to be almost as good and that the difference of bounds is not always significant, this gives us a strong sign that the two sets of variables are naturally strongly decorrelated and this would give a strong clue on why the Gibbs sampling and \ac{CAVI} updates tend to be so efficient.
 In fact, the work of \citet{gorinovaAutomaticReparameterisationProbabilistic2020} mentioned in the introduction aims at finding a perfect balance between two parametrizations by ensuring that the posterior is as close as possible to a multivariate Gaussian with independent dimensions.
-
-
+\mycom{to finish}
 
 
 % ---------------------------------------------------------------------------

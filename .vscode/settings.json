@@ -27,7 +27,7 @@
         "HACK",
         "FIXME",
         "TODO",
-        "com{"
+        "mycom"
     ],
     "grammarly.overrides": [
         {
