@@ -51,10 +51,10 @@ To solve this integral, we must either know the posterior distribution and compu
 
 \subsection{Posterior computations}
 \label{sec:posterior}
-Given a prior $p(\btheta)$ and a likelihood $p(\bx|\btheta)$, computing the posterior \eqref{eq:bayes} in closed-form requires the integral $p(\bx)=\int p(\bx|\btheta)p(\btheta)d\btheta$.
-\mycom{the integral is not enough}
+Given a prior $p(\btheta)$ and a likelihood $p(\bx|\btheta)$, computing the posterior distribution function \eqref{eq:bayes} in closed-form requires the integral\footnote{Even if the integral is known, it might not be enough to compute some expectations or statistics.} $p(\bx)=\int p(\bx|\btheta)p(\btheta)d\btheta$.
 For most non-trivial models, this integral is intractable, and approximations to the posterior are needed.
 Such methods are introduced in Section~\ref{sec:approx_inf}.
+
 However, in specific settings, computing the posterior in closed-form is possible.
 When the prior is said \textbf{conjugate} to the likelihood, the posterior is of the same probability distribution family as the prior and can be computed analytically \cite{schlaifer1961applied}.
 It is worth emphasizing this seemingly trivial case since it will be exploited in Section~\ref{sec:scale-mixtures}.
@@ -395,41 +395,45 @@ A natural gradient is a gradient preconditioned with the inverse Fisher informat
     \label{eq:fisherinfomatrix}
 \end{align}
 where $\mathbf{H}(f)$ is the Hessian matrix of the function $f$.
-The Fisher information matrix is a Riemannian metric which gives the direction of the steepest descent with respect to the \ac{KL} divergence.
-\mycom{Give more details about the meaning of the Fisher info}
+The Fisher information matrix is a Riemannian metric that gives the direction of the steepest descent with respect to the \ac{KL} divergence.
 The natural gradient is given by :
 \begin{align*}
     \widetilde{\grad}_{\bphi}\mathcal{F}(\bphi) = \mathcal{I}^{-1} \grad_{\bphi}\mathcal{F}(\bphi)
 \end{align*}
-The natural gradient is constructed such that the metric it gives maximizes the change of the infinitesimal \ac{KL} divergence between the given distribution and its target.
-The reason why natural gradients are brought up here is that the updates of the \ac{CAVI} algorithm \ref{alg:CAVI} for exponential distributions, can be interpreted as natural gradient ascent updates with learning rate $1$.
+The natural gradient works in a metric that maximizes the change of the infinitesimal \ac{KL} divergence between the given distribution and its target\cite{salimbeniNaturalGradientsPractice2018}.
+The updates of the \ac{CAVI} algorithm \ref{alg:CAVI} for exponential distributions, can be interpreted as natural gradient ascent updates with learning rate $1$.
 \begin{align*}
-    \bphi^{t+1} = \bphi^t + \mathcal{I}^{-1}_\theta\grad_{\bphi}\mathcal{F}(\bphi^t) \equiv \bphi^{t+1}
+    \bphi^{t+1} = \bphi^t + \mathcal{I}^{-1}_\theta\grad_{\bphi}\mathcal{F}(\bphi^t)
 \end{align*}
-\mycom{maybe be more explicit about this}
+When working with constrained parameters like the covariance matrix of the Gaussian variational distribution, a step with a high learning rate might overshoot out of the cone of positive-definite matrices.
+\citet{salimbeniNaturalGradientsPractice2018} proposes a given schedule to compensate while \citet{linHandlingPositiveDefiniteConstraint2020} forces a trajectory on a geodesic.
+Both approaches are computationally expensive while we get this feature automatically 
 
 \subsection{Scale-Mixtures and conditionally conjugate likelihoods}
 \label{sec:scale-mixtures}
-A large part of this work is based on scale-mixtures and mixtures in general.
+We base a large part of this work on mixtures and use scale mixtures in particular.
 A scale mixture is a continuous mixture of a distribution with a varying scale parameter.
-A textbook example is the Student-T distribution which is a Gaussian scale-mixture with a Gamma distribution on the scale weights:
+A textbook example is the Student-T distribution which is a Gaussian scale mixture with a Gamma prior on the variance:
 \begin{align*}
     T_\nu(x) = \int_{0}^\infty \mathcal{N}\left(x|0,\omega\right)\mathrm{Ga}\left(\omega|\frac{\nu}{2}, \frac{\nu}{2}\right)d\omega,
 \end{align*}
 where $\mathrm{Ga}$ is a Gamma distribution.
-Another example is the Laplace distribution which is also a Gaussian scale-mixture:
+Another example is the Laplace distribution which is also a Gaussian scale mixture:
 \begin{align*}
     \mathrm{La}(x|\beta) = \int_0^{\infty} \mathcal{N}(x|0,\omega)\mathrm{Exp}\left(\omega|\frac{1}{2b^2}\right)d\omega,
 \end{align*}
 where $\mathrm{Exp}$ is the exponential distribution.
 
-Generally, these representations appear in the computation of predictive distributions.
-For example, in linear regression with a Gamma prior on the likelihood variance, the resulting posterior predictive distribution will be a Student-T distribution.
-In this thesis, we show that we can use this connection the other way around.
-Given a likelihood $p(\bx|\btheta)$ which can be defined as a marginalized scale-mixture,
-we can \textbf{augment} the likelihood by "unmarginalizing" the scale-mixture.
-We transform, for example, a Student-T likelihood into a Gaussian likelihood with a Gamma prior.
-This allows for so-called conditionally conjugate likelihoods.
+These representations appear when computing predictive distributions.
+For example, when performing Gaussian linear regression with a fixed weight $\btheta$ and a Gamma prior on the likelihood variance $\sigma^2$, the resulting posterior predictive distribution will be a Student-T distribution.
+
+This thesis shows that we can use this connection the other way around.
+Certain likelihoods $p(\bx|\btheta)$ can be defined as scale mixtures $\int p(\bx|\btheta, \omega)p(\omega)d\omega$.
+We can "unmarginalize" the likelihood by adding the scale variable $\omega$ to our model.
+We  augment $p(\bx|\btheta)$ to $p(\bx,\omega|\btheta)$.
+For example, we can augment a Student-T likelihood into a Gaussian likelihood with a Gamma prior on the variance.
+The advantage of the augmented model is to produce conditionally conjugate likelihoods for all the model variables.
+
 % ---------------------------------------------------------------------------
 % ----------------------- end of thesis sub-document ------------------------
 % ---------------------------------------------------------------------------

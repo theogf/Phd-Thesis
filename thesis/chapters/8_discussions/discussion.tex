@@ -22,13 +22,11 @@ Additional examples of such constructions are shown in this chapter in Sections 
 A potential improvement for augmented models is the identification of marginalizable augmented variables that keep the conditional conjugacy of the model.
 For example, in the multi-class model from Chapter~\ref{ch:multiclass}, the augmented variable $\lambda$ can be marginalized, out as shown in Section~\ref{sec:improvemulticlass}.
 We can then reduce the dimensionality of the model and avoid tricky situations like the inner loop updates in Chapter~\ref{ch:multiclass}.
-This marginalization step can be avoided altogether by identifying from the start the right \ac{MGF}, but the marginalized distributions are sometimes less known.
-Augmenting first then marginalizing can then be easier mathematically.
+This marginalization step can be avoided altogether by identifying from the start the right \ac{MGF}. The marginalized distributions are sometimes less known, and augmenting first then marginalizing can be more accessible.
 
 Finally, an unfinished work (despite trying) is to establish convergence rates (error as a function of the number of iterations) for the \ac{CAVI} algorithm and of the correlation of the kernel for the Gibbs sampler.
 Experimental results indicate that the error is decreasing as $\|\mathcal{L}^{*} - \mathcal{L}^{t}\|\leq C e^{-t}$, where $t$ is the number of iterations, but we did not manage to form a formal proof.
 
-% TODO add more outlooks
 
 \section{Double bounds for intricate latent GPs}
 \label{sec:heteroscedastic}
@@ -137,19 +135,43 @@ The right plots show the true latent functions $f$ and $g$ used to generate $y$ 
 \end{figure}
 
 Note that an implementation as well as detailed derivations can be found in the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} package \cite{theo_galy_fajou_2022_6347022}.
+
 \subsection{Heteroscedastic Non-Gaussian Likelihood}
 
-We can expand this work to non-Gaussian likelihoods as well.
-Let's take the example of the heteroscedastic Laplace likelihood, where we model $\beta(x) = \sqrt{2\beta \sigma(g)}$, where $\beta \in \mathbb{R}^+$.
-\mycom{finish this part}
-% TODO replace by student-t
+This method extends to non-Gaussian likelihoods as well.
+We take the example of the heteroscedastic Student-t likelihood, where we have a local scale with standard deviation $\epsilon(x) = \lambda \sigma(g)$ with $\lambda \in \mathbb{R}^+$.
 
 Similarly to Equation~\ref{eq:hetero_lik} we get the likelihood:
 \begin{align*}
-    p(y|f,g,\beta) = \frac{\sqrt{\beta\sigma(g)}}{\sqrt{2}}\exp\left(-\sqrt{2\beta(\sigma(g))}|y-f|\right)
-    \label{eq:hetero_lik_laplace}
+    p(y|f,g,\lambda,\nu) = \frac{\Gamma(\frac{\nu+1}{2})\sqrt{\lambda\sigma(g)}}{\Gamma(\frac{\nu}{2})\sqrt{\pi\nu}}\left(1 + \lambda \sigma(g)\frac{(y-f)^2}{\nu}\right)^{-\frac{\nu+1}{2}}
+    \label{eq:hetero_studentt}
 \end{align*}
-% TODO Finish these derivations
+
+To simplify the notation, we define $\Delta=\Delta_\nu(f,y,\lambda) = \frac{\lambda(y-f)^2}{\nu}$, $\alpha =\frac{\nu+1}{2}$ and $Z = \frac{\Gamma(\frac{\nu+1}{2})}{\Gamma(\frac{\nu}{2})}$.
+We can proceed with the first augmentation:
+\begin{align*}
+    (1 + \sigma(g)\Delta)^{-\alpha} =& (1 + \Delta(1 - \sigma(-g)))^{-\alpha}\\
+    =&(1 + \Delta - \Delta\sigma(-g))^{-\alpha}\\
+    =& (\Delta\sigma(-g))^{-\alpha}\left(\frac{\sigma(-g)\Delta}{1 + \Delta -\sigma(-g)\Delta}\right)
+    =&\sum_{k=0}^{\infty} \Delta^k \mathrm{NB}(k|\sigma(-g),\alpha),
+\end{align*}
+where we used the \ac{MGF} of the Negative Binomial distribution.
+We obtain the same result by first doing the classical augmentation of the Student-t with a Gamma variable followed by an augmentation with a Poisson variable.
+Marginalizing the Gamma will then give a Negative Binomial distribution.
+We rework the likelihood by fusing the terms:
+\begin{align*}
+    p(y,k|f,g,\lambda,\nu) =& Z\sqrt{\lambda}\sigma^{\frac{1}{2}}\sigma(-g)^{-\alpha}\Delta^{-\alpha}\Delta^k\underbrace{C(k,\alpha)\sigma^{\alpha}(g)\sigma(-g)^k}_{\mathrm{NB}(k|\sigma(-g),\alpha)}
+    =& ZC(k,\alpha)\sqrt{\lambda}(\sigma(g))^{\frac{1}{2}+\alpha}(\sigma(-g))^{k-\alpha}\Delta^{k-\alpha}
+\end{align*}
+where $C(k, \alpha) = \frac{\Gamma(r + k)}{k!\Gamma(r)}$.
+We set again $Z=ZC(\alpha,k)\sqrt{\lambda}$ as constants not independent of $f$ or $g$.
+The final step is the P\'olya-Gamma augmentation where we give directly the final result:
+\begin{align}
+    p(y,k,\omega|f,g,\lambda,\nu) = Z\Delta^{k-\alpha}2^{-(\half+k)}\exp\left(\half\left(\half + 2\alpha - k\right)g + g^2\omega\right)\PG(\omega|\half+k,0).
+\end{align}
+Given this full model, we can marginalize and augment as much as we want to find the most convenient form to compute the full-conditionals.
+For example, we could use just the first Gamma augmentation on the likelihood to find the full-conditional of $f$ and $\lambda$ but use the complete augmentation for $g$.
+The full derivations, resulting algorithms and implementation can be found in the  \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} package \cite{theo_galy_fajou_2022_6347022}.
 
 \section{Using Hamilton Monte Carlo on the augmented model}
 
@@ -196,7 +218,10 @@ Two of them are listed here
 \subsection{Simplex for the multi-class classification}
 \label{sec:simplex}
 In Chapter \ref{ch:multiclass}, one of the possible concerns regarding the model is that $\lambda$ has the improper prior $p(\lambda) = 1_{[0,\infty)}$, which is a proper measure but is not normalizable.
-It should be noted that since the resulting posterior is valid, no problem should arise, but from a purely Bayesian perspective, this can be dissatisfactory.
+The posterior is valid, which is another critical take on the augmentations.
+We only need a measure and not a distribution for the mixtures prior, 
+extending the possibilities of augmentations to all non-normalizable measures.
+Since the resulting posterior is valid, no problem should arise, but this can be dissatisfactory from a purely Bayesian perspective.
 This improper prior rises from the ill-conditioning of the model.
 Given $K$ classes, only $K-1$ latent \ac{GPs} are needed since we have the additional constraint that $\sum_{k=1}^K p(y=k|\boldf) = 1$.
 Using this formulation we get the following likelihood:
@@ -209,7 +234,10 @@ Using this formulation we get the following likelihood:
     \right.,
 \end{align}
 where $D \in [0, 1]$.
-In the coming equations, we set $D=0.5$, which is the equivalent of having the original likelihood with $f_K = 0$.
+We call this version of the likelihood \textbf{bijective} since the dimensionality of the simplex output is the same as the inputs.
+Although we set one of the inputs to a fixed value, the classes are still exchangeable.
+The choice to have the last input to be $0$ is arbitrary, and we could set any of the latent \ac{GPs} to be $0$ and therefore exchange any of the classes.
+In the coming equations, we set $D=0.5$, equivalent to having the non-bijective likelihood with $f_K = 0$.
 
 Using this formulation, the first augmentation that led to an improper prior :
 \begin{align*}
@@ -220,22 +248,19 @@ becomes the known \ac{MGF} of a Gamma distribution with the following mixture:
     \frac{1}{D + \sum_{i=1}^{K-1} \sigma(f_i)} =& \frac{1}{D + \sum_{i=1}^{K-1} \sigma(f_i)} = \frac{1}{D}\frac{1}{1+\frac{1}{D}\sum_{i=1}^{K=1}\sigma(f_i)}\\
     =& \frac{1}{D}\int_0^\infty e^{-\lambda \sum_{i=1}^{K-1} \sigma(f_i)}\Ga \left(1, \frac{1}{D}\right)d\lambda.
 \end{align*}
-Note that an important condition to use the \ac{MGF} is that $-\sum_{i=1}^{K-1} \sigma(f_i) < D$ which is true as long as $D > 0$.
-This condition would not hold with the over-parametrized version which would lead to $D=0$.
+An important condition to use the \ac{MGF} is that $-\sum_{i=1}^{K-1} \sigma(f_i) < D$ which is true as long as $D > 0$.
+This condition would not hold with the over-parametrized version, leading to $D=0$.
 
 From this point, the derivations are identical.
 We use the \ac{MGF} of the Poisson distribution and finally the P\'olya-Gamma augmentation.
+We show the whole derivations on Algorithms~\ref{alg:gibbs_multiclass} and~\ref{alg:cavi_multiclass} and show an example on Figure~\ref{fig:bijective_multiclass}.
 
-\mycom{talk about exchangeability}
-% TODO introduce discussion on exchangeability
-Unfortunately, we did not run any experiments to explore if one parametrization was more accurate or efficient than another.
-
-Although it is mathematically simpler, a major issue with this model is the choice of $D$.
-Since $D$ is fixed, the probability for classes other than $K$ will be bounded $\frac{1}{D + 1}$.
-Taking $D=0.5$ would lead to a maximum probability of $2/3$ for all other $K-1$ classes.
+Although it is mathematically more straightforward, a significant issue with this model is the choice of $D$.
+Since we fix $D$, the probability for classes other than $K$ will be upper bounded by $\frac{1}{D + 1}$.
+For example, taking $D=0.5$ leads to a maximum probability of $2/3$ for all other $K-1$ classes.
 On the other hand, if $D=0$, the probability of the class $K$ will always be $0$.
-This is not an issue with the softmax link since the exponential function is not bounded.
-A potential solution is presented in Section~\ref{sec:scale_multiclass}.
+The softmax link does not have this issue since the exponential function is not bounded.
+A potential solution using scaled logistics is presented in Section~\ref{sec:scale_multiclass}.
 
 \subsection{Marginalizing out variables}
 \label{sec:marg_multiclass}
@@ -323,13 +348,19 @@ We show 1-dimensional examples with 3 classes with and without the bijection on 
 \begin{figure}
     \includegraphics[width=\textwidth]{./chapters/8_discussions/figures/categorical_bijective.pdf}
     \caption{Illustration of Algorithms~\ref{alg:gibbs_multiclass} and~\ref{alg:cavi_multiclass} with the bijective link introduced in Section~\ref{sec:simplex} and the marginalization of Section~\ref{sec:marg_multiclass}.
-    Each color represents a class, and we compare the true process to the inferred one for both Gibbs sampling and variational inference.}
+    Each color represents a class, and we compare the true process to the inferred one for both Gibbs sampling and variational inference.
+    The solid lines represent the true probabilities and latent \ac{GPs}.
+    The plots on top show the variational inference results, with the expected predictive probability on the left and the variational posterior on the right.
+    The plots at the bottom show the probabilities and latent GPs obtained via Gibbs sampling.}
     \label{fig:bijective_multiclass}
 \end{figure}
 \begin{figure}
     \includegraphics[width=\textwidth]{./chapters/8_discussions/figures/categorical_nonbijective.pdf}
     \caption{Illustration of Algorithms~\ref{alg:gibbs_multiclass} and~\ref{alg:cavi_multiclass} with the non-bijective link with the marginalization of Section~\ref{sec:marg_multiclass}.
-    Each color represents a class, and we compare the true process to the inferred one for both Gibbs sampling and variational inference.}
+    Each color represents a class, and we compare the true process to the inferred one for both Gibbs sampling and variational inference.
+    The solid lines represent the true probabilities and latent \ac{GPs}.
+    The plots on top show the variational inference results, with the expected predictive probability on the left and the variational posterior on the right.
+    The plots at the bottom show the probabilities and latent GPs obtained via Gibbs sampling.}
     \label{fig:multiclass}
 \end{figure}
 
@@ -367,21 +398,22 @@ Hopefully, this work will be released in the near future.
 
 \section{Limits}
 
-As pointed out in chapters about augmentations, working with augmented models has its own issues.
-The main one is to identify potential augmentations in a given model and to compute lengthy derivations to arrive at the right result.
+As mentioned in the chapters about augmentations, working with augmented models has its issues.
+The main one is to identify potential augmentations in a given model and compute lengthy derivations to arrive at the correct result.
 The idea generalization of using \ac{MGF} is promising but is also limited.
-Often we need to rearrange terms and use special identities.
-This is feasible for someone with expertise, but automatizing the process is complicated.
+Often we need to rearrange terms and use mathematics identities.
+Someone with expertise can do it, but automatizing the process is complicated.
 Current progress in symbolic programming could eventually help in this direction.
-By having a lookup table of augmentable functions and the ability to transform equations, this process can be automatized.
+We could automate this process by having a lookup table of augmentable functions and manipulating terms programmatically.
 
 Another issue is the variational distribution $q(\boldf, \bOmega)$ (or $q(\boldu, \bOmega)$) optimized on the augmented model is not as accurate as the variational distribution $q(\boldf)$ (or $q(\boldu)$) optimized on the original model.
-Interestingly the difference of bound comes exclusively from the mean-field assumption between $q(\boldf)$ and $q(\bOmega)$.
-We can even identify these bound differences via the interpretation of \citet{} as missing terms from a Taylor series.
+Interestingly, the bound difference comes exclusively from the mean-field assumption between $q(\boldf)$ and $q(\bOmega)$.
+We can even identify these bound differences via the interpretation of \citet{jaakkolaVariationalApproachBayesian1997} as missing terms from a Taylor series.
+The predictive results prove to be almost as good, and the difference of bounds is not always significant.
+These empirical results give us an indication that the sets of variables are naturally strongly decorrelated, which would explain why the Gibbs sampling and \ac{CAVI} updates are so efficient.
+The work of \citet{gorinovaAutomaticReparameterisationProbabilistic2020} mentioned in the introduction aims at finding a perfect balance between two parametrizations by ensuring that the posterior is as close as possible to a multivariate Gaussian with independent dimensions.
 
-Since the predictive results prove to be almost as good and that the difference of bounds is not always significant, this gives us a strong sign that the two sets of variables are naturally strongly decorrelated and this would give a strong clue on why the Gibbs sampling and \ac{CAVI} updates tend to be so efficient.
-In fact, the work of \citet{gorinovaAutomaticReparameterisationProbabilistic2020} mentioned in the introduction aims at finding a perfect balance between two parametrizations by ensuring that the posterior is as close as possible to a multivariate Gaussian with independent dimensions.
-\mycom{to finish}
+
 
 
 % ---------------------------------------------------------------------------

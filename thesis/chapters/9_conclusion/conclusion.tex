@@ -6,33 +6,29 @@
 
 % change according to folder and file names
 \graphicspath{{9_conclusion/figures/}}
-% ----------------------- contents from here ------------------------
+% ----------------------- contents from here ------------------------With this thesis, I want to motivate the use of different representations to ease inference in probabilistic models.
+The work on scale mixtures proves to be very efficient and exploits the best out of the blocked Gibbs sampling and the blocked \ac{CAVI} algorithms.
+The steps of these algorithms are typically complicated to derive, but with the augmentations, we can derive them with ease.
 
-\mycom{make a clear statement about how we can use Blocked Gibbs sampling and BMF with our augmentations, resolving their limits and reaping their benefits.}
-With this thesis, I want to motivate the use of different representations to ease inference in probabilistic models.
-The work on scale mixtures proves to be very efficient but still has some rough edges and the theoretical reasons for its success are not clearly understood as of now.
-Regardless, one of the biggest challenge is to popularize the use of such models, the approach of \citet{Hensman2015} is by far the most popular, partly due to the success of the \href{https://github.com/GPflow/GPflow}{GPFlow} library \cite{GPflow2017}.
-Libraries implementing various models such as the one presented here, would be a good step in popularizing them, and although there have been an effort in Julia with the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} \cite{theo_galy_fajou_2022_6347022}, implementations in \href{https://gpytorch.ai/}{GPyTorch} \cite{gardner2018gpytorch} or GPFlow would accelerate the adoption of these techniques.
-
+However, we do not have a clear theoretical understanding of the reason for this efficiency.
+By exploring the properties of these likelihoods, we work on obtaining bounds on the convergence speed of these algorithms.
 An intuition on why these augmentations work so well is the notion of decoupling.
-A lot of complexities in inference come from very highly-correlated variables and heavy tails.
+Many inference bottlenecks come from very highly-correlated variables and heavy tails.
 By separating these components into different variables, all parts become easier to model and do not suffer from the typical inference issues mentioned beforehand.
-However, this does not represent a proper theory and a more thorough theoretical analysis would be needed and could maybe give even more insights on how convergence speed and variable correlation are connected.
+These ideas do not represent an actual theory for now, and we need a thorough analysis.
+A better understanding could give insights into how convergence speed and variable correlation are connected.
 
-A large potential is the extension of the scale-mixture identification to a much larger class of functions.
-As pointed out in Chapter~\ref{ch:discussion}, the most important notion is the one of \acl{MGF}, but there is no clear theory at the moment to properly identify such functions.
-\citet{schwartz1952transformation} is one of the few persons who developed a theory on distributions based on their Laplace distribution, but some confusion is left as distributions can have different meaning (analytic vs probabilistic).
+Another challenge, as pointed out in Chapter~\ref{ch:discussion}, is to widen the class of functions viewed as mixtures.
+The most promising lead is moment generating functions, but there is little theory on their properties.
+\citet{schwartz1952transformation} is one of the few persons who developed a theory on distributions based on their Laplace distribution. However, these texts can be confusing as distributions can have different meanings (analytic or probabilistic).
 
-Finally, it would be interesting to see how other kinds of representations and/or reparametrization work with such models.
-
-
-
-\begin{itemize}
-    \item Explore other kind of representations, back to the example of the Neal's funnel, the best representation depends on the data.
-\end{itemize}
+Regardless, one of the biggest challenges is to popularize the use of such models.
+The approach of \citet{Hensman2015} is by far the most popular, partly due to the success of the \href{https://github.com/GPflow/GPflow}{GPFlow} library \cite{GPflow2017}.
+Implementing these augmentations in popular libraries would be a good step.
+There have been an effort in Julia with the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} \cite{theo_galy_fajou_2022_6347022}, and implementations in \href{https://gpytorch.ai/}{GPyTorch} \cite{gardner2018gpytorch} or GPFlow would accelerate the adoption of these techniques.
 
 
-% TODO Finish the discussion
+
 % ---------------------------------------------------------------------------
 % ----------------------- end of thesis sub-document ------------------------
 % ---------------------------------------------------------------------------
