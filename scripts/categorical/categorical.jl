@@ -111,7 +111,7 @@ for i in 1:2
     fig = Figure(resolution=(900, 600))
     lw = 4.0
     with_theme(GPtheme, linewidth=3.0) do 
-        ax1 = Axis(fig[1, 2], title=L"""y |\left(f_j\right)""", titlesize=25.0)
+        ax1 = Axis(fig[1, 2], title=latexstring("""\$y |\${\$f_j\$}"""), titlesize=25.0)
         ax2 = Axis(fig[1, 3], title="Latent GPs", titlesize=19.0)
         ax3 = Axis(fig[2, 2], title="")
         ax4 = Axis(fig[2, 3], title="")
@@ -181,11 +181,12 @@ for i in 1:2
         #     LineElement(color = (sb[1], 0.5), points = Point2f[(0, 2//3), (1, 2//3)], linewidth=lw),
         #     LineElement(color = (sb[2], 0.5), points = Point2f[(0, 1//3), (1, 1//3)], linewidth=lw),
         # ]
-        leg_labels = [L"y", L"p(y=k|(f_j))", L"E_{q(f_j)}[p(y=k|(f_j))]"]
-        Legend(fig[1, 2], [elem_1, elem_2, elem_3], leg_labels, tellwidth=false, halign=:center, valign=:top, margin=(2, 2, 2, 2), nbanks=3, framevisible=false)
-        Legend(fig[1, 3], [elem_2, elem_4], [L"(f_j)", L"(q(f_j))"], tellwidth=false, framevisible=false, nbanks=2, valign=:top, halign=:center)
-        Legend(fig[2, 2], [elem_2], [L"""\left((p|(f_j)^s)\right)_{s=1}^S"""], tellwidth=false, halign=:center, valign=:top, margin=(2, 2, 2, 2), nbanks=3, framevisible=false)
-        Legend(fig[2, 3], [elem_2], [L"""\left((f_j)^s\right)_{s=1}^S"""], tellwidth=false, halign=:center, valign=:top, margin=(2, 2, 2, 2), nbanks=3, framevisible=false)
+        ls = 20.0
+        leg_labels = [L"y", latexstring("""\$p(y=k|\${\$f_j\$}\$)\$"""), latexstring("""\$E_{q(f_j)}[p(y=k|\${\$f_j\$}\$)]\$""")]
+        Legend(fig[1, 2], [elem_1, elem_2, elem_3], leg_labels, tellwidth=false, halign=:center, valign=:top, margin=(2, 2, 2, 2), nbanks=3, framevisible=false, labelsize=ls-2)
+        Legend(fig[1, 3], [elem_2, elem_4], [latexstring("""{\$f_j\$}"""), latexstring("""{\$q(f_j)\$}""")], tellwidth=false, framevisible=false, nbanks=2, valign=:top, halign=:center, labelsize=ls)
+        Legend(fig[2, 2], [elem_2], [latexstring("""{\$p(y=k|\${\$f_j\$}\$ㅤ^s)\$}\$ㅤ_{s=1}^S\$""")], tellwidth=false, halign=:center, valign=:top, margin=(2, 2, 2, 2), nbanks=3, framevisible=false, labelsize=ls)
+        Legend(fig[2, 3], [elem_2], [latexstring("""{{\$f_j\$}\$ㅤ^s\$}\$ㅤ_{s=1}^S\$""")], tellwidth=false, halign=:center, valign=:top, margin=(2, 2, 2, 2), nbanks=3, framevisible=false, labelsize=ls)
         
         # Legend(fig[2, 2], [elem_2],  [L"""\left(p(y|f_i,g_i)\right)_{i=1}^S"""], tellwidth=false, halign=:right, valign=:top, margin=(10, 10, 10, 10))
         # Legend(fig[2, 3], [elem_4], [L"""\left(f_i,g_i\right)_{i=1}^S\sim p(f,g|y)"""],tellwidth=false, halign=:right, valign=:top, margin=(10, 10, 10, 10))
@@ -206,7 +207,7 @@ end
 ## 
 
 fig = Figure()
-# ax = Axis(fig[1,1], title= latexstring("{\$y_i\$}\$\\phantom{I}_{i=1}^N\$"))
+ax = Axis(fig[1,1], title= latexstring("{\$y_i\$}\$ㅤ_{i=1}^N\$"))
 # ax = Axis(fig[1,1], title=latexstring("an equation:{\$1 + \\alpha^2\$}"))
 
 fig

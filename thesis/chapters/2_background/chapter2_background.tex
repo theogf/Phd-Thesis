@@ -136,7 +136,7 @@ A concrete example is shown on Figure~\ref{fig:gp_example}.
 \end{figure}
 
 \subsection{Non-Conjugate Gaussian Processes}
-
+\label{sec:nonconj_gps}
 A Gaussian prior is only conjugate to the mean parameter of a Gaussian likelihood.
 Therefore, the \ac{GP} posterior obtained in the previous section is only tractable for homoscedastic (the noise variance is independent of the input) Gaussian likelihoods, for all other cases we talk about \textbf{non-conjugate \ac{GPs}}.
 Examples of non-conjugate \ac{GPs} problems are binary classification, regression using non-Gaussian noise such as Student-t or Laplace noise, or Poisson regression.
@@ -185,33 +185,34 @@ where $m_* = K_{\bx_*,\bZ} K^{-1}_{\bZ,\bZ} \bmu$ and $s_* = K_{\bx_*,\bx_*} - K
 
 \section{Approximate Bayesian Inference}
 \label{sec:approx_inf}
-The posterior distribution in Equation~\eqref{eq:bayes} cannot be computed in closed-form for non-trivial problems such as the one presented in Section~\ref{sec:gps}.
-One can nonetheless approximate the posterior to obtain a useful estimator for predictions and computing function expectations of interest.
-This problem of \textbf{Approximate Bayesian Inference} is a research field of its own, and this chapter will focus specifically on sampling and variational inference, the most used methods for \ac{GPs}.
+
+The posterior distribution in Equation~\eqref{eq:bayes} cannot be computed in closed-form for non-trivial problems such as the ones presented in Section~\ref{sec:nonconj_gps} and \ref{sec:sparsegps}.
+We can approximate the posterior to obtain a valuable estimator for predictions and expected values of interest.
+\textbf{Approximate Bayesian Inference} is a research field of its own, and this chapter will focus specifically on sampling and variational inference, the most used methods for \ac{GPs}.
 
 \subsection{Sampling}
 
-Even if the posterior distribution $p(\btheta|\bX)$ is not available in closed-form, one might be able to draw samples from it.
-The advantage of sampling is its unbiasedness, i.e. in the limit of infinitely many samples one recovers the exact posterior expectation.
-The collection of sampling techniques is a whole field of research and the number of methods is too large to make mention of them all in this thesis.
+Even if the posterior distribution $p(\btheta|\bX)$ is not available in closed-form, one can try to draw samples from it.
+The advantage of sampling is its unbiasedness: one obtains exact expectations in the limit of infinitely many samples.
+Sampling is an art of its own, and the number of methods is too large to mention them all in this thesis.
 Therefore, the scope is restricted to methods popular with or tailored to \ac{GPs}.
-We restrict the focus on \ac{MCMC} methods.
+In particular, we restrict ourselves to \ac{MCMC} methods.
 
 \paragraph{Markov Chain Monte Carlo and Metropolis-Hastings}\mbox{}\\
 \acf{MCMC} methods generate a chain of variables $\btheta^t$ with the Markov assumption: $\btheta^t$ depends only on $\btheta^{t-1}$ and where the stationary distribution of $\btheta^t$ is the same as the target distribution $\pi(\btheta)$ (for our use case the posterior $p(\btheta|\bX)$).
 \ac{MCMC} methods require a transition probability $t(\btheta^{t+1}|\btheta)$ which leaves the target stationary distribution invariant, i.e. $\pi(\btheta) = \int t(\btheta|\btheta')\pi(\btheta')d\btheta'$.
 Other properties such as detailed balance and ergodicity need to be satisfied as well \cite{brooks2011handbook, o2004kendall}.
 
-One the most common algorithm to run a Markov Chain sampling directly from a distribution $p(\btheta)$ is the \acf{MH} algorithm.
+One of the most common algorithms to run a Markov Chain on a distribution $\pi(\btheta)$ is the \acf{MH} algorithm.
 The \ac{MH} algorithm consists in having a proposal distribution $q(\btheta'|\btheta)$ suggesting a new sample.
-Each proposed sample $\btheta'$ is randomly accepted or rejected with probability $p(\text{accept}) = A = \frac{p(\btheta')}{p(\btheta)}\frac{q(\btheta|\btheta')}{q(\btheta'|\btheta)}$.
-The choice of the proposal distribution $q$ is the key to producing "good" chains with high acceptance rate and a good exploration of the parameter space of $\btheta$.
-Next are presented briefly some important categories of choice for the proposal $q$.
+Each proposed sample $\btheta'$ is randomly accepted or rejected with probability $p(\text{accept}) = \frac{p(\btheta')}{p(\btheta)}\frac{q(\btheta|\btheta')}{q(\btheta'|\btheta)} = A$.
+The choice of the proposal distribution $q$ is the key to producing "good" chains with a high acceptance rate and a good exploration of $\btheta$'s parameter space.
+Next are presented some categories of choice for the proposal $q$.
 
 
 \paragraph{Gibbs Sampling}\mbox{}\\
-Gibbs sampling is a particular \ac{MCMC} method where each component of the random vector is sampled one after another.
-The proposal distribution for the \ac{MH} step is given by the full-conditional  $p(\theta_i|\bx,\btheta_{/i})$, where $\btheta_{/i}=\{\theta_1, \ldots \theta_{i-1}, \theta_{i+1},\ldots \theta_{D}\}$.
+Gibbs sampling is a particular \ac{MCMC} method where we sample each component of the random vector one after another.
+The proposal distribution for each component is given by the full-conditional  $p(\theta_i|\bx,\btheta_{/i})$, where $\btheta_{/i}=\{\theta_1, \ldots \theta_{i-1}, \theta_{i+1},\ldots \theta_{D}\}$.
 The most prominent feature of Gibbs sampling is its acceptance probability, guaranteed to be 1:
 \begin{align*}
     A =& \frac{p(\theta^{t+1}_i,\btheta^t_{/i}|\bx)}{p(\theta^t_i,\btheta^t_{/i}|\bx)}\frac{p(\theta^t_i|\bx,\btheta^{t}_{/i})}{p(\theta^{t+1}_i|\bx,\btheta^t_{/i})}\\
@@ -221,29 +222,42 @@ At every step, all proposed samples are therefore guaranteed to be accepted.
 Also, since we are sampling from the full-conditionals, regions of high density are reached pretty quickly.
 Although it is not a guarantee, the sampler will converge to the stationary distribution quickly.
 
-We illustrate the path of the sampler on a two-dimensional bimodal example on Figure~\ref{fig:gibbs_samp}.
+We illustrate the path of the sampler on a two-dimensional bimodal example in Figure~\ref{fig:gibbs_samp}.
 
 \begin{figure}
 \centering
 \includegraphics[width=0.5\textwidth]{./chapters/2_background/figures/gibbs_sampling.pdf}
-\caption{20 steps of the Gibbs sampler trajectory on the Rosenbrock distribution in 2 dimensions}
+\caption{20 steps of the Gibbs sampler trajectory on the Rosenbrock distribution in 2 dimensions.}
 \label{fig:gibbs_samp}
 \end{figure}
 
-However, the Gibbs sampling approach has several issues:
-First, the full-conditional distributions are rarely available in closed-form and sampling from them is not always easy or even possible.
-Second, there can be exploration issues if the different variables are heavily correlated.
-Some of these issues can be resolved by using additional techniques like the \textbf{blocked Gibbs sampler} \cite{jensen1995blocking} where groups of variables are sampled jointly or \textbf{collapsed Gibbs sampling} \cite{liu1994collapsed} where some variables are marginalized out from the full-conditional distribution.
-The blocked Gibbs sampler will be heavily used in the different works on augmentation as full-conditional distributions of group of variables arise naturally. \com{change tone}
+The Gibbs sampling approach is a conundrum.
+On the one hand, sampling each component using the full-conditional is easy since it only involves drawing a scalar.
+However, reforming a sampler for each full-conditional can be slow and costly.
+The sampler can also get stuck or move very slowly if the components are highly correlated.
+We can solve these drawbacks by using additional techniques like the \textbf{blocked Gibbs sampler} \cite{jensen1995blocking} where we sample groups of variables jointly, or \textbf{collapsed Gibbs sampling} \cite{liu1994collapsed} where we marginalize out some variables from the full-conditional distributions.
+But blocked or collapsed updates are much less available and require heavier sampling machinery.
+
+The augmentations proposed in this thesis allow using both the blocked and collapsed version by deriving the full-conditionals for each group of variables analytically.
+Experiments show that the correlations between each group of variables are very low, and the sampler converges to the stationary distribution very fast.
+
 
 \paragraph{Hamilton/Hybrid Monte Carlo}\mbox{}\\
 \label{sec:hmc}
-\acf{HMC} or Hybrid Monte Carlo \cite{duane1987hybrid, betancourt2017conceptual} is a \ac{MCMC} gradient-based method.
-Using Hamiltonian dynamics and augmenting the variables with an extra momentum term, one can guarantee both a high acceptance rate and a good exploration of the space.
-\ac{HMC}'s proposal is generated by integrating the Hamiltonian dynamics with a randomly sampled momentum for a fixed number of steps with a given symplectic integrator.
-The acceptance rate depends on the conservation of energy during the integration.
+\acf{HMC} or Hybrid Monte Carlo \cite{duane1987hybrid, betancourt2017conceptual} is a \ac{MCMC} methods using Hamiltonian dynamics to make a new proposal.
+We augment $\btheta^t$ with an extra momentum $\boldsymbol{p}^t$ sampled randomly for every proposal from $\No(0,M)$ where $M$ is the mass matrix.
+Next we run the Hamiltonian dynamics based on the Hamiltonian $H(\btheta, \boldsymbol{p}) = -\log \pi(\btheta) + \frac{1}{2}\boldsymbol{p}^\top M \boldsymbol{p}$ over $L$ leapfrog steps with step size $\Delta t$.
+The proposal at time $L\Delta t$ is accepted or rejected based on the acceptance rate:
+\begin{align*}
+    A = \min\left(1, \frac{\exp(-H(\btheta(L\Delta t), \boldsymbol{p}(L\Delta t)))}{\exp(-H(\btheta(0), \boldsymbol{p}(0)))}\right)
+\end{align*}
+The Hamiltonian is normally perfectly conserved when using a symplectic integrator like the leapfrog algorithm.
+We get high acceptance rates while the dynamics lower the correlation between each sample by exploring the parameter space more freely than a basic random walk.
+We give an illustration of the process in Figure~\ref{fig:hmc}, where we draw the Hamiltonian dynamics path with gray lines.
+
+The \ac{HMC} algorithm requires the tuning of its parameters $M$, $L$, and $\Delta t$, which can be done by running 
 A proper tuning of the algorithm guarantees the acceptance rate to be close to 1.
-An illustration of the process is given on Figure~\ref{fig:hmc}, where the given path is also illustrated via gray lines.
+
 
 \ac{HMC} also has multiple disadvantages: 
 First, one needs to integrate differential equations based on gradients, which becomes increasingly expensive for high-dimensional models and complex likelihoods.  \com{clarify better what is meant}
@@ -251,14 +265,16 @@ Second, it contains tunable parameters, namely the step size of the integrator, 
 These parameters can be locally optimized, but they are without guarantees and require additional computational time. \com{change the guarantee speech}
 Last but not least, \ac{HMC} only works for continuous variables.
 
-\begin{figure}
+\begin{figure}[H]
     \centering
 \includegraphics[width=0.5\textwidth]{./chapters/2_background/figures/hmc_sampling.pdf}
 \caption{Illustration of the HMC sampler (gray lines are the Hamiltonian dynamics)}
 \label{fig:hmc}
 \end{figure}
 
-There are of course other strong choices such as elliptical slice sampling \citet{murray2010elliptical} which are particularly well-fitted for Gaussian priors.
+
+\paragraph{The choice of sampler}\mbox{}\\
+There are other strong choices such as elliptical slice sampling \citet{murray2010elliptical} which are particularly well-fitted for Gaussian priors.
 
 The choice of the sampling algorithm is a complex one and is extremely problem-dependent.
 \ac{HMC} is more of a jack-of-all-trades which has its plug-and-play practicality, in particular in regard to recent advances in automatic differentiation which removed the requirement to compute gradients by hand.
