@@ -10,9 +10,9 @@
 Performing inference on probabilistic models can represent a challenge even in seemingly simple problems.
 When working with non-conjugate Bayesian models, approximate methods such as variational inference or sampling are needed, each with its pitfalls and limits.
 For instance, heavy-tailed distributions represent a challenge for sampling methods, and heavily correlated variables quickly become a bottleneck for many inference algorithms.
-Instead of developing new state-of-the-art inference algorithms, we focus on reinterpreting models and reparametrization such that standard inference algorithms, usually restricted to more trivial models, become available.
-In the first part, augmentations for different Gaussian Process models such as classification and multi-class classification are derived, with a focus on the effect on inference and especially a generalization to a given class of likelihoods is given.
-In the second part, we focus on a specific approximate approach based on a variational distribution.
+Instead of developing new state-of-the-art inference algorithms, we focus on reinterpreting reparametrizing models such that standard inference algorithms, usually restricted to more trivial models, become available.
+In the first part, augmentations for different Gaussian Process models such as classification and multi-class classification are derived, with a focus on the effect on inference and especially a generalization to a given class of likelihoods.
+In the second part, we focus on a specific approximate approach based on a Gaussian variational distribution.
 We show that by representing the Gaussian distribution as a set of particles instead of its parameters, the inference is more flexible, and we prove theoretical convergence bounds.
 The impact of these different augmentations, including their limitations, is largely discussed.
 Finally, a large variety of outlooks on new research directions, including work in progress, is exposed.

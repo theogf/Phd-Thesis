@@ -15,7 +15,7 @@ We are still exploring ways to identify larger classes of functions equivalent t
 In particular, the connection with the \acf{MGF} of a distribution is a promising direction since we know how to sample from them \cite{ridout2009generating}.
 \ac{MGF} allow us to work not only with continuous but also discrete and multivariate variables.
 For example, two of the augmentations of Chapter~\ref{ch:multiclass} do not fit the framework introduced in Chapter~\ref{ch:general} and as shown in Section~\ref{sec:improvemulticlass} are simply \ac{MGF} transformations.
-The \ac{MGF} is also an interesting tool to create hierarchical models since scale-mixture are of the form $\sum_{i=0}^\infty e^{tx} p(x)$ or $\int e^{tx}p(x)dx$.
+The \ac{MGF} is also an interesting tool to create hierarchical models since scale mixtures are of the form $\sum_{i=0}^\infty e^{tx} p(x)$ or $\int e^{tx}p(x)dx$.
 From there, we can plug in P\'olya-Gamma augmentations, using the transformation $t=\log \sigma(x)$, in particular using the property that not only $\sigma(x)$ is augmentable but also $\sigma^n(x)$, for any $n\in \mathbb{R}^+$.
 Additional examples of such constructions are shown in this chapter in Sections \ref{sec:heteroscedastic} and \ref{sec:improvemulticlass}.
 

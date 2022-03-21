@@ -13,21 +13,21 @@
 %: ----------------------- introduction content ----------------------- 
 % ----------------------------------------------------------------------
 
-\ac{ML} is a wide field of research with plenty of successful applications, in particular with domains such as computer vision, natural language processing, or reinforcement learning \cite{jordan2015machine}.
+\ac{ML} is a wide field of research with plenty of successful applications, in particular in domains such as computer vision, natural language processing, or reinforcement learning \cite{jordan2015machine}.
 A particular branch of interest is \textbf{probabilistic} machine learning.
-Probabilistic \ac{ML} defines quantities of interest as random variables and considers processes as stochastic.
+Probabilistic \ac{ML} defines quantities of interest as random variables and considers data-generative processes as stochastic.
 We can build more flexible and robust models using paradigms and tools from statistics.
 It produces complete and rich results and helps connect with classical sciences such as physics or climatology, where statistical analysis is standard practice.\mycom{rework with whole part}
 
 \section{Bayesian Machine Learning}
 
 Some real-world problems have critical requirements.
-For example, predictive probability guarantees and meaningful uncertainties are essential for decision-making algorithms.
+For example, predictive probability guarantees \mycom{change this formulation} and meaningful uncertainties are essential for decision-making algorithms.
 The Bayesian framework addresses both these aspects by working with \textbf{random variables} defined by \textbf{probability distributions} instead of point estimates.
 For a given probabilistic model, by setting a \textbf{prior distribution} over the parameters of interest, the \textbf{posterior distribution} represents the updated belief we have about our model after observing data.
 Probabilistic models allow modeling uncertainty in a principled way and prevent overfitting in the low-data regime.
 A typical example is in medicine, where data is scarce, but the predictive outcome can have dramatic effects (diagnosis, prognosis).
-Providing uncertainties helps the practitioner make a decision given the model predictions.
+Providing uncertainties helps the practitioner make a better decision given the model predictions.
 
 Generally, Bayesian models have a higher computational cost: a probability distribution contains more information than a point estimate and requires more parameters.
 Calculus with random variables is a complex science, and finding analytical solutions happens almost exclusively for trivial models.
@@ -77,16 +77,16 @@ There are two equivalent representations, called centered and non-centered, show
 \vspace{0.5cm}
 
 While both parameterizations are the same, the distribution geometry of $p(x,z)$ is less favorable to inference.
-$x$ and $z$ are highly correlated for small $z$s, and the distribution function is highly non-smooth.
+$x$ and $z$ are highly correlated for small $z$, and the distribution function is highly non-smooth.
 These constraints matter when running a sampling chain or fitting a variational distribution.
 % An analogy in physics would be how easier it is to work with spherical coordinates instead of Euclidean ones for electrodynamics. 
 
-Using different model representations has an often underestimated effect and is mainly considered "tricks".
+The use of different model representations has an often underestimated effect and is mainly considered "tricks".
 For example, when working with \acf{GPs}, it is preferable to use the so-called "whitened" representation, which corresponds to our non-centered representation of Neal's funnel.
 The different segments of this thesis show that finding better representations can confidently make inference easier, faster, and significantly more stable. 
 The first part will use basic inference methods by representing likelihoods as (hierarchical) mixtures.
-Defined later in Section \ref{sec:scale-mixtures}, rewriting distributions as scale-mixtures has a lot of advantages and interesting properties.
-The scale-mixtures representation involves augmenting the model with new latent variables, making inference easier while keeping the original model recoverable.
+Defined later in Section \ref{sec:scale-mixtures}, rewriting distributions as scale mixtures has a lot of advantages and interesting properties.
+The scale mixture representation involves augmenting the model with new latent variables, making inference easier while keeping the original model recoverable.
 This augmentation procedure brings the counter-intuitive view that adding more variables \textbf{simplifies} the problem.
 The last work of the thesis focuses on the representation of the variational Gaussian approximation.
 We avoid computational bottlenecks and add flexibility using a non-conventional approach based on particles.
@@ -95,7 +95,7 @@ We avoid computational bottlenecks and add flexibility using a non-conventional 
 
 The techniques mentioned above apply to many probabilistic models; however, we focus strongly on Gaussian-based models, and more particularly \acf{GPs}.
 A \ac{GP} is a strong non-parametric tool to approximate functions using probabilistic methods.
-They were originally applied to Gaussian regression problems, like the original \textbf{kriging problem} \cite{cressie1990origins}. However, they can also be used as latent functions for more complex problems like classification, ordinal regression, and more.
+They were originally applied to regression problems with Gaussian noise, like the original \textbf{kriging problem} \cite{cressie1990origins}. However, they can also be used as prior over latent functions for more complex problems like classification, ordinal regression, and more.
 Compared to other general function approximators like neural networks, they have the advantage of providing uncertainty on the prediction they make.
 Their non-parametric nature naturally avoids over-parametrization: while modern neural networks have billions of parameters to optimize, \ac{GPs} only depend on a mean function and a kernel function.
 Most importantly, as their name suggests, they are based on Gaussian distributions, making them the best candidates for the presented work on augmentation.
@@ -124,20 +124,20 @@ Independently, I also developed \href{https://github.com/theogf/AugmentedGaussia
 
 This thesis is constructed as follows:
 \begin{itemize}
-    \item Chapter~\ref{ch:background} introduces in details all the common concepts of Bayesian inference and \ac{GPs}.
+    \item Chapter~\ref{ch:background} introduces in detail all the common concepts of Bayesian inference and \ac{GPs}.
     There are introductions to these concepts in each published article, but this chapter dives more into the background theory.
     Bayesian inference, especially, is properly introduced, focusing on variational inference and sampling.
-    \item Chapter~\ref{ch:classification} contains the paper \textit{Efficient Gaussian Process Classification Using P\`olya-Gamma Data Augmentation}, which was the first augmentation we explored.
-    \item Chapter~\ref{ch:multiclass} introduced the paper \textit{Multi-Class Gaussian Process Classification Made Conjugate: Efficient Inference via Data Augmentation}.
+    \item Chapter~\ref{ch:classification} contains the paper \textit{Efficient Gaussian Process Classification Using P\'olya-Gamma Data Augmentation}, which was the first augmentation we explored.
+    \item Chapter~\ref{ch:multiclass} introduces the paper \textit{Multi-Class Gaussian Process Classification Made Conjugate: Efficient Inference via Data Augmentation}.
     This paper brings new augmentation concepts to a more complex problem: multi-class classification.
     \item Chapter~\ref{ch:general} introduces the paper \textit{Automated Augmented Conjugate Inference for Non-conjugate Gaussian Process Models}.
-    This work is the first generalization of augmentation identification and allows getting a better understanding of these concepts.
+    This work presents a generic way to identify augmentations in likelihoods and introduces a better understanding of the concepts behind it.
     \item Chapter~\ref{ch:gpf} introduces the paper \textit{Flexible and Efficient Inference with Particles for the Variational Gaussian Approximation } a completely different way of performing variational inference with a Gaussian distribution by using a continuous flow and particles.
     \item Chapter~\ref{ch:discussion} discusses the different papers presented as well as some concrete outlooks on how to explore new models and new generalizations.
     \item Chapter~\ref{ch:conclusion} finishes this thesis with a general conclusion.
-    \item The Appendix~\ref{appendix:worshoppapers} also contains an additional workshop paper which do not fit the narrative of this thesis 
+    \item The Appendix~\ref{appendix:worshoppapers} also contains an additional workshop paper which does not fit the narrative of this thesis 
 
-    For all papers, the contribution will be detailed using a simplified view of the \href{https://mdpi-res.com/data/contributor-role-instruction.pdf}{Contributor Roles Taxonomy} (CReditT).
+    For all papers, a simplified view of the \href{https://mdpi-res.com/data/contributor-role-instruction.pdf}{Contributor Roles Taxonomy} (CReditT) details the contributions of each author.
 
 \end{itemize}
 
