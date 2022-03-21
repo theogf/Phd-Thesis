@@ -48,7 +48,7 @@ p(y^*|\bx^*,\boldy,\bX) = \int p(y^*, \btheta|\bx^*\boldy, \bX)d\btheta = \int p
 \end{align}
 
 Note that the last term of the equation directly involves the posterior distribution $p(\btheta|\by,\bX)$.
-To solve this integral, we must either know the posterior distribution and compute the integral numerically (or analytically) or sample from the posterior and estimate the integral using Monte-Carlo integration
+To solve this integral, we must either know the posterior distribution and compute the integral numerically (or analytically) or sample from the posterior and estimate the integral using Monte Carlo integration.
 
 \subsection{Posterior computations}
 \label{sec:posterior}
@@ -57,7 +57,7 @@ For most non-trivial models, this integral is intractable, and approximations to
 Such methods are introduced in Section~\ref{sec:approx_inf}.
 
 However, in specific settings, computing the posterior in closed-form is possible.
-When the prior is said to be \textbf{conjugate} to the likelihood, the posterior is of the same probability distribution family as the prior and can be computed analytically \cite{schlaifer1961applied}.
+When the prior is said to be \textbf{conjugate} to the likelihood, the posterior is of the same probability distribution family as the prior and is analytically tractable \cite{schlaifer1961applied}.
 It is worth emphasizing this seemingly trivial case since it will be exploited in Section~\ref{sec:scale-mixtures}.
 For a general example, we consider a likelihood part of the \textbf{exponential family}:
 \begin{align}
@@ -127,12 +127,12 @@ This integral is analytically tractable and results in
 where $m_* = K_{\bx_*,\bX}(K_{\bX,\bX} + \sigma^{2}I)^{-1}\boldy$ and $s_*=K_{\bx_*,\bx_*} - K_{\bx_*,\bX}\left(K_{\bX,\bX}+\sigma^2I\right)^{-1}K_{\bX,\bx_*}$.
 The predictive distribution for $f_*$ is Gaussian, with a known mean $m_*$ and a measure of uncertainty given by the variance $s_*$.
 Note that $s_*$ depends directly on $K_{\bx_*,\bX}$: if $\bx_*$ is far from all points in $\bX$ (in the sense of the distance used in the kernel $k$), then $K_{\bx_*,\bX}$ will be very small and the variance $s_*$ maximized.
-When new inputs $\bx_*$ are distant from the training data $\bX$, the predictive uncertainty will be high.
+The predictive uncertainty will be high when new inputs $\bx_*$ are distant from the training data $\bX$.
 A concrete example is shown on Figure~\ref{fig:gp_example}.
 
 \begin{figure}
     \includegraphics[width=\textwidth]{./chapters/2_background/figures/GP_example.pdf}
-    \caption{Illustration of the realization of a Gaussian Process. The black is the true function $f$, the blue line is the mean of the prediction, the blue area represent the confidence interval of 2 standard deviations, the orange points represent observed data. Left: prediction on a grid given no observations. Right: prediction on a grid given a set of observations}
+    \caption{Illustration of the realization of a Gaussian Process. The black line is the true function $f$; the blue line is the mean of the prediction; the blue area represents the confidence interval of 2 standard deviations; the orange points represent observed data. Left: prediction on a grid given no observations. Right: prediction on a grid given a set of observations}
     \label{fig:gp_example}
 \end{figure}
 
@@ -177,7 +177,7 @@ We proceed to use variational inference (see Section~\ref{sec:vi}) and approxima
     \label{eq:titsias_assumption}
 \end{align}
 The assumption used is that all components of the random vector $\boldf$ are independent of each other given the random vector $\boldu$.
-This is a strong assumption, but the inference and prediction complexity is reduced to $\mathcal{O}(NM^2 + M^3)$, where $N$ can be reduced to a smaller batch-size $B$ with stochastic inference approaches \cite{Hensman2013,Hensman2015}.
+It is a strong assumption, but the inference and prediction complexity reduces to $\mathcal{O}(NM^2 + M^3)$, where $N$ can be reduced to a smaller batch-size $B$ with stochastic inference approaches \cite{Hensman2013, Hensman2015}.
 Given $q(\boldu) = \No(\bmu,\bSigma)$, the predictive distribution of $f_*=f(\bx_*)$ on a new input $\bx_*$ is given by
 \begin{align*}
     p(f_*|\boldy,\bX) =& \int p(f_*|\boldu) p(\boldu|\boldy,\bX)d\boldu\\
@@ -352,7 +352,7 @@ The \ac{BMF} can capture correlations inside blocks of variables but lose some o
 
 \paragraph{Coordinate Ascent VI}\mbox{}\\
 \label{sec:cavi}
-The \ac{CAVI}\footnote{The word ascent is used since the scheme was originally derived using the negative \ac{VFE}, the \ac{ELBO}.} approach is an alternative to the gradient descent approach of Equation~\ref{eq:vigraddescent}.
+The \ac{CAVI}\footnote{The word ascent is used since the scheme was originally derived using the negative \ac{VFE}, i.e., the \ac{ELBO}.} approach is an alternative to the gradient descent approach of Equation~\ref{eq:vigraddescent}.
 Instead of moving all parameters at once in the gradient direction, we are interested in finding the optimal solution for each set of variational parameters $\bphi_i$ one after another by keeping the others fixed:
 \begin{align}
     \bphi_i^* = \arg_{\bphi_i}\min \VFE(\bphi_i, \bphi_{/i}),
