@@ -92,8 +92,8 @@ This notion of full-conditional also extends to blocks of variables.
 
 \acf{GPs} are a class of stochastic processes used as non-parametric probabilistic representations of functions.
 A \ac{GP} is a stochastic process $\{f_t;t\in T\}$ \mycom{be more clear about what $T$ is}, where the joint distribution on any finite collection of random variables $\{f_t\}$ follows a (multivariate) Gaussian distribution \cite{rasmussen2006gaussian}.
-Linear operations on Gaussian variables can be done analytically, which makes them computationally very attractive.
-For instance, marginals can be computed exactly, and a product of Gaussian distributions of the same variable is still proportional to another Gaussian.
+Since all the variables are Gaussian, we can perform all linear operations analytically, making them computationally attractive.
+We can also compute marginals exactly, and a product of Gaussian distributions of the same variable is still proportional to another Gaussian.
 % The Gaussian distribution is to statistics what the harmonic oscillator is to physics".
 
 A \ac{GP} is uniquely specified by its \textbf{mean function} $\mu_0(\bx)$ and \textbf{kernel function} (also called covariance function) $k(\bx, \bx')$.
@@ -101,7 +101,7 @@ $\mu_0(\bx)$ can be any real-valued function while $k(\bx, \bx')$ needs to be a 
 A symmetric function $k:\mathcal{X}\times\mathcal{X}\rightarrow \mathbb{R} $ is positive-definite on $\mathcal{X}$ if $\boldsymbol{w}^\top K \boldsymbol{w}$ where $K_{ij} = K(\bx_i,\bx_j)$ for any $\boldsymbol{w}\in\mathbb{R}^N$ and any $\{\bx_i,\ldots,\bx_N\} \in \mathcal{X}$.
 
 One of the interpretations of a \ac{GP}($\mu_0$, $k$) is as a prior on the function space.
-To perform concrete computations, we need to project it into a finite-dimensional space.
+% To perform concrete computations, we need to project it into a finite-dimensional space.
 Given a random function $f$ we wish to represent with a \ac{GP}, we can project $f$ into a finite space by evaluating it on a set of data inputs $\bX = \{\bx_1, \ldots, \bx_N\}$ such that we obtain the finite-dimensional vector $\boldf$ where $f_i = f(\bx_i)$.
 The prior on the projected \ac{GP} on $\bX$ is given by $\mathcal{N}\left(\bmu_0(\bX), K_{X}\right)$ where $\bmu_0(\bX) = \{\mu_0(\bx_i)\}_{i=1}^N$ and $K \in \mathbb{R}^{N\times N}$ is the kernel matrix, defined by $K_{ij} = k(\bx_i, \bx_j)$.
 
@@ -411,7 +411,7 @@ The updates of the \ac{CAVI} algorithm \ref{alg:CAVI} for exponential distributi
 \end{align*}
 When working with constrained parameters like the covariance matrix of the Gaussian variational distribution, a step with a high learning rate might overshoot out of the cone of positive-definite matrices.
 \citet{salimbeniNaturalGradientsPractice2018} proposes a given schedule to compensate while \citet{linHandlingPositiveDefiniteConstraint2020} forces a trajectory on a geodesic.
-Both approaches are computationally expensive while we get this feature automatically 
+Both approaches are computationally expensive, while we get this feature automatically.
 
 \subsection{Scale mixtures and conditionally conjugate likelihoods}
 \label{sec:scale-mixtures}
