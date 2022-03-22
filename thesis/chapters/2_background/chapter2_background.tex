@@ -91,7 +91,7 @@ This notion of full-conditional also extends to blocks of variables.
 \label{sec:gps}
 
 \acf{GPs} are a class of stochastic processes used as non-parametric probabilistic representations of functions.
-A \ac{GP} is a stochastic process $\{f_t;t\in T\}$ \mycom{be more clear about what $T$ is}, where the joint distribution on any finite collection of random variables $\{f_t\}$ follows a (multivariate) Gaussian distribution \cite{rasmussen2006gaussian}.
+A \ac{GP} is a stochastic process $\{f_t\}$, where the joint distribution on any finite collection of random variables $\{f_t\}$ follows a (multivariate) Gaussian distribution \cite{rasmussen2006gaussian}.
 Since all the variables are Gaussian, we can perform all linear operations analytically, making them computationally attractive.
 We can also compute marginals exactly, and a product of Gaussian distributions of the same variable is still proportional to another Gaussian.
 % The Gaussian distribution is to statistics what the harmonic oscillator is to physics".
@@ -167,7 +167,7 @@ However, higher-dimensional problems require alternative solutions.
 The first approach to reduce the complexity was to use a Nystr\"om approximation \cite{williams2002observations}.
 \citet{csato2002sparse} proposed to create an approximation of the posterior using a subset of the points only in the context of online learning.
 \citet{snelsonSparseGaussianProcesses2009} expanded this theory to the offline framework and \citet{csato2002gaussian} followed by \citet{Titsias2009} developed an alternative approximation based on KL divergence where the "inducing points" are not necessarily a subset of the training data and do not even have to belong to the same domain \cite{NIPS2009_5ea1649a, vdw2020framework}.
-\mycom{add unification citations}
+For a unified view on sparse \ac{GPs}, see \citet{quinonero2005unifying} and \citet{bui2017unifying}.
 
 The rest of this thesis is based on Titsias' approach \cite{Titsias2009}:
 The sparse approximation is made by defining a set of inducing points location $Z=\{\boldz_i\}_{i=1}^M$ and the realization of a \ac{GP} $u$ on them: $\boldu$ where $u_i = u(\boldz_i)$.

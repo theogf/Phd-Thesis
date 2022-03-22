@@ -26,9 +26,10 @@ Additionally, stochastic models return probabilistic predictions, allowing answe
 
 \section{Bayesian Machine Learning}
 
-\ac{ML} models set in the Bayesian paradigm, have  \textbf{random variables} defined by \textbf{probability distributions} instead of point estimates.
-For a given probabilistic model, by setting a \textbf{prior distribution} over the parameters of interest, the \textbf{posterior distribution} represents the updated belief we have about our model after observing data.
-Probabilistic models allow modeling uncertainty in a principled way and prevent overfitting in the low-data regime.
+In the Bayesian paradigm, parameters of \ac{ML} models are \textbf{random variables} defined by \textbf{probability distributions} instead of point estimates.
+Bayesian models allow modeling uncertainty in a principled way and prevent overfitting in the low-data regime.
+We set a \textbf{prior distribution} over the variables of interest representing our original belief.
+After observing data, we update our belief about our model parameters to the \textbf{posterior distribution}.
 A typical example is in medicine, where data is scarce, but the predictive outcome can have dramatic effects (diagnosis, prognosis).
 Providing uncertainties helps the practitioner make a better decision given the model predictions.
 
@@ -38,7 +39,7 @@ Approximation methods allow working with more complex models at the cost of lowe
 \textbf{\ac{ABI}} focuses on these algorithms finding a similar solution to the true posterior.
 
 The research in \ac{ABI} goes in many directions, but some main ones are: How to compute a highly accurate posterior approximation as efficiently as possible? How can it scale to large amounts of data and parameters? What are the guarantees of such algorithms?
-This thesis aims to partially answer these questions for some given setups, mainly through the lens of model representation.
+This thesis aims to partially answer these questions for some given setups, mainly through the idea of changing representations.
 
 \section{The underestimated power of representations choices}
 
@@ -50,7 +51,7 @@ The leading thread of this thesis is \textbf{model representation}, alternativel
 
 When defining probabilistic models, one needs to define relations between variables (observed and latent) and choose appropriate distributions to represent those.
 Some modeling choices are equivalent conceptually but have drastic differences in inference.
-A neat example, presented in \citet{gorinovaAutomaticReparameterisationProbabilistic2020}, is the so-called Neal's funnel.
+A neat example, presented in \citet{gorinovaAutomaticReparameterisationProbabilistic2020}, is the so-called Neal's funnel \cite{nealSliceSampling2003}.
 There are two equivalent representations, called centered and non-centered, shown respectively in Figure~\ref{fig:neals_centered} and~\ref{fig:neals_noncentered}, where one leads to an inference nightmare while the other is a nice and easy isotropic Gaussian distribution.
 
 \begin{minipage}{0.5\textwidth}
@@ -80,7 +81,7 @@ There are two equivalent representations, called centered and non-centered, show
 \vspace{0.5cm}
 
 While both parameterizations are the same, the distribution geometry of $p(x,z)$ is less favorable to inference.
-$x$ and $z$ are highly correlated for small $z$, and the distribution function is highly non-smooth.
+$x$ and $z$ are strongly correlated for small $z$, and the distribution function is highly non-smooth.
 These constraints matter when running a sampling chain or fitting a variational distribution.
 % An analogy in physics would be how easier it is to work with spherical coordinates instead of Euclidean ones for electrodynamics. 
 
@@ -88,7 +89,7 @@ The use of different model representations has an often underestimated effect an
 For example, when working with \acf{GPs}, it is preferable to use the so-called "whitened" representation, which corresponds to the non-centered representation of Neal's funnel (Figure~\ref{fig:neals_noncentered}).
 The different segments of this thesis show that finding better representations can confidently make inference easier, faster, and significantly more stable. 
 The first part will use basic inference methods by representing likelihoods as (hierarchical) mixtures.
-Defined later in Section \ref{sec:scale-mixtures}, rewriting distributions as scale mixtures has a lot of advantages and interesting properties.
+Rewriting distributions as scale mixtures, defined later in Section~\ref{sec:scale-mixtures}, has a lot of advantages and interesting properties.
 The scale mixture representation involves augmenting the model with new latent variables, making inference easier while keeping the original model recoverable.
 This augmentation procedure brings the counter-intuitive view that adding more variables \textbf{simplifies} the problem.
 The last work of the thesis focuses on the representation of the variational Gaussian approximation.
@@ -98,11 +99,13 @@ We avoid computational bottlenecks and add flexibility using a non-conventional 
 
 The techniques mentioned above apply to many probabilistic models; however, we focus strongly on Gaussian-based models, and more particularly \acf{GPs}.
 A \ac{GP} is a strong non-parametric tool to approximate functions using probabilistic methods.
-They were originally applied to regression problems with Gaussian noise, like the original \textbf{kriging problem} \cite{cressie1990origins}. However, they can also be used as prior over latent functions for more complex problems like classification, ordinal regression, and more.
+They were initially applied to regression problems with Gaussian noise, like the original \textbf{kriging problem} \cite{cressie1990origins}.
+However, they are also used as prior over latent functions for more complex problems like classification, ordinal regression, and more.
 Compared to other general function approximators like neural networks, they have the advantage of providing uncertainty on the prediction they make.
 Their non-parametric nature naturally avoids over-parametrization: while modern neural networks have billions of parameters to optimize, \ac{GPs} only depend on a mean function and a kernel function.
 Most importantly, as their name suggests, they are based on Gaussian distributions, making them the best candidates for the presented work on augmentation.
 A full technical introduction to basic \ac{GPs} and its extensions is given in Section~\ref{sec:gps}.
+
 
 \section{Open-source projects}
 
