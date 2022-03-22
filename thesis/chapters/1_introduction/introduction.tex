@@ -13,17 +13,20 @@
 %: ----------------------- introduction content ----------------------- 
 % ----------------------------------------------------------------------
 
-\ac{ML} is a wide field of research with plenty of successful applications, in particular in domains such as computer vision, natural language processing, or reinforcement learning \cite{jordan2015machine}.
-A particular branch of interest is \textbf{probabilistic} machine learning.
+\ac{ML} is a wide field of research with plenty of successful applications \cite{jordan2015machine}.
+% , in particular in domains such as computer vision, natural language processing, or reinforcement learning .
+Some problems have specific requirements; for example, computing the probability of a prediction is essential for decision-making algorithms.
+One of the best ways to integrate uncertainty in \ac{ML} models is through the lens of probability theory.
+% A particular approach of interest is \textbf{probabilistic machine learning}.
 Probabilistic \ac{ML} defines quantities of interest as random variables and considers data-generative processes as stochastic.
-We can build more flexible and robust models using paradigms and tools from statistics.
-It produces complete and rich results and helps connect with classical sciences such as physics or climatology, where statistical analysis is standard practice.\mycom{rework with whole part}
+We can produce more robust models and get more faithful to reality by accounting for the intrinsic uncertainty and the unknown random processes.
+Additionally, stochastic models return probabilistic predictions, allowing answers like "I don't know."
+% Centuries of research in probability and statistics have built well-tested methods and strong theories we can reuse.
+% Statistics is also a standard tool for classical sciences like physics, climatology, or biology, and a common language helps inter-domain collaborations.
 
 \section{Bayesian Machine Learning}
 
-Some real-world problems have critical requirements.
-For example, predictive probability guarantees \mycom{change this formulation} and meaningful uncertainties are essential for decision-making algorithms.
-The Bayesian framework addresses both these aspects by working with \textbf{random variables} defined by \textbf{probability distributions} instead of point estimates.
+\ac{ML} models set in the Bayesian paradigm, have  \textbf{random variables} defined by \textbf{probability distributions} instead of point estimates.
 For a given probabilistic model, by setting a \textbf{prior distribution} over the parameters of interest, the \textbf{posterior distribution} represents the updated belief we have about our model after observing data.
 Probabilistic models allow modeling uncertainty in a principled way and prevent overfitting in the low-data regime.
 A typical example is in medicine, where data is scarce, but the predictive outcome can have dramatic effects (diagnosis, prognosis).
@@ -81,8 +84,8 @@ $x$ and $z$ are highly correlated for small $z$, and the distribution function i
 These constraints matter when running a sampling chain or fitting a variational distribution.
 % An analogy in physics would be how easier it is to work with spherical coordinates instead of Euclidean ones for electrodynamics. 
 
-The use of different model representations has an often underestimated effect and is mainly considered "tricks".
-For example, when working with \acf{GPs}, it is preferable to use the so-called "whitened" representation, which corresponds to our non-centered representation of Neal's funnel.
+The use of different model representations has an often underestimated effect and is mainly considered "tricks."
+For example, when working with \acf{GPs}, it is preferable to use the so-called "whitened" representation, which corresponds to the non-centered representation of Neal's funnel (Figure~\ref{fig:neals_noncentered}).
 The different segments of this thesis show that finding better representations can confidently make inference easier, faster, and significantly more stable. 
 The first part will use basic inference methods by representing likelihoods as (hierarchical) mixtures.
 Defined later in Section \ref{sec:scale-mixtures}, rewriting distributions as scale mixtures has a lot of advantages and interesting properties.
@@ -118,7 +121,7 @@ The work of this thesis is represented as well with the package \href{https://gi
 Julia's advantage is its strong interoperability capacity.
 This allows to use the augmentation work on specific implementation of \ac{GPs} such as temporal \ac{GPs} with a concrete example given in \href{https://github.com/JuliaGaussianProcesses/TemporalGPs.jl}{TemporalGPs.jl} (see examples/augmented\_inference.jl).
 
-Independently, I also developed \href{https://github.com/theogf/AugmentedGaussianProcesses.jl}{AugmentedGaussianProcesses.jl}~\cite{theo_galy_fajou_2021_5728215} as a stand-alone \ac{GP} package providing the augmentations techniques presented in the thesis, additional likelihoods and standard inference approaches.
+Independently, I also developed \href{https://github.com/theogf/AugmentedGaussianProcesses.jl}{AugmentedGaussianProcesses.jl}~\cite{theo_galy_fajou_2021_5728215} as a stand-alone \ac{GP} package providing the augmentations techniques presented in the thesis, additional likelihoods, and standard inference approaches.
 
 \section{Thesis Outline}
 

@@ -65,7 +65,7 @@ To solve this problem, we need to reverse-engineer how \ac{CAVI} updates are obt
     =& \min_{q(\boldg)}-\expec{q(\boldg)}{\log p(\boldy|\boldg, \bmu^*_f,\bSigma^*_f)} + \KL{q(\boldg)}{p(\boldg)} + \operatorname{KL}_f^* = \mathcal{F}_1.
 \end{align*}
 $p(\boldy|\boldg, \bmu^*_f, \bSigma^*_f)$ and $\mathrm{KL}^*_f$ are expectations computed with the optimal $q^*(\boldf)=\mathcal{N}\left(\boldf|\bmu_f^*,\bSigma_f^*\right)$.
-We can now use the augmentations from equation~\ref{eq:heteroscedastic} on the expected log-likelihood, where we replaced $(y_i-f_i)^2$ by $(y_i - (\bmu_f^*)_i)^2 + (\Sigma_f^*)_{ii}$, and build a second bound.
+We can now use the augmentations from Equation~\eqref{eq:heteroscedastic} on the expected log-likelihood, where we replaced $(y_i-f_i)^2$ by $(y_i - (\bmu_f^*)_i)^2 + (\Sigma_f^*)_{ii}$, and build a second bound.
 
 \begin{align*}
     \mathcal{F}_1 \leq \min_{q(\boldg)q(\bomega,\bn)} \expec{q(\boldg)q(\bomega,\bn)}{\log p(\bomega,\bn,\boldy|\boldg,\bmu_f^*,\bSigma_f^*)} + \KL{q(\boldg)}{p(\boldg)} + \operatorname{KL}_f^*=\mathcal{F}_2
@@ -141,7 +141,7 @@ Note that an implementation as well as detailed derivations can be found in the 
 This method extends to non-Gaussian likelihoods as well.
 We take the example of the heteroscedastic Student-t likelihood, where we have a local scale with standard deviation $\epsilon(x) = \lambda \sigma(g)$ with $\lambda \in \mathbb{R}^+$.
 
-Similarly to Equation~\ref{eq:hetero_lik} we get the likelihood:
+Similarly to Equation~\eqref{eq:hetero_lik} we get the likelihood:
 \begin{align*}
     p(y|f,g,\lambda,\nu) = \frac{\Gamma(\frac{\nu+1}{2})\sqrt{\lambda\sigma(g)}}{\Gamma(\frac{\nu}{2})\sqrt{\pi\nu}}\left(1 + \lambda \sigma(g)\frac{(y-f)^2}{\nu}\right)^{-\frac{\nu+1}{2}}
     \label{eq:hetero_studentt}
@@ -282,7 +282,7 @@ Which is proportional to a negative multinomial $\operatorname{NM}(x_0, \boldsym
     \operatorname{NM}(\bx|x_0,\boldsymbol{p}) = \Gamma\left(\sum_{i=0}^K x_i\right) \frac{p_0^{x_0}}{\Gamma(x_0)}\prod_{i=1}^K \frac{p_i^{x_i}}{x_i!}   
 \end{align*}
 where $p_0 = 1 - \sum_{i=1}^K p_i$.
-Note that $p_0$ is missing in Equation~\ref{eq:NM} and is defined by $p_0= 1 - \sum_{i=1}^K p_i = 1 - \sum_{i=1}^{K}\frac{1}{K} = 0$.
+Note that $p_0$ is missing in Equation~\eqref{eq:NM} and is defined by $p_0= 1 - \sum_{i=1}^K p_i = 1 - \sum_{i=1}^{K}\frac{1}{K} = 0$.
 The prior is again non-normalizable, as observed in Section~\ref{sec:simplex}.
 Yet, the model is still valid since $p(y,\{f_i\}_{i=1}^K,\{n_i\}_{i=1}^K)$ is normalizable!
 
@@ -392,9 +392,8 @@ The only parameters left are the hyperparameters (omitted in the previous equati
 The advantage of this approach is that no gradients are necessary as all full-conditionals are known in closed-form and we do not need any expectation over the log-likelihood.
 This opens up more possibilities over more complex problems like the multi-class or heteroscedastic one where computing expectations would be a limitation.
 For medium-sized datasets, this outperforms the \ac{CAVI} algorithm as it has the same convergence speed but does not suffer from the mean-field assumption on the variational parameters.
-Hopefully, this work will be released in the near future.
-\mycom{to finish}
-
+We will hopefully release this work in the near future.
+\mycom{reedit this part}
 
 \section{Limits}
 

@@ -45,3 +45,4 @@ reparametrizable
 reparametrizing
 unmarginalize
 unmarginalize
+parametrizations

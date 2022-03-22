@@ -18,7 +18,7 @@ Additionally, this chapter dives more into the basics of probabilistic Bayesian 
 
 \label{sec:prob_bayes}
 
-Bayes' theorem is one of the simplest theorems in probability theory, and its proof fits in one line, yet its implications are unmeasurably important.
+Bayes' theorem is one of the simplest theorems in probability theory, and its proof fits in one line, yet its implications are immeasurably important.
 
 Let us give a very general modeling setting that we will follow for the rest of this chapter.
 Given a set of observed variables $\bX$, a set of latent (unobserved) variables $\btheta$ with a \textbf{prior} distribution $p(\btheta)$, and a \textbf{likelihood} function $p(\bX|\btheta)$, we obtain the \textbf{posterior} distribution $p(\btheta|\bX)$ via Bayes' theorem:
@@ -161,7 +161,7 @@ A strong focus of this thesis is to take these non-conjugate likelihoods and fin
 \subsection{Sparse Gaussian Processes}
 \label{sec:sparsegps}
 One of the other largest drawbacks of \ac{GPs}, regardless of the conjugacy of the likelihood, is the scalability with the number of observed samples.
-When computing the predictive mean and covariance, the inverse matrix operation in Equation~\ref{eq:pred_gp} has a computational complexity of $\mathcal{O}(N^3)$ where $N$ is the number of samples.
+When computing the predictive mean and covariance, the inverse matrix operation in Equation~\eqref{eq:pred_gp} has a computational complexity of $\mathcal{O}(N^3)$ where $N$ is the number of samples.
 For one-dimensional inputs ($D=1$), solutions exist for specific kernels using state-space models representation \cite{pmlr-v9-turner10a,solinInfiniteHorizonGaussianProcesses2018}, leading to an $\mathcal{O}(N)$ complexity.
 However, higher-dimensional problems require alternative solutions.
 The first approach to reduce the complexity was to use a Nystr\"om approximation \cite{williams2002observations}.
@@ -338,7 +338,7 @@ A \ac{MF} variational family can be specified as:
 \end{align}
 where $\bphi_i$ are the variational parameters for the variable $\theta_i$.
 Under the \ac{MF} approximation, the number of variational parameters grows linearly with the dimensionality of $\btheta$ instead of quadratically.
-Additionally, some integrals in Equation~\ref{eq:vfe} turn out to be one-dimensional and more easily solvable.
+Additionally, some integrals in Equation~\eqref{eq:vfe} turn out to be one-dimensional and more easily solvable.
 However, \ac{MF} can not capture potential posterior correlations between the components of $\btheta$.
 
 An intermediate solution is to assume independence between blocks of variables instead, similarly to the blocked Gibbs sampler.
@@ -352,7 +352,7 @@ The \ac{BMF} can capture correlations inside blocks of variables but lose some o
 
 \paragraph{Coordinate Ascent VI}\mbox{}\\
 \label{sec:cavi}
-The \ac{CAVI}\footnote{The word ascent is used since the scheme was originally derived using the negative \ac{VFE}, i.e., the \ac{ELBO}.} approach is an alternative to the gradient descent approach of Equation~\ref{eq:vigraddescent}.
+The \ac{CAVI}\footnote{The word ascent is used since the scheme was originally derived using the negative \ac{VFE}, i.e., the \ac{ELBO}.} approach is an alternative to the gradient descent approach of Equation~\eqref{eq:vigraddescent}.
 Instead of moving all parameters at once in the gradient direction, we are interested in finding the optimal solution for each set of variational parameters $\bphi_i$ one after another by keeping the others fixed:
 \begin{align}
     \bphi_i^* = \arg_{\bphi_i}\min \VFE(\bphi_i, \bphi_{/i}),
@@ -370,7 +370,7 @@ The solution to Equation~\eqref{eq:optimalbphi} is always given by
 q_{\bphi_i}^*(\btheta_i) \propto \exp\left(\expec{q_{\bphi}(\btheta_{/i})}{\log p\left(\btheta_i|\btheta_{/i},\bx\right)}\right)\label{eq:optdist_vi}
 \end{align}
 where $\btheta_{/i}$ represent the collection of variables $\btheta_{/i} = \{\theta_j | j \neq i\}$ \cite{murphyMachineLearningProbabilistic2012}.
-Note that Equation~\ref{eq:optdist_vi} is not always normalizable, but we are usually only interested in the different moments of $q_{\bphi_i}(\btheta_i)$.
+Note that Equation~\eqref{eq:optdist_vi} is not always normalizable, but we are usually only interested in the different moments of $q_{\bphi_i}(\btheta_i)$.
 
 Algorithm~\ref{alg:CAVI} summarizes the \ac{CAVI} algorithm.
 The order of the updates does not matter as long as the variational parameters $\bphi$ are initialized in their domain.
