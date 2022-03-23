@@ -11,11 +11,12 @@ using ColorSchemes
 using SplitApplyCombine
 using CairoMakie
 using LaTeXStrings
+using LogExpFunctions
 using AbstractGPsMakie
 using Random: seed!
 
 # We create some random data (sorted for plotting reasons)
-seed!(42)
+seed!(45)
 
 N = 100
 x = collect(range(-10, 10; length=N))
@@ -44,7 +45,7 @@ function opt_lik(lik::HeteroscedasticGaussianLikelihood, (qf, qg)::AbstractVecto
     ψ = AugmentedGPLikelihoods.second_moment.(qf .- y) / 2
     c = sqrt.(AugmentedGPLikelihoods.second_moment.(qg))
     σ̃g = AugmentedGPLikelihoods.approx_expected_logistic.(-mean.(qg), c)
-    λ = max(length(y) / (2 * dot(ψ, 1 .- σ̃g)), lik.invlink.λ)
+    λ = length(y) / (dot(ψ, 1 .- σ̃g))
     return HeteroscedasticGaussianLikelihood(InvScaledLogistic(λ))
 end
 
@@ -74,16 +75,22 @@ f_te = u_posterior(fzs[1], ms[1], Ss[1])(x_te)
 g_te = u_posterior(fzs[2], ms[2], Ss[2])(x_te)
 
 # Gibbs Sampling
+const α = 0.3
+const β = 0.1
 function gibbs_sample(fzs, fs, Ω; nsamples=200)
     K = ApproximateGPs._chol_cov(fzs[1])
     Σ = [zeros(N, N) for _ in 1:nlatent(lik)]
     μ = [zeros(N) for _ in 1:nlatent(lik)]
     return map(1:nsamples) do _
+        λ = rand(Gamma(α + length(y) / 2, inv(β + sum(
+            logistic.(fs[2]) .* abs2.(fs[1] - y)
+            ) / 2)))
+        lik = HeteroscedasticGaussianLikelihood(InvScaledLogistic(λ))
         aux_sample!(Ω, lik, y, invert(fs))
         Σ .= inv.(Symmetric.(Ref(inv(K)) .+ Diagonal.(auglik_precision(lik, Ω, y, fs[2]))))
         μ .= Σ .* (auglik_potential(lik, Ω, y, fs[2]) .+ Ref(K) .\ mean.(fzs))
         rand!.(MvNormal.(μ, Σ), fs) # this corresponds to f -> g
-        return copy(fs)
+        return (copy(fs), λ)
     end
 end;
 # We initialize our random variables
@@ -117,7 +124,8 @@ with_theme(GPtheme, linewidth=3.0) do
     plot!(ax2, g_te, color=(sb[2], 0.3), linestyle=:dash, label=L"q(g)", linewidth=lw)
     
     alpha = 1e-2
-    for fs in fs_samples
+    for (fs, λ) in fs_samples
+        lik = HeteroscedasticGaussianLikelihood(InvScaledLogistic(λ))
         fσ = sqrt.(lik.invlink.(fs[2]))
         band!(ax3, x, fs[1] - fσ, fs[1] + fσ, color=(sb[3], alpha))
         lines!(ax3, x, fs[1], color=(sb[3], alpha * 10))
@@ -125,7 +133,6 @@ with_theme(GPtheme, linewidth=3.0) do
             plot!(ax4, x, fs[i]; color=(sb[i], 0.01), lw=1.0)
         end
     end
-
     
     y_σ = sqrt.(lik.invlink.(fs[2]))
     lines!(ax1, x, fs[1] - y_σ, color=(sb[1], 0.5), linestyle=:dash, linewidth=lw)
@@ -161,9 +168,10 @@ with_theme(GPtheme, linewidth=3.0) do
         LineElement(color = (sb[1], 0.5), points = Point2f[(0, 2//3), (1, 2//3)], linewidth=lw),
         LineElement(color = (sb[2], 0.5), points = Point2f[(0, 1//3), (1, 1//3)], linewidth=lw),
     ]
-    Legend(fig[1, 2], [ elem_3, elem_1, elem_2], [L"y", L"p(y|f,g)", L"E_{q(f,g)}[p(y|f,g)]"], tellwidth=false, halign=:right, valign=:top, margin=(10, 10, 10, 10))
-    Legend(fig[2, 2], [elem_2],  [L"""\left(p(y|f_i,g_i)\right)_{i=1}^S"""], tellwidth=false, halign=:right, valign=:top, margin=(10, 10, 10, 10))
-    Legend(fig[2, 3], [elem_4], [L"""\left(f_i,g_i\right)_{i=1}^S\sim p(f,g|y)"""],tellwidth=false, halign=:right, valign=:top, margin=(10, 10, 10, 10))
+    Legend(fig[1, 2], [ elem_3, elem_1, elem_2], [L"y", L"p(y|f,g)", L"E_{q(f,g)}[p(y|f,g)]"], tellwidth=false, halign=:center, valign=:top, margin=(10, 10, 10, 10), nbanks=3)
+    aem = Char(0x200B)
+    Legend(fig[2, 2], [elem_2],  [latexstring("""{\$p(y|f_i,g_i)\$}\$$(aem)_{i=1}^S\$""")], tellwidth=false, halign=:center, valign=:top, margin=(10, 10, 10, 10), framevisible=false)
+    Legend(fig[2, 3], [elem_4], [latexstring("""{\$f_i,g_i\$}\$$(aem)_{i=1}^S\\sim p(f,g|y)\$""")],tellwidth=false, halign=:center, valign=:top, margin=(10, 10, 10, 10),framevisible=false)
     # axislegend(ax1)
     axislegend(ax2, nbanks=2)
     Label(fig[1, 1], text="Variational\nInference", textsize=20, rotation = pi/2, tellheight=false)

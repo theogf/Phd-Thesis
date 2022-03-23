@@ -11,9 +11,9 @@ version = "1.1.0"
 
 [[deps.AbstractGPs]]
 deps = ["ChainRulesCore", "Distributions", "FillArrays", "IrrationalConstants", "KernelFunctions", "LinearAlgebra", "Random", "RecipesBase", "Reexport", "Statistics", "StatsBase", "Test"]
-git-tree-sha1 = "8706d50694fd8b12b331195d151575c3e5a0d9f7"
+git-tree-sha1 = "9a86aff5babfe1e4dbd79be47d7a9dfd141e11af"
 uuid = "99985d1d-32ba-4be9-9821-2ec096f28918"
-version = "0.5.7"
+version = "0.5.9"
 
 [[deps.AbstractGPsMakie]]
 deps = ["AbstractGPs", "LinearAlgebra", "Makie"]
@@ -45,19 +45,19 @@ uuid = "27a7e980-b3e6-11e9-2bcd-0b925532e340"
 version = "0.4.1"
 
 [[deps.ApproximateGPs]]
-deps = ["AbstractGPs", "ChainRulesCore", "Distributions", "FastGaussQuadrature", "FillArrays", "ForwardDiff", "GPLikelihoods", "IrrationalConstants", "LinearAlgebra", "PDMats", "Reexport", "SpecialFunctions", "Statistics", "StatsBase"]
-git-tree-sha1 = "5fcce7df685aef12660f559e4766fb21a237c96c"
+deps = ["AbstractGPs", "ChainRulesCore", "Distributions", "FastGaussQuadrature", "FillArrays", "ForwardDiff", "GPLikelihoods", "IrrationalConstants", "LinearAlgebra", "LogExpFunctions", "PDMats", "Random", "Reexport", "SpecialFunctions", "Statistics", "StatsBase", "Test"]
+git-tree-sha1 = "c8d8b2d67910966e7e95c4744f88fa7b1c5a5237"
 uuid = "298c2ebc-0411-48ad-af38-99e88101b606"
-version = "0.3.2"
+version = "0.3.4"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
 
 [[deps.ArrayInterface]]
-deps = ["Compat", "IfElse", "LinearAlgebra", "Requires", "SparseArrays", "Static"]
-git-tree-sha1 = "d49f55ff9c7ee06930b0f65b1df2bfa811418475"
+deps = ["IfElse", "LinearAlgebra", "Requires", "SparseArrays"]
+git-tree-sha1 = "ee07ae00e3cc277dcfa5507ce25be522313ecc3e"
 uuid = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
-version = "4.0.4"
+version = "3.1.1"
 
 [[deps.ArraysOfArrays]]
 deps = ["Adapt", "Requires", "Statistics", "UnsafeArrays"]
@@ -69,8 +69,10 @@ version = "0.5.7"
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 
 [[deps.AugmentedGPLikelihoods]]
-deps = ["ArraysOfArrays", "ChainRulesCore", "Distributions", "GPLikelihoods", "IrrationalConstants", "LinearAlgebra", "LogExpFunctions", "MeasureBase", "Random", "Reexport", "SpecialFunctions", "SplitApplyCombine", "Statistics", "Test", "TupleVectors"]
-path = "/home/theo/.julia/dev/AugmentedGPLikelihoods"
+deps = ["ChainRulesCore", "Distributions", "GPLikelihoods", "IrrationalConstants", "LinearAlgebra", "LogExpFunctions", "MeasureBase", "Random", "Reexport", "SpecialFunctions", "Statistics", "Test", "TupleVectors"]
+git-tree-sha1 = "d7baced18f6ef775f805c00a81df6562ed995d2e"
+repo-rev = "heteroscedastic"
+repo-url = "https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl.git"
 uuid = "4689c64d-1a23-4d3c-ad26-1c612d54a282"
 version = "0.4.9"
 
@@ -132,9 +134,9 @@ version = "0.5.1"
 
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
-git-tree-sha1 = "c9a6160317d1abe9c44b3beb367fd448117679ca"
+git-tree-sha1 = "9950387274246d08af38f6eef8cb5480862a435f"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "1.13.0"
+version = "1.14.0"
 
 [[deps.ChangesOfVariables]]
 deps = ["ChainRulesCore", "LinearAlgebra", "Test"]
@@ -242,9 +244,9 @@ version = "0.4.0"
 
 [[deps.Dictionaries]]
 deps = ["Indexing", "Random"]
-git-tree-sha1 = "63004a55faf43a5f7be7f5eca36ce355e9a75b2c"
+git-tree-sha1 = "7e73a524c6c282e341de2b046e481abedbabd073"
 uuid = "85a47980-9c8c-11e8-2b9f-f7ca1fa99fb4"
-version = "0.3.18"
+version = "0.3.19"
 
 [[deps.DiffResults]]
 deps = ["StaticArrays"]
@@ -270,9 +272,9 @@ uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[deps.Distributions]]
 deps = ["ChainRulesCore", "DensityInterface", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SparseArrays", "SpecialFunctions", "Statistics", "StatsBase", "StatsFuns", "Test"]
-git-tree-sha1 = "43ea1b7ab7936920a1170d6a35f05a1f9f495216"
+git-tree-sha1 = "c43e992f186abaf9965cc45e372f4693b7754b22"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
-version = "0.25.51"
+version = "0.25.52"
 
 [[deps.DocStringExtensions]]
 deps = ["LibGit2"]
@@ -304,9 +306,9 @@ version = "1.2.9"
 
 [[deps.EllipsisNotation]]
 deps = ["ArrayInterface"]
-git-tree-sha1 = "d7ab55febfd0907b285fbf8dc0c73c0825d9d6aa"
+git-tree-sha1 = "9aad812fb7c4c038da7cab5a069f502e6e3ae030"
 uuid = "da5c29d0-fa7d-589e-88eb-ea29b0a81949"
-version = "1.3.0"
+version = "1.1.1"
 
 [[deps.Expat_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -394,9 +396,9 @@ version = "2.10.4+0"
 
 [[deps.FreeTypeAbstraction]]
 deps = ["ColorVectorSpace", "Colors", "FreeType", "GeometryBasics", "StaticArrays"]
-git-tree-sha1 = "770050893e7bc8a34915b4b9298604a3236de834"
+git-tree-sha1 = "4f35ba91a3e3fad462c0bdcb1fdf4077373c36fe"
 uuid = "663a7486-cb36-511b-a19d-713bb74d65c9"
-version = "0.9.5"
+version = "0.9.6"
 
 [[deps.FriBidi_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -539,9 +541,9 @@ version = "0.13.5"
 
 [[deps.IntervalSets]]
 deps = ["Dates", "EllipsisNotation", "Statistics"]
-git-tree-sha1 = "3cc368af3f110a767ac786560045dceddfc16758"
+git-tree-sha1 = "bcf640979ee55b652f3b01650444eb7bbe3ea837"
 uuid = "8197267c-284f-5f27-9208-e0e47529a953"
-version = "0.5.3"
+version = "0.5.4"
 
 [[deps.InverseFunctions]]
 deps = ["Test"]
@@ -796,15 +798,15 @@ uuid = "71a1bf82-56d0-4bbc-8a3c-48b961074391"
 version = "0.1.5"
 
 [[deps.NamedTupleTools]]
-git-tree-sha1 = "63831dcea5e11db1c0925efe5ef5fc01d528c522"
+git-tree-sha1 = "befc30261949849408ac945a1ebb9fa5ec5e1fd5"
 uuid = "d9ec5142-1e00-5aa0-9d6a-321866360f50"
-version = "0.13.7"
+version = "0.14.0"
 
 [[deps.NestedTuples]]
-deps = ["Accessors", "ArraysOfArrays", "BangBang", "GeneralizedGenerated", "NamedTupleTools"]
-git-tree-sha1 = "49df3ad4d13d617a77981e2cbfcd62c290ad0ec9"
+deps = ["Accessors", "ArraysOfArrays", "BangBang", "GeneralizedGenerated", "NamedTupleTools", "Static"]
+git-tree-sha1 = "3f4c233a60fc89625e7fed6ce0247a956978ca94"
 uuid = "a734d2a7-8d68-409b-9419-626914d4061d"
-version = "0.3.6"
+version = "0.3.7"
 
 [[deps.Netpbm]]
 deps = ["FileIO", "ImageCore"]
@@ -854,9 +856,9 @@ uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "648107615c15d4e09f7eca16307bc821c1f718d8"
+git-tree-sha1 = "ab05aa4cc89736e95915b01e7279e61b1bfe33b8"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "1.1.13+0"
+version = "1.1.14+0"
 
 [[deps.OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Pkg"]
@@ -1114,15 +1116,15 @@ version = "0.1.1"
 
 [[deps.Static]]
 deps = ["IfElse"]
-git-tree-sha1 = "65068e4b4d10f3c31aaae2e6cb92b6c6cedca610"
+git-tree-sha1 = "87e9954dfa33fd145694e42337bdd3d5b07021a6"
 uuid = "aedffcd0-7271-4cad-89d0-dc628f76c6d3"
-version = "0.5.6"
+version = "0.6.0"
 
 [[deps.StaticArrays]]
 deps = ["LinearAlgebra", "Random", "Statistics"]
-git-tree-sha1 = "74fb527333e72ada2dd9ef77d98e4991fb185f04"
+git-tree-sha1 = "6976fab022fea2ffea3d945159317556e5dad87c"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "1.4.1"
+version = "1.4.2"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
