@@ -160,7 +160,7 @@ A strong focus of this thesis is to take these non-conjugate likelihoods and fin
 
 \subsection{Sparse Gaussian Processes}
 \label{sec:sparsegps}
-One of the other largest drawbacks of \ac{GPs}, regardless of the conjugacy of the likelihood, is the scalability with the number of observed samples.
+One of the largest drawbacks of \ac{GPs}, regardless of the conjugacy of the likelihood, is the scalability with the number of observed samples.
 When computing the predictive mean and covariance, the inverse matrix operation in Equation~\eqref{eq:pred_gp} has a computational complexity of $\mathcal{O}(N^3)$ where $N$ is the number of samples.
 For one-dimensional inputs ($D=1$), solutions exist for specific kernels using state-space models representation \cite{pmlr-v9-turner10a,solinInfiniteHorizonGaussianProcesses2018}, leading to an $\mathcal{O}(N)$ complexity.
 However, higher-dimensional problems require alternative solutions.

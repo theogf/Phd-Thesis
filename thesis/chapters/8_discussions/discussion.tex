@@ -78,7 +78,7 @@ The resulting \ac{CAVI} updates are given in Algorithm~\ref{alg:cavi_hetero}.
 This double-bound approach is very similar to \citet{lazaro2011variational}, although they are using the exponential link and need some extra computations.
 
 So far, we have excluded the $\lambda$ parameter from inference.
-By putting a Gamma prior $\Ga(\lambda|\alpha, \beta)$, where $\alpha$ is the shape and $\beta$ is the scale, the collapsed full-conditional is available in closed-form:
+By putting a Gamma prior $\Ga(\lambda|\alpha, \beta)$, where $\alpha$ is the shape and $\beta$ is the rate, the collapsed full-conditional is available in closed-form:
 \begin{align*}
     p(\lambda|\boldf, \boldf, \boldy) = \Ga(\lambda| \alpha + \frac{N}{2}, \beta + \sum_{i=1}^N \frac{\sigma(g^i)}{2}(y_i + f_i)^2).
 \end{align*}
@@ -90,7 +90,7 @@ Similarly, we can use the second bound to obtain a maximum-likelihood estimate o
     \begin{algorithmic}
         \State \textbf{input:} $\boldf,\boldg, \lambda, \boldy$, $p(\boldf,\boldg) = \mathcal{N}(\boldf|\bmu^0_f, K)\mathcal{N}(\boldg|\bmu^0_g, K)$, $p(\lambda|\alpha,\beta)$.
         \For{$t$ in $1:$ N samples}
-            \State Draw $\lambda \sim p(\lambda|\boldf,\boldg,\boldy) = \Ga(\lambda| \alpha + \frac{N}{2}, \beta + \sum_{i=1}^N \frac{\sigma(g^i)}{2}(y_i + f_i)^2).$
+            \State Draw $\lambda \sim p(\lambda|\boldf,\boldg,\boldy) = \Ga(\lambda| \alpha + \frac{N}{2}, \beta + \sum_{i=1}^N \frac{\sigma(g^i)}{2}(y_i - f_i)^2).$
             \State Draw $n^i \sim p(n^i|f^i, g^i, \lambda) = \Po(\lambda \sigma(-g^i) \frac{(y^i - f^i)^2}{2})$
             \State Draw $\omega^i \sim p(\omega^i|n^i,g^i) = \PG(0.5 + n^i, |g^i)$
             \State Draw $\boldg \sim p(\boldg|\boldn, \bomega) = \mathcal{N}(\bmu_g,\bSigma_g)$
@@ -108,7 +108,7 @@ Similarly, we can use the second bound to obtain a maximum-likelihood estimate o
         \State \textbf{input:} $q(\boldf,\boldg) = \mathcal{N}(\boldf|\bmu_f,\bSigma_f)\mathcal{N}(\boldg|\bmu_g,\bSigma_g)$, $p(\boldf,\boldg) = \mathcal{N}(\boldf|\bmu^0_f, K)\mathcal{N}(\boldg|\bmu^0_g, K)$, $\boldy$ and $\lambda$.
         \While{convergence criteria is not met}
             \State $\psi^i = \widetilde{\sigma}(q(g^i))$
-            \State $\lambda = \frac{N}{2 \sum_{i=1}^N (1 - \psi^i)\sqrt{(y^i - \mu_f^i)^2 + \Sigma_f^{ii}}}$
+            \State $\lambda = \frac{N}{\sum_{i=1}^N (1 - \psi^i)\sqrt{(y^i - \mu_f^i)^2 + \Sigma_f^{ii}}}$
             \State $\gamma^i = \frac{\lambda}{2} \psi^i  \sqrt{(y^i - \mu_f^i)^2 + \Sigma_f^{ii}}$
             \State $c^i = \sqrt{(\mu_g^i)^2 + \Sigma^{ii}_g}$
             \State $\theta^i = \expec{q(\omega^i|n^i)q(n^i)}{\omega^i} = \frac{0.5 + \gamma^i}{2c^i}\tanh\left(\frac{c^i}{2}\right)$
