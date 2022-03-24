@@ -14,14 +14,14 @@ The works presented in this thesis only scratched the surface of how helpful mix
 We are still exploring ways to identify larger classes of functions equivalent to scale mixtures.
 In particular, the connection with the \acf{MGF} of a distribution is a promising direction since we know how to sample from them \cite{ridout2009generating}.
 \ac{MGF} allow us to work not only with continuous but also discrete and multivariate variables.
-For example, two of the augmentations of Chapter~\ref{ch:multiclass} do not fit the framework introduced in Chapter~\ref{ch:general} and as shown in Section~\ref{sec:improvemulticlass} are simply \ac{MGF} transformations.
+For example, two of the augmentations of Chapter~\ref{ch:multi-class} do not fit the framework introduced in Chapter~\ref{ch:general} and as shown in Section~\ref{sec:improvemulticlass} are simply \ac{MGF} transformations.
 The \ac{MGF} is also an interesting tool to create hierarchical models since scale mixtures are of the form $\sum_{i=0}^\infty e^{tx} p(x)$ or $\int e^{tx}p(x)dx$.
 From there, we can plug in P\'olya-Gamma augmentations, using the transformation $t=\log \sigma(x)$, in particular using the property that not only $\sigma(x)$ is augmentable but also $\sigma^n(x)$, for any $n\in \mathbb{R}^+$.
 Additional examples of such constructions are shown in this chapter in Sections \ref{sec:heteroscedastic} and \ref{sec:improvemulticlass}.
 
 A potential improvement for augmented models is the identification of marginalizable augmented variables that keep the conditional conjugacy of the model.
-For example, in the multi-class model from Chapter~\ref{ch:multiclass}, the augmented variable $\lambda$ can be marginalized, out as shown in Section~\ref{sec:improvemulticlass}.
-We can then reduce the dimensionality of the model and avoid tricky situations like the inner loop updates in Chapter~\ref{ch:multiclass}.
+For example, in the multi-class model from Chapter~\ref{ch:multi-class}, the augmented variable $\lambda$ can be marginalized, out as shown in Section~\ref{sec:improvemulticlass}.
+We can then reduce the dimensionality of the model and avoid tricky situations like the inner loop updates in Chapter~\ref{ch:multi-class}.
 This marginalization step can be avoided altogether by identifying from the start the right \ac{MGF}. The marginalized distributions are sometimes less known, and augmenting first then marginalizing can be more accessible.
 
 Finally, an unfinished work (despite trying) is to establish convergence rates (error as a function of the number of iterations) for the \ac{CAVI} algorithm and of the correlation of the kernel for the Gibbs sampler.
@@ -30,7 +30,7 @@ Experimental results indicate that the error is decreasing as $\|\mathcal{L}^{*}
 
 \section{Double bounds for intricate latent GPs}
 \label{sec:heteroscedastic}
-The model developed in Chapter~\ref{ch:multiclass} paves the ways to work with multi-latent models and hierarchical augmentations.
+The model developed in Chapter~\ref{ch:multi-class} paves the ways to work with multi-latent models and hierarchical augmentations.
 Another model I worked on but did not publish, is the heteroscedastic regression model \cite{wangGaussianProcessRegression2012,lazaro2011variational}.
 It consists in simultaneously modeling the mean and variance of a regression likelihood with two latent \ac{GPs} $f$ and $g$.
 
@@ -43,7 +43,7 @@ Let's look at the case of the heteroscedastic Gaussian likelihood, defined as:
     p(y|f,g,\lambda) = \frac{\sqrt{\lambda \sigma(g)}}{\sqrt{2\pi}}\exp\left(-\frac{\lambda \sigma(g)(y-f)^2}{2}\right).\label{eq:hetero_lik}
 \end{align}
 
-The augmentations for this likelihood are straightforward and quite similar to the multi-class ones from Chapter~\ref{ch:multiclass}.
+The augmentations for this likelihood are straightforward and quite similar to the multi-class ones from Chapter~\ref{ch:multi-class}.
 \begin{align*}
     \exp\left(-\frac{\lambda\sigma(g)(y-f)^2}{2}\right) =& \exp\left(\frac{\lambda(\sigma(-g) -1)(y-f)^2}{2}\right)\\
     =&\sum_{n=0}^\infty \sigma^n(-g)\Po \left(n~\middle|~\frac{\lambda(y-f)^2}{2}\right),
@@ -124,7 +124,7 @@ Similarly, we can use the second bound to obtain a maximum-likelihood estimate o
 
 
 
-A 1-dimensional toy example is shown on Figure~\ref{fig:heteroscedastic} with the results of the inference algorithms.
+A 1-dimensional toy example is shown in Figure~\ref{fig:heteroscedastic} with the results of the inference algorithms.
 
 \begin{figure}
 \includegraphics[width=\textwidth]{./chapters/8_discussions/figures/heteroscedastic.pdf}
@@ -217,7 +217,7 @@ Two of them are listed here
 
 \subsection{Simplex for the multi-class classification}
 \label{sec:simplex}
-In Chapter \ref{ch:multiclass}, one of the possible concerns regarding the model is that $\lambda$ has the improper prior $p(\lambda) = 1_{[0,\infty)}$, which is a proper measure but is not normalizable.
+In Chapter \ref{ch:multi-class}, one of the possible concerns regarding the model is that $\lambda$ has the improper prior $p(\lambda) = 1_{[0,\infty)}$, which is a proper measure but is not normalizable.
 The posterior is valid, which is another critical take on the augmentations.
 We only need a measure and not a distribution for the mixtures prior, 
 extending the possibilities of augmentations to all non-normalizable measures.
@@ -264,7 +264,7 @@ A potential solution using scaled logistics is presented in Section~\ref{sec:sca
 
 \subsection{Marginalizing out variables}
 \label{sec:marg_multiclass}
-In the augmentation derived in Chapter~\ref{ch:multiclass}, we add $2K + 1$ new variables per observation: $\lambda$, $\{n_i\}_{i=1}^K$ and $\{\omega_i\}_{i=1}^K$.
+In the augmentation derived in Chapter~\ref{ch:multi-class}, we add $2K + 1$ new variables per observation: $\lambda$, $\{n_i\}_{i=1}^K$ and $\{\omega_i\}_{i=1}^K$.
 However, we can reduce this number to $2K$ and avoid unnecessary inner loops by marginalizing out $\lambda$.
 When deriving the augmentations, one ends up with the following augmented likelihood:
 \begin{align}
@@ -371,10 +371,10 @@ A Julia implementation as well as detailed derivations can be found in the \href
 Another work in progress regards the sampling of sparse \ac{GPs} models.
 Being able to sample directly from the augmented model is ideal as it allows recovering samples from the original posterior $p(\boldf|\bX,\boldy)$.
 Unfortunately, this does not transfer when using sparse \ac{GPs}.
-Naively using an additional set of points, without using the \citet{Titsias2009} assumption, leads to an algorithm with complexity $\mathcal{O}((N+M)^3)$, defeating the point of the algorithm.
-However, one can resort to mixing a variational approach to sampling.
+Naively using an additional set of points, without using the \citet{Titsias2009} assumption, leads to an algorithm with complexity $\mathcal{O}((N+M)^3)$, defeating the point of using inducing points.
+However, we can resort to mixing variational inference and sampling.
 Instead of optimizing the parameters of the distribution $q(\boldu)$, we consider a free-form variational distribution defined as a collection of samples $\{\boldu_i\}_{i=1}^T$ coming from the optimal variational distribution $q^*(\boldu)$ \cite{hensmanMCMCVariationallySparse2015}.
-In other words, we want to sample from the optimal $q^*(\boldu)$ which minimizes the \ac{KL} divergence with $p(\boldu|\bX,\boldy)$:
+In other words, we want to sample from the optimal free-form $q^*(\boldu)$ which minimizes the \ac{KL} divergence with $p(\boldu|\bX,\boldy)$:
 \begin{align*}
     \log q^*(\boldu) = \expec{p(\boldf|\boldu)}{\log p(\boldy|\boldf)} + \log p(\boldu) + C.
 \end{align*}
@@ -382,18 +382,39 @@ The straightforward option is to use \ac{HMC} as in \cite{hensmanMCMCVariational
 We can also derive a Gibbs sampling algorithm to draw samples from this objective using our previous work on augmentations.
 
 In our new setting the optimal distribution is defined as $q(\boldf,\boldu,\bOmega) = p(\boldf|\boldu)q(\boldu, \bOmega)$, where $\bOmega$ denotes the set of augmented variables.
-Note that, unlike in the traditional \ac{VI} setting, $\boldu$ and $\bOmega$ are not assumed to be independent.
-From there, $\bOmega$, $\boldu$ and $\boldf$ are sampled one after another using the optimal distributions $q^*(\bOmega|\boldu,\boldf)$ and $q^*(\boldu,\boldf|\bOmega)$.
-Note that we sample $\boldu$ and $\boldf$ together since they are highly correlated.
+Note that, unlike in the traditional \ac{VI} setting, we do not assume independence between $\boldu$ and $\bOmega$.
+$\bOmega$, $\boldu$ and $\boldf$ are sampled one after another using the optimal distributions $q^*(\bOmega|\boldu,\boldf)$ and $q^*(\boldu,\boldf|\bOmega)$.
+We sample $\boldu$ and $\boldf$ together since they are highly correlated.
 To identify the optimal conditional distributions, we look at the minimizer of the conditional \ac{KL} divergence, e.g. $q^*(\bOmega|\boldu,\boldf) = \arg_{q} \min \KL{q(\bOmega|\boldu,\boldf)}{p(\bOmega|\boldu,\boldf,\boldy,\bX)}$.
-The obvious minimizer here is to set $q^*=p$, and thanks to the augmentations, we know $p(\bOmega|\ldots)$ in closed-form.
+The obvious minimizer here is to set $q^*=p$, and thanks to the augmentations, we know the full-conditional $p(\bOmega|\ldots)$ in closed-form.
 We can perform a similar approach for $q^*(\boldu,\boldf|\bOmega)$.
-The only parameters left are the hyperparameters (omitted in the previous equations), which can be sampled by using the more traditional \ac{HMC} algorithm in a separate Gibbs sampling step.
-The advantage of this approach is that no gradients are necessary as all full-conditionals are known in closed-form and we do not need any expectation over the log-likelihood.
-This opens up more possibilities over more complex problems like the multi-class or heteroscedastic one where computing expectations would be a limitation.
+The only parameters left are the hyperparameters (omitted in the previous equations), which we sample with the \ac{HMC} algorithm in a separate Gibbs sampling step.
+The advantage of this approach is that no gradients are necessary (except for the hyper-parameters) as we know all the full-conditionals in closed-form, and we do not need any expectation over the log-likelihood.
+Our approach opens up more possibilities over more complex problems like the multi-class or heteroscedastic one where computing expectations is a limitation.
 For medium-sized datasets, this outperforms the \ac{CAVI} algorithm as it has the same convergence speed but does not suffer from the mean-field assumption on the variational parameters.
-We will hopefully release this work in the near future.
-\mycom{reedit this part}
+We show preliminary results on Figures~\ref{fig:magictelescope} and~\ref{fig:magictelescope_autocor} for a binary classification problem on the Magic Telescope dataset (10 dimensions, 19020 data points) \cite{bock2004methods}.
+We split the data in half into a training/test set and use $M=50$ inducing points selected via the k-means++ algorithm \cite{arthur2007k}.
+We compare our approach (\textbf{VI-Gibbs}) against the sampling methods \ac{HMC} (\textbf{VI-HMC}), Elliptical Slice Sampling (\textbf{VI-ESS}), and a standard \ac{VI} method (with an L-BFGS optimizer), by showing the error and test negative log-likelihood over time on Figure~\ref{fig:magictelescope}.
+Each sampling method draws 10 chains of 1000 samples.
+We kept the hyper-parameters fixed in this setup.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{./chapters/8_discussions/figures/magictelescope.pdf}
+    \caption{Negative test log-likelihood and classification test error over time on the Magic Telescope dataset.
+    The mean with one standard deviation over 10 runs is shown for each algorithm.
+    }
+    \label{fig:magictelescope}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{./chapters/8_discussions/figures/magictelescope_autocor.pdf}
+    \caption{Intra-chain correlation against the lag for the sampling approaches.}
+    \label{fig:magictelescope_autocor}
+\end{figure}
+
+We will release this work in the near future.
 
 \section{Limits}
 
