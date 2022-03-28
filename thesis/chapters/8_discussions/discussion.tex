@@ -7,22 +7,28 @@
 % change according to folder and file names
 \graphicspath{{8/figures/}}
 % ----------------------- contents from here ------------------------
-
+This chapter presents both discussions and extensions on the models and ideas presented in Chapters~\ref{ch:classification},~\ref{ch:multi-class},~\ref{ch:general}.
+Section~\ref{sec:further} considers how augmentations can be generalized further and what analysis we need to fully understand the improvement brought by augmentations.
 
 \section{Further generalizations and understanding}
-The works presented in this thesis only scratched the surface of how helpful mixtures and representations are and opened a way to their identification.
-We are still exploring ways to identify larger classes of functions equivalent \mycom{change this} to scale mixtures.
-In particular, the connection with the \acf{MGF} of a distribution is a promising direction since we know how to sample from them \cite{ridout2009generating}\mycom{refomulate}.
+\label{sec:further}
+The works presented in this thesis only scratched the surface of how helpful mixtures and representations are.
+We are still exploring ways to identify larger classes of functions identifiable as scale mixtures or hierarchical mixtures.
+Already mentioned in Chapters~\ref{ch:multi-class} and \ref{ch:general},
+the connection with the \acf{MGF} of a distribution is a promising direction.
 \ac{MGF} allow us to work not only with continuous but also discrete and multivariate variables.
-For example, two of the augmentations of Chapter~\ref{ch:multi-class} do not fit the framework introduced in Chapter~\ref{ch:general} and as shown in Section~\ref{sec:improvemulticlass} are simply \ac{MGF} transformations.
-The \ac{MGF} is also an interesting tool to create hierarchical models since scale mixtures are of the form $\sum_{i=0}^\infty e^{tx} p(x)$ or $\int e^{tx}p(x)dx$.
-From there, we can plug in P\'olya-Gamma augmentations, using the transformation $t=\log \sigma(x)$, in particular using the property that not only $\sigma(x)$ is augmentable but also $\sigma^n(x)$, for any $n\in \mathbb{R}^+$.
+Even, if the augmented variable does not come from a known distribution, we know how to sample from it \cite{ridout2009generating}.
+For example, the Poisson augmentation of Chapter~\ref{ch:multi-class} does not fit the framework introduced in Chapter~\ref{ch:general}.
+We show in Section~\ref{sec:improvemulticlass}, that this transformation is more simply understood through the lens of \ac{MGF}s.
+The \ac{MGF} is also an interesting tool to create hierarchical models since scale mixtures are of the form $\sum_{x} e^{tx} p(x)$ or $\int e^{tx}p(x)dx$.
+From there, given $t=\log \sigma(f)$, we can use P\'olya-Gamma augmentations, thanks to the property that not only $\sigma(f)$ is augmentable but also $\sigma^n(f)$, for any $n\in \mathbb{R}^+$.
 Additional examples of such constructions are shown in this chapter in Sections \ref{sec:heteroscedastic} and \ref{sec:improvemulticlass}.
 
 A potential improvement for augmented models is the identification of marginalizable augmented variables that keep the conditional conjugacy of the model.
-For example, in the multi-class model from Chapter~\ref{ch:multi-class}, the augmented variable $\lambda$ can be marginalized, out as shown in Section~\ref{sec:improvemulticlass}.
-We can then reduce the dimensionality of the model and avoid tricky situations like the inner loop updates in Chapter~\ref{ch:multi-class}.
-This marginalization step can be avoided altogether by identifying from the start the right \ac{MGF}. The marginalized distributions are sometimes less known, and augmenting first then marginalizing can be more accessible.
+For example, in the multi-class model from Chapter~\ref{ch:multi-class}, the augmented variable $\lambda$ can be marginalized out, as shown in Section~\ref{sec:improvemulticlass}.
+We can reduce the dimensionality of the model and avoid tricky situations like the inner loop updates in Chapter~\ref{ch:multi-class}.
+This marginalization step is avoidable by identifying the right \ac{MGF} from the start.
+As shown in Section~\ref{sec:heteroscedastic_nongaussian}, switching between marginalized and augmented models gives a great inference flexibility.
 
 Finally, an unfinished work (despite trying) is to establish convergence rates (error as a function of the number of iterations) for the \ac{CAVI} algorithm and of the correlation of the kernel for the Gibbs sampler.
 Experimental results indicate that the error on the variational free energy is decreasing as $\|\VFE^{*} - \VFE^{t}\|\leq C e^{-t}$, where $t$ is the number of iterations, but we did not manage to write a formal proof.
@@ -31,8 +37,10 @@ Experimental results indicate that the error on the variational free energy is d
 \section{Double bounds for intricate latent GPs}
 \label{sec:heteroscedastic}
 The multi-class model developed in Chapter~\ref{ch:multi-class} paves the way to work with multi-latent models and hierarchical augmentations.
-Another model I worked on but did not publish, is the heteroscedastic regression model \cite{wangGaussianProcessRegression2012,lazaro2011variational}.
+Another model, still in a draft process, is the heteroscedastic regression model \cite{wangGaussianProcessRegression2012,lazaro2011variational}.
 It models simultaneously the mean and variance of a regression likelihood with two latent \ac{GPs} $f$ and $g$.
+We consider both Gaussian and Non-Gaussian likelihoods since augmentations can stack in this situation.
+We start with the simplest model: the heteroscedastic Gaussian likelihood.
 
 \subsection{Heteroscedastic Gaussian Likelihood}
 
@@ -49,13 +57,17 @@ The augmentations for this likelihood are straightforward and quite similar to t
     =&\sum_{n=0}^\infty \sigma^n(-g)\Po \left(n~\middle|~\frac{\lambda(y-f)^2}{2}\right),
 \end{align*}
 where we used the \ac{MGF} of the Poisson distribution.
-Now using the P\'olya-Gamma augmentation and the additivity property of P\'olya-Gamma variables, we get the final augmented likelihood:
+Using the P\'olya-Gamma augmentation and the additivity property of P\'olya-Gamma variables, we get the final augmented likelihood:
 \begin{align}
     p(y,n,\omega\mid f,g,\lambda) = \frac{\sqrt{\lambda}}{2^n\sqrt{\pi}}\exp\left(\frac{1}{2}\left(g\left(\frac{1}{2}-n\right) - \frac{g^2}{\omega}\right)\right)\PG \left(\omega \mid \half + n, 0\right) \Po \left(n \mid \lambda\frac{(y-f)^2}{2}\right)\label{eq:heteroscedastic}
 \end{align}
-The interesting part about this augmented likelihood is that although it is conditionally conjugate in $g$, $\omega$ and $n$, it is unclear how to infer $f$\mycom{say explicitely why}.
-It turns out that the Gibbs sampler for this model is very simple.
-We start with the full-conditional of $f$, we marginalize out $n$ and $\omega$, return to the original likelihood, which is conditionally conjugate, and perform a \textbf{collapsed step} for the Gibbs sampler with the marginalized full conditional $p(f|g,y)$.\mycom{reformulate this more clearly}
+The interesting part about this augmented likelihood is that although it is conditionally conjugate in $g$, $\omega$, and $n$, it is unclear how to infer $f$.
+The final likelihood~\eqref{eq:heteroscedastic} is quadratic in $g$ but not  in $f$.
+It turns out that the Gibbs sampler for this model is very simple:
+We start with the full-conditional $p(f|y,\omega,n,g,\lambda)$, marginalizing out $n$ and $\omega$ returns the original model, which is conditionally conjugate.
+We get the \textbf{collapsed conditional} $p(f|y,g,\lambda)$ which is nothing else but the conditional of our original model~\eqref{eq:heteroscedastic}.
+In a Gibbs sampling scheme, this allows us to perform a \textbf{collapsed step}.
+A collapsed step is even beneficial
 All Gibbs sampling steps are given in Algorithm~\ref{alg:gibbs_hetero}.
 
 However, as underlined in Section~\ref{sec:cavi}, the \ac{CAVI} updates need the full-conditionals of the model, and the marginalization of one of them does not guarantee to get correct updates.
