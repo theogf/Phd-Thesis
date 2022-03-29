@@ -37,13 +37,13 @@ Experimental results indicate that the error on the variational free energy is d
 \section{Double bounds for intricate latent GPs}
 \label{sec:heteroscedastic}
 The multi-class model developed in Chapter~\ref{ch:multi-class} paves the way to work with multi-latent models and hierarchical augmentations.
-Another model, still in a draft process, is the heteroscedastic regression model \cite{wangGaussianProcessRegression2012,lazaro2011variational}.
+Based on this idea, we developed another multi-latent model on the heteroscedastic regression likelihood  \cite{wangGaussianProcessRegression2012,lazaro2011variational}.
 It models simultaneously the mean and variance of a regression likelihood with two latent \ac{GPs} $f$ and $g$.
 We consider both Gaussian and Non-Gaussian likelihoods since augmentations can stack in this situation.
 We start with the simplest model: the heteroscedastic Gaussian likelihood.
 
 \subsection{Heteroscedastic Gaussian Likelihood}
-
+\label{sec:hetero_gaussian}
 A crucial model choice is the function mapping $g$ to the likelihood variance $\epsilon^2$.
 The exponential link, i.e. $\epsilon^2(x) = \exp(g(x))$, is the most popular, however to be able to apply our augmentations, we use the link $\epsilon^2(x) = \left(\lambda \sigma(g(x))\right)^{-1}$.
 Let's look at the case of the heteroscedastic Gaussian likelihood, defined as:
@@ -52,50 +52,48 @@ Let's look at the case of the heteroscedastic Gaussian likelihood, defined as:
 \end{align}
 
 The augmentations for this likelihood are straightforward and quite similar to the multi-class ones from Chapter~\ref{ch:multi-class}.
-\begin{align*}
-    \exp\left(-\frac{\lambda\sigma(g)(y-f)^2}{2}\right) =& \exp\left(\frac{\lambda(\sigma(-g) -1)(y-f)^2}{2}\right)\\
-    =&\sum_{n=0}^\infty \sigma^n(-g)\Po \left(n~\middle|~\frac{\lambda(y-f)^2}{2}\right),
-\end{align*}
+\begin{align}
+    \exp\left(-\frac{\lambda\sigma(g)(y-f)^2}{2}\right) =& \exp\left(\frac{\lambda(\sigma(-g) -1)(y-f)^2}{2}\right)\nonumber\\
+    =&\sum_{n=0}^\infty \sigma^n(-g)\Po \left(n~\middle|~\frac{\lambda(y-f)^2}{2}\right),\label{eq:aug_poisson}
+\end{align}
 where we used the \ac{MGF} of the Poisson distribution.
 Using the P\'olya-Gamma augmentation and the additivity property of P\'olya-Gamma variables, we get the final augmented likelihood:
 \begin{align}
     p(y,n,\omega\mid f,g,\lambda) = \frac{\sqrt{\lambda}}{2^n\sqrt{\pi}}\exp\left(\frac{1}{2}\left(g\left(\frac{1}{2}-n\right) - \frac{g^2}{\omega}\right)\right)\PG \left(\omega \mid \half + n, 0\right) \Po \left(n \mid \lambda\frac{(y-f)^2}{2}\right)\label{eq:heteroscedastic}
 \end{align}
-The interesting part about this augmented likelihood is that although it is conditionally conjugate in $g$, $\omega$, and $n$, it is unclear how to infer $f$.
-The final likelihood~\eqref{eq:heteroscedastic} is quadratic in $g$ but not  in $f$.
+The interesting part about this augmented likelihood is that although it is conditionally conjugate in $g$, $\omega$ and, $n$, it is unclear how to infer $f$:
+the final likelihood~\eqref{eq:heteroscedastic} is quadratic in $g$ but not in $f$.
 It turns out that the Gibbs sampler for this model is very simple:
-We start with the full-conditional $p(f|y,\omega,n,g,\lambda)$, marginalizing out $n$ and $\omega$ returns the original model, which is conditionally conjugate.
-We get the \textbf{collapsed conditional} $p(f|y,g,\lambda)$ which is nothing else but the conditional of our original model~\eqref{eq:heteroscedastic}.
+We take the augmented likelihood $p(y|f,g,\lambda,\omega,n)$, we marginalize out $n$ and $\omega$ and, as expected, we get the original likelihood~\eqref{eq:heteroscedastic}, which is conditionally conjugate with $f$.
+The conditional $p(f|y,g,\lambda)$ on this likelihood is the \textbf{collapsed conditional}.
 In a Gibbs sampling scheme, this allows us to perform a \textbf{collapsed step}.
-A collapsed step is even beneficial
-All Gibbs sampling steps are given in Algorithm~\ref{alg:gibbs_hetero}.
-
-However, as underlined in Section~\ref{sec:cavi}, the \ac{CAVI} updates need the full-conditionals of the model, and the marginalization of one of them does not guarantee to get correct updates.
-To solve this problem, we need to reverse-engineer how \ac{CAVI} updates are obtained and start with a first bound on the \ac{KL} divergence:
-\begin{align*}
-    \KL{q(\boldf)q(\boldg)}{p(\boldf,\boldg|\boldy)}\leq& \min_{q(\boldg)}-\expec{q(\boldg)}{\expec{q(\boldf)}{\log p(\boldy|\boldf,\boldg)}} + \KL{q(\boldf)q(\boldg)}{p(\boldf)p(\boldg)} - \log p(\boldy)\\
-    =& \min_{q(\boldg)}-\expec{q(\boldg)}{\log p(\boldy|\boldg, \bmu^*_f,\bSigma^*_f)} + \KL{q(\boldg)}{p(\boldg)} + \operatorname{KL}_f^* = \mathcal{F}_1.
-\end{align*}
-$p(\boldy|\boldg, \bmu^*_f, \bSigma^*_f)$ and $\mathrm{KL}^*_f$ are expectations computed with the optimal $q^*(\boldf)=\mathcal{N}\left(\boldf|\bmu_f^*,\bSigma_f^*\right)$.
-We can now use the augmentations from Equation~\eqref{eq:heteroscedastic} on the expected log-likelihood, where we replaced $(y_i-f_i)^2$ by $(y_i - (\bmu_f^*)_i)^2 + (\Sigma_f^*)_{ii}$, and build a second bound.
-
-\begin{align*}
-    \mathcal{F}_1 \leq \min_{q(\boldg)q(\bomega,\bn)} \expec{q(\boldg)q(\bomega,\bn)}{\log p(\bomega,\bn,\boldy|\boldg,\bmu_f^*,\bSigma_f^*)} + \KL{q(\boldg)}{p(\boldg)} + \operatorname{KL}_f^*=\mathcal{F}_2
-\end{align*}
-
-It is straightforward to find the optimal variational distributions $q^*(\boldg)$ and $q^*(\bomega,\bn)$ minimizing $\mathcal{F}_2$ which allows us to use \ac{CAVI} updates.
-Then, injecting the optimal distribution $q^*(\boldg)q(\bomega,\bn)$ in $\mathcal{F}_2$, we can derive the optimal $\bmu_f^*$ and $\bSigma_f^*$, obtainable in closed-form.
-The resulting \ac{CAVI} updates are given in Algorithm~\ref{alg:cavi_hetero}.
-
-This double-bound approach is very similar to \citet{lazaro2011variational}, although they are using the exponential link and need some extra computations.
-
+We give all the Gibbs sampling steps in Algorithm~\ref{alg:gibbs_hetero}.
 So far, we have excluded the $\lambda$ parameter from inference.
 By putting a Gamma prior $\Ga(\lambda|\alpha, \beta)$, where $\alpha$ is the shape and $\beta$ is the rate, the collapsed conditional is available in closed-form:
 \begin{align*}
     p(\lambda|\boldf, \boldf, \boldy) = \Ga(\lambda| \alpha + \frac{N}{2}, \beta + \sum_{i=1}^N \frac{\sigma(g^i)}{2}(y^i - f^i)^2).
 \end{align*}
 
-Similarly, we can use the second bound \mycom{refer to the right equation} to obtain a maximum-likelihood estimate on $\lambda$, given as well in Algorithm~\ref{alg:cavi_hetero}.
+
+As underlined in Section~\ref{sec:cavi}, the \ac{CAVI} updates need the full-conditionals of the model, and is not compatible with collapsed conditionals.
+To solve this problem, we need to reverse-engineer how \ac{CAVI} updates are obtained and start with a first bound on the \ac{KL} divergence:
+\begin{align*}
+    \KL{q(\boldf)q(\boldg)}{p(\boldf,\boldg|\boldy)}\leq& \min_{q(\boldg)}-\expec{q(\boldg)}{\expec{q(\boldf)}{\log p(\boldy|\boldf,\boldg)}} + \KL{q(\boldf)q(\boldg)}{p(\boldf)p(\boldg)} - \log p(\boldy)\\
+    =& \min_{q(\boldg)}-\expec{q(\boldg)}{\log p(\boldy|\boldg, \bmu^*_f,\bSigma^*_f)} + \KL{q(\boldg)}{p(\boldg)} + \operatorname{KL}_f^* - \log p(\boldy)= \mathcal{F}_1.
+\end{align*}
+$p(\boldy|\boldg, \bmu^*_f, \bSigma^*_f)$ and $\mathrm{KL}^*_f$ are expectations computed with the optimal $q^*(\boldf)=\mathcal{N}\left(\boldf|\bmu_f^*,\bSigma_f^*\right)$.
+We can now use the augmentations from Equation~\eqref{eq:heteroscedastic} on the expected log-likelihood, where we replaced $(y_i-f_i)^2$ by $(y_i - (\bmu_f^*)_i)^2 + (\Sigma_f^*)_{ii}$, and build a second bound.
+
+\begin{align}
+    \mathcal{F}_1 \leq \min_{q(\boldg)q(\bomega,\bn)} \expec{q(\boldg)q(\bomega,\bn)}{\log p(\bomega,\bn,\boldy|\boldg,\bmu_f^*,\bSigma_f^*)} + \KL{q(\boldg)}{p(\boldg)} + \operatorname{KL}_f^*=\mathcal{F}_2 \label{eq:second_bound}
+\end{align}
+
+It is straightforward to find the optimal variational distributions $q^*(\boldg)$ and $q^*(\bomega,\bn)$ minimizing $\mathcal{F}_2$ which allows us to use \ac{CAVI} updates.
+Then, injecting the optimal distribution $q^*(\boldg)q(\bomega,\bn)$ in $\mathcal{F}_2$, we can derive the optimal $\bmu_f^*$ and $\bSigma_f^*$, obtainable in closed-form.
+The resulting \ac{CAVI} updates are given in Algorithm~\ref{alg:cavi_hetero}.
+For $\lambda$, we can use the second bound \eqref{eq:second_bound} and obtain a closed-form maximum-likelihood estimate, given in Algorithm~\ref{alg:cavi_hetero}.
+
+This double-bound approach is very similar to \citet{lazaro2011variational}, although they are using the exponential link and need some extra computations.
 
 \begin{algorithm}[H]
     \caption{Gibbs sampling for the Heteroscedastic Gaussian likelihood}
@@ -134,11 +132,9 @@ Similarly, we can use the second bound \mycom{refer to the right equation} to ob
     \label{alg:cavi_hetero}
 \end{algorithm}
 
-
-
 A 1-dimensional toy example is shown in Figure~\ref{fig:heteroscedastic} with the results of the inference algorithms.
 
-\begin{figure}
+\begin{figure}[H]
 \includegraphics[width=\textwidth]{./chapters/8_discussions/figures/heteroscedastic.pdf}
 \caption{Toy example of a heteroscedastic Gaussian regression problem and the resulting inference from Algorithms~\ref{alg:cavi_hetero} and~\ref{alg:gibbs_hetero}.
 The left plots show the data in orange and the generating Gaussians (mean with one standard deviation in blue), the green bands show the predictive distributions obtained after posterior inference.
@@ -153,65 +149,84 @@ Note that an implementation as well as detailed derivations can be found in the 
 This method extends to non-Gaussian likelihoods as well.
 We take the example of the heteroscedastic Student-t likelihood, where we have a local scale with standard deviation $\epsilon(x) = \lambda \sigma(g)$ with $\lambda \in \mathbb{R}^+$.
 
-Similar to Equation~\eqref{eq:hetero_lik} we get the likelihood:
-\begin{align*}
+Similar to Equation~\eqref{eq:hetero_lik}, we get the likelihood:
+\begin{align}
     p(y|f,g,\lambda,\nu) = \frac{\Gamma(\frac{\nu+1}{2})\sqrt{\lambda\sigma(g)}}{\Gamma(\frac{\nu}{2})\sqrt{\pi\nu}}\left(1 + \lambda \sigma(g)\frac{(y-f)^2}{\nu}\right)^{-\frac{\nu+1}{2}}
     \label{eq:hetero_studentt}
-\end{align*}
+\end{align}
 
-To simplify the notation, we define $\Delta=\Delta_\nu(f,y,\lambda) = \frac{\lambda(y-f)^2}{\nu}$, $\alpha =\frac{\nu+1}{2}$ and $Z = \frac{\Gamma(\frac{\nu+1}{2})}{\Gamma(\frac{\nu}{2})}$.
+To simplify the notation, we define the scaled residuals $\Delta=\Delta_\nu(f,y,\lambda) = \frac{\lambda(y-f)^2}{\nu}$, $\alpha =\frac{\nu+1}{2}$ and the normalization constant $Z = \frac{\Gamma(\frac{\nu+1}{2})}{\Gamma(\frac{\nu}{2})}$.
 We can proceed with the first augmentation:
-\begin{align*}
-    (1 + \sigma(g)\Delta)^{-\alpha} =& (1 + \Delta(1 - \sigma(-g)))^{-\alpha}\\
-    =&(1 + \Delta - \Delta\sigma(-g))^{-\alpha}\\
-    =& (\Delta\sigma(-g))^{-\alpha}\left(\frac{\sigma(-g)\Delta}{1 + \Delta -\sigma(-g)\Delta}\right)\\
-    =&\sum_{k=0}^{\infty} \Delta^k \mathrm{NB}(k|\sigma(-g),\alpha),
-\end{align*}
-where we used the \ac{MGF} of the Negative Binomial distribution.
-We obtain the same result by first performing the augmentation of the Student-t with a Gamma variable followed by an augmentation with a Poisson variable.
-Marginalizing out the Gamma variable will then give a Negative Binomial distribution.
-We rework the likelihood by fusing the terms:
+\begin{align}
+    (1 + \sigma(g)\Delta)^{-\alpha} =& (1 + \Delta(1 - \sigma(-g)))^{-\alpha}\nonumber\\
+    =&(1 + \Delta - \Delta\sigma(-g))^{-\alpha}\nonumber\\
+    =& (\Delta\sigma(-g))^{-\alpha}\left(\frac{\sigma(-g)\Delta}{1 + \Delta -\sigma(-g)\Delta}\right)\nonumber\\
+    =&\sum_{k=0}^{\infty} \Delta^k \mathrm{NB}(k|\sigma(-g),\alpha),\label{eq:negativebinomial}
+\end{align}
+where we used the \ac{MGF} of the \textbf{Negative Binomial} distribution.
+
+We obtain the same result by performing first the augmentation of the Student-t with a Gamma variable:
+\begin{align}
+    p(y|f,g,\lambda) =& \int_0^\infty \mathcal{N}(y| f, (\lambda\sigma(g)\gamma)^{-1})\mathrm{IG}(\gamma|\frac{\nu}{2},\frac{\nu}{2})d\gamma\nonumber\\
+    p(y,\gamma|f,g,\lambda)= \mathcal{N}(y| f, (\lambda\sigma(g)\gamma)^{-1})\mathrm{IG}(\gamma|\frac{\nu}{2},\frac{\nu}{2}).\label{eq:aug_gamma_studentt}
+\end{align}
+$\mathcal{N}(y| f, (\lambda\sigma(g)\gamma)^{-1})$ is the same starting point as Equation~\eqref{eq:hetero_lik} with an additional scaling $\gamma$.
+The next augmentation steps are the same as in Equation~\eqref{eq:aug_poisson} with an augmentation with a Poisson variable.
+Marginalizing out the Gamma variable $\gamma$ results in a Negative Binomial distribution.
+
+Back to Equation~\eqref{eq:negativebinomial}, we rework the likelihood by reorganizing the terms in the augmented likelihood.
 \begin{align*}
     p(y,k|f,g,\lambda,\nu) =& Z\sqrt{\lambda}\sigma^{\frac{1}{2}}\sigma(-g)^{-\alpha}\Delta^{-\alpha}\Delta^k\underbrace{C(k,\alpha)\sigma^{\alpha}(g)\sigma(-g)^k}_{\mathrm{NB}(k|\sigma(-g),\alpha)}\\
     =& ZC(k,\alpha)\sqrt{\lambda}(\sigma(g))^{\frac{1}{2}+\alpha}(\sigma(-g))^{k-\alpha}\Delta^{k-\alpha}
 \end{align*}
-where $C(k, \alpha) = \frac{\Gamma(r + k)}{k!\Gamma(r)}$.
-We set $Z'=ZC(\alpha,k)\sqrt{\lambda}$ as constants not independent of $f$ or $g$.
-The final step is the P\'olya-Gamma augmentation where we give directly the final result:
+where $C(k, \alpha) = \frac{\Gamma(r + k)}{k!\Gamma(r)}$ is the normalization constant of the negative binomial.
+We set $Z'=ZC(\alpha,k)\sqrt{\lambda}$ as a constant independent of $f$ or $g$.
+The final step is the P\'olya-Gamma augmentation:
 \begin{align}
-    p(y,k,\omega|f,g,\lambda,\nu) = Z'\Delta^{k-\alpha}2^{-(\half+k)}\exp\left(\half\left(\half + 2\alpha - k\right)g + g^2\omega\right)\PG(\omega|\half+k,0).
+    p(y,k,\omega|f,g,\lambda,\nu) = Z'\Delta^{k-\alpha}2^{-(\half+k)}\exp\left(\half\left(\half + 2\alpha - k\right)g + g^2\omega\right)\PG(\omega|\half+k,0)\label{eq:augmented_studentt}.
 \end{align}
-Given this augmented model, we can marginalize and augment as much as we want to find the most convenient form to compute the full-conditionals.\mycom{clarify}
-For example, we could use just the first Gamma augmentation on the likelihood to find the collapsed conditional of $f$ and $\lambda$ but use the full augmentation for $g$.\mycom{rewrite}
+
+Like for the heteroscedastic Gaussian likelihood, the augmented likelihood~\eqref{eq:augmented_studentt} is conjugate in $g$ but not in $f$.
+We can find the collapsed conditional for $f$ in closed-form.
+
+The key to perform inference on this augmented model, is to use the right augmented likelihood for each variable.
+For example, for $f$ and $\lambda$, we only want to use the Inverse Gamma augmentation described in Equation~\eqref{eq:aug_gamma_studentt}.
+For $\omega$, $g$, and $k$ (used as a mixture of inverse Gamma and Poisson) we will use the fully augmented likelihood~\eqref{eq:augmented_studentt}.
+This will give a combination of collapsed conditionals and full-conditionals directly usable in a Gibbs sampling scheme.
+For the \ac{CAVI} updates, we reuse the double bound idea of Section~\ref{sec:hetero_gaussian}.
+
 The full derivations, resulting algorithms and implementation can be found in the  \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} package \cite{theo_galy_fajou_2022_6347022}.
 
 \section{Using Hamilton Monte Carlo on the augmented model}
-
 The Gibbs sampler in the experiments of Chapters~\ref{ch:classification} and \ref{ch:general} outperforms the state-of-the-art \ac{HMC} algorithm introduced in Section~\ref{sec:hmc}.
 A recurrent question I got is:
-Is the performance gain due only to the augmentation or the Gibbs sampler?
+Is the performance gain due only to the augmentation or the Gibbs sampling scheme?
+To answer this question, we try using the \ac{HMC} algorithm on augmented models.
 
-First, the augmentation is not in favor of the \ac{HMC} sampler due to the increase of dimensionality of the model.
-For $N$ observations, we need $KN$ more dimensions (where $K$ depends on the model).
-This makes gradient computations and algorithm tuning more expensive.
+Before doing any experiments, let us consider the consequences that the augmented model has on the \ac{HMC} sampler.
+First, the augmentation increases the dimensionality of the model.
+For $N$ observations, we need $KN$ more dimensions (where $K$ depends on the model); therefore, gradient computations and algorithm tuning should be more expensive.
 On the other hand, since the likelihood is simplified to a quadratic problem, the computational complexity of each step can decrease!
 The second issue with using \ac{HMC} on the augmented model is that the \ac{pdf} of the prior distribution on augmented variables is not always available in closed-form or not usable at all.
 For example, one approximates the probability of a P\'olya-Gamma variable with a truncated alternating series,
-Truncated series are not only computationally expensive but can also be biased and unstable! \mycom{justify}
-Additionally, \ac{HMC} only works with continuous variables and some augmentations directly involve discrete variables like the Poisson in the multi-class setting.
+Truncated series are computationally expensive and can also be biased and unstable!
+My experience with the P\'olya-Gamma variables is that even when using tricks to improve numerical stability like the logsumexp function, the \ac{pdf} approximation can be negative, breaking the computations.
+Finally, the critical problem with \ac{HMC} is that it only works with continuous variables.
+Some augmentations directly involve discrete variables like the Poisson in the multi-class setting, making it incompatible with a scheme involving only \ac{HMC}.
 
-To have a better idea, Figure~\ref{fig:hmc_vs_gibbs} shows the auto-correlation plots on \ac{GP} regression problem with a Student-t likelihood with 3 degrees of freedom applied on the Boston housing dataset (506 data points, 13 dimensions) \cite{harrison1978hedonic}.
+We try running \ac{HMC} and \ac{NUTS} with a compatible augmentation (augmented variable \ac{pdf} known in closed-form, no discrete variables).
+Figure~\ref{fig:hmc_vs_gibbs} shows the auto-correlation plots on \ac{GP} regression problem with a Student-t likelihood with $\nu=3$ degrees of freedom applied on the Boston housing dataset (506 data points, 13 dimensions) \cite{harrison1978hedonic}.
 We draw one chain of 2000 samples (plus 500 adaptation samples for \ac{HMC} and \ac{NUTS}) for both the original and augmented model.
 
 From the first look, \ac{HMC} applied on the augmented model has a lower auto-correlation.
 When using \ac{NUTS}, the gain becomes less clear.
 Moreover, the algorithm produces antithetic chains, making it harder to have a proper comparison.
-The Gibbs sampler has the smallest intra-chain correlation, but one could argue that negative correlations are more desirable.
+The Gibbs sampler has the smallest intra-chain correlation, but one could argue that negative correlations are desirable to compute expectations.
 However, \ac{HMC} and \ac{NUTS} turned out to be much slower than the Gibbs sampler:
 the Gibbs sampler took around 20 sec to run against an average of 12 minutes for \ac{HMC} and \ac{NUTS}.
 Perhaps surprisingly, there was no significant time difference between the augmented and original models for \ac{HMC} and \ac{NUTS}.
 
-These results should be considered as preliminary, as a simple likelihood was used and the dataset should be considered trivial.
+We should only consider these results preliminary since we used a simple likelihood, and the dataset is relatively small and easy.
 
 \begin{figure}[H]
     \centering
@@ -221,58 +236,10 @@ These results should be considered as preliminary, as a simple likelihood was us
     \label{fig:hmc_vs_gibbs}
 \end{figure}
 
-
 \section{Improvements on the Multi-Class Classification}
 \label{sec:improvemulticlass}
 We recently figured out additional ways to improve the multi-class classification model and the associated inference.
-Two of them are listed here
-
-\subsection{A new model for the multi-class classification}
-\label{sec:simplex}
-In Chapter \ref{ch:multi-class}, one of the possible concerns regarding the model is that $\lambda$ has the improper prior $p(\lambda) = 1_{[0,\infty)}$, which is a proper measure but is not normalizable.
-The posterior is normalizable, which is another critical take on the augmentations.
-We only need a measure and not a distribution for the mixtures prior, 
-extending the possibilities of augmentations to non-normalizable measures.
-Since the resulting posterior is proper, no problem will arise, but this can be dissatisfactory from a purely Bayesian perspective.\mycom{change that}
-This improper prior rises from the ill-conditioning of the model.
-Given $K$ classes, only $K-1$ latent \ac{GPs} are needed since we have the additional constraint that $\sum_{k=1}^K p(y=k|\boldf) = 1$.
-Using this formulation we get the following likelihood:
-\begin{align}
-    p(y=k|\{f_k\}_{k=1}^{K-1}) = \left\{
-        \begin{array}{cc}
-            \frac{\sigma(f_k)}{D + \sum_{i=1}^{K-1}\sigma(f_i)}, & \mathrm{if}\; 1 \leq k < K - 1\\
-            \frac{D}{D + \sum_{i=1}^{K-1}\sigma(f_i)}, & \mathrm{if}\; k = K - 1 \\
-    \end{array}
-    \right.,
-\end{align}
-where $D \in [0, 1]$.
-We call this version of the likelihood \textbf{bijective} since the dimensionality of the simplex output is the same as the inputs.
-Although we set one of the inputs to a fixed value, the classes are still exchangeable.
-The choice to have the last input to be $0$ is arbitrary, and we could set any of the latent \ac{GPs} to be $0$ and therefore exchange any of the classes.
-In the coming equations, we set $D=0.5$, equivalent to having the non-bijective likelihood with $f_K = 0$.
-
-Using this formulation, the first augmentation that led to an improper prior in the model of Chapter~\ref{ch:multi-class}:
-\begin{align*}
-    \frac{1}{ \sum_{i=1}^{K} \sigma(f_i)} = \int_0^\infty e^{-\lambda  \sum_{i=1}^{K} \sigma(f_i)}d\lambda
-\end{align*}
-is replaced by the known \ac{MGF} of a Gamma distribution with the following mixture:
-\begin{align*}
-    \frac{1}{D + \sum_{i=1}^{K-1} \sigma(f_i)} =& \frac{1}{D + \sum_{i=1}^{K-1} \sigma(f_i)} = \frac{1}{D}\frac{1}{1+\frac{1}{D}\sum_{i=1}^{K=1}\sigma(f_i)}\\
-    =& \frac{1}{D}\int_0^\infty e^{-\lambda \sum_{i=1}^{K-1} \sigma(f_i)}\Ga \left(1, \frac{1}{D}\right)d\lambda.
-\end{align*}
-An important condition to use the \ac{MGF} is that $-\sum_{i=1}^{K-1} \sigma(f_i) < D$ which is true as long as $D > 0$.
-This condition would not hold with the over-parametrized version, leading to $D=0$.
-
-From this point, the rest of the derivations are identical for both models \mycom{reformulate}.
-We use the \ac{MGF} of the Poisson distribution and finally the P\'olya-Gamma augmentation.
-We show the whole derivations on Algorithms~\ref{alg:gibbs_multiclass} and~\ref{alg:cavi_multiclass} and show an example on Figure~\ref{fig:bijective_multiclass}.
-
-Although it is mathematically more straightforward, a significant issue with this model is the choice of $D$.
-Since we fix $D$, the probability for classes other than $K$ will be upper bounded by $\frac{1}{D + 1}$.
-For example, taking $D=0.5$ leads to a maximum probability of $2/3$ for all other $K-1$ classes.
-On the other hand, if $D=0$, the probability of the class $K$ will always be $0$.
-The softmax link does not have this issue since the exponential function is not bounded.
-A potential solution using scaled logistics is presented in Section~\ref{sec:scale_multiclass}.
+We present them here in 3 different sections.
 
 \subsection{Marginalizing out variables}
 \label{sec:marg_multiclass}
@@ -280,49 +247,83 @@ In the augmentation derived in Chapter~\ref{ch:multi-class}, we add $2K + 1$ new
 However, we can reduce this number to $2K$ and avoid unnecessary inner loops by marginalizing out $\lambda$.
 When deriving the augmentations, one ends up with the following augmented likelihood:
 \begin{align}
-    p(y=k|\{f_i\}_{i=1}^K,\{n_i\}_{i=1}^K,\lambda) = \sigma(f_k) \prod_{i=1}^K \sigma(-f_i)^{n_i} \Po (n_i|\lambda).
+    p(y=k, \{n_j\}_{j=1}^K, \lambda|\{f_j\}_{j=1}^K) = \sigma(f_k) \prod_{j=1}^K \sigma(-f_j)^{n_j} \Po (n_j|\lambda),
 \end{align}
+where we omitted the improper prior $1_{[0,\infty)}$ on $\lambda$.
 We can marginalize out $\lambda$:
 \begin{align}
-    \int_{0}^\infty \prod_{i=1}^K \sigma(-f_i)^{n_i} \Po (n_i|\lambda)d\lambda =& \frac{1}{\prod_{i=1}^K n_i!}\int_{0}^\infty \lambda^{\sum_{i=1}^K n_i}e^{-K\lambda}d\lambda \nonumber\\
-    =& \frac{K^{-\sum_{i=1}^K n_i}}{\prod_{i=1}^K n_i!}\prod_{i=1}^K \sigma(-f_i)^{n_i} \int_{0}^\infty (K\lambda)^{\sum_{i=1}^K n_i}e^{-K\lambda}d\lambda \nonumber\\
-    =& \prod_{i=1}^K\sigma(-f_i)^{n_i}\Gamma(1 + \sum_{i=1}^K n_i) \prod_{i=1}^K \left(\frac{1}{K}\right)^{n_i}\frac{1}{n_i!} \label{eq:NM}
+    \int_{0}^\infty \prod_{j=1}^K \sigma(-f_j)^{n_j} \Po (n_j|\lambda)d\lambda =& \frac{1}{\prod_{j=1}^K n_j!}\int_{0}^\infty \lambda^{\sum_{j=1}^K n_j}e^{-K\lambda}d\lambda \nonumber\\
+    =& \frac{K^{-\sum_{j=1}^K n_j}}{\prod_{j=1}^K n_j!}\prod_{j=1}^K \sigma(-f_j)^{n_j} \int_{0}^\infty (K\lambda)^{\sum_{j=1}^K n_j}e^{-K\lambda}d\lambda \nonumber\\
+    =& \prod_{j=1}^K\sigma(-f_j)^{n_j}\Gamma(1 + \sum_{j=1}^K n_j) \prod_{j=1}^K \left(\frac{1}{K}\right)^{n_j}\frac{1}{n_j!}. \label{eq:NM}
 \end{align}
 
-Which is proportional to a negative multinomial $\operatorname{NM}(x_0, \boldsymbol{p})$ with parameters $x_0=1$, $\boldsymbol{p}=\left\{\frac{1}{K}\right\}_{i=1}^K$:
+Which is proportional to a negative multinomial $\operatorname{NM}(x_0, \boldsymbol{p})$ defined by:
 \begin{align*}
-    \operatorname{NM}(\bx|x_0,\boldsymbol{p}) = \Gamma\left(\sum_{i=0}^K x_i\right) \frac{p_0^{x_0}}{\Gamma(x_0)}\prod_{i=1}^K \frac{p_i^{x_i}}{x_i!}   
+    \operatorname{NM}(\bx|x_0,\boldsymbol{p}) = \Gamma\left(\sum_{j=0}^K x_j\right) \frac{p_0^{x_0}}{\Gamma(x_0)}\prod_{j=1}^K \frac{p_j^{x_j}}{x_j!}   
 \end{align*}
-where $p_0 = 1 - \sum_{i=1}^K p_i$.
-Note that $p_0$ is missing in Equation~\eqref{eq:NM} and is defined by $p_0= 1 - \sum_{i=1}^K p_i = 1 - \sum_{i=1}^{K}\frac{1}{K} = 0$.
-The prior is again non-normalizable, as observed in Section~\ref{sec:simplex}.
-Yet, the model is still valid since $p(y,\{f_i\}_{i=1}^K,\{n_i\}_{i=1}^K)$ is normalizable!
+with parameters $x_0=1$, $\boldsymbol{p}=\left\{\frac{\sigma(-f_j)}{K}\right\}_{j=1}^K$, and where $p_0 = 1 - \sum_{j=1}^K p_j$.
+Note that the normalization term $p_0$ is missing in Equation~\eqref{eq:NM}.
+However, we do not add it, as it would render the likelihood unusable.
+We keep the prior unnormalized, but this does not influence the inference, as in Chapter~\ref{ch:multi-class}, since all full-conditionals are available in closed-form and normalized.
 
-More interestingly, all these derivations could have been avoided by noticing that the \ac{MGF} of a negative binomial distribution is given by:
+These derivations could have been avoided by noticing that the \ac{MGF} of a negative binomial distribution is given by:
 \begin{align*}
-    \operatorname{MGF}_{\operatorname{NM}(x_0,\boldsymbol{p})}(\boldsymbol{t}) = \left(\frac{p_0}{1-\sum_{i=1}^K p_k e^{t_i}}\right)^{x_0},
+    \operatorname{MGF}_{\operatorname{NM}(x_0,\boldsymbol{p})}(\boldsymbol{t}) = \left(\frac{p_0}{1-\sum_{j=1}^K p_j e^{t_j}}\right)^{x_0}.
 \end{align*}
-This makes it even easier to derive the correctly parametrized model proposed in Section~\ref{sec:simplex}.
-Quickly identifying the terms in the \ac{MGF}, the augmented likelihood would be:
-\begin{align*}
-    p\left(y=k,\{n_i\}_{i=1}^{K-1}|\{f_i\}_{i=1}^{K-1}\right) = \frac{\sigma(f_k)}{D}\left(\prod_{i=1}^{K-1}\sigma(-f_i)^{n_i}\right)\operatorname{NM}\left(\boldsymbol{n}\mid 1, \left\{\frac{1}{D+K-1}\right\}_{i=1}^{K-1}\right),
-\end{align*}
-where we set $\sigma(f_K) = D$.
+
 
 Both the Gibbs sampling and \ac{CAVI} updates based on this marginalization are described in Algorithms~\ref{alg:gibbs_multiclass} and~\ref{alg:cavi_multiclass}.
 
-\subsection{Reformulating the logistic-softmax link}
-\label{sec:scale_multiclass}
-Another issue from this paper was the logistic-softmax link predictions bounds, in particular with many classes.
-Because of the boundedness of the logistic function, the logistic-softmax link needs large values of $f_i$ to reach prediction probabilities close to $1$.
-This can be solved by using a scaled logistic function instead.
-We add $K$ hyperparameters $\btheta=\{\theta_{i}\}_{i=1}^K$ such that the likelihood becomes
-\begin{align*}
-    p(y=k|\{f_i\}_{i=1}^K,\btheta) = \frac{\theta_k \sigma(f_k)}{\sum_{i=1}^K \theta_i \sigma(f_i)}.
-\end{align*}
-The $\btheta$ parameters can be optimized using the \ac{ELBO} with the other hyperparameters.
-These can also provide information about each class, a high $\theta_i$ meaning that the $i$-th class has zones of very high confidence.
 
+\subsection{A new model for the multi-class classification}
+\label{sec:simplex}
+In Chapter \ref{ch:multi-class}, two concerns can be raised.
+First, the parametrization of a categorical distribution with $K$ categories requires only $K-1$ independent parameters $\boldsymbol{p}$ due to the constraint $\sum_{j=1}^K p_j = 1$.
+However, in the original model, which we will call \textbf{over-parametrized}, we consider $K$ independent parameters.
+Second, the augmented variable $\lambda$ has the improper prior $p(\lambda) = 1_{[0,\infty)}$, which is a proper measure but is not normalizable.
+It is not an important concern since \textbf{the posterior is normalizable} despite the improper prior.
+Nevertheless, one might argue that improper priors should be avoided, as it does not allow model comparison.
+
+On a side note, the fact that augmentations with improper priors still lead to valid inference is a good indication that scale mixtures for augmentation can be extended to non-normalizable measures.
+
+These two issues seem connected, but we do not have any proof for it.
+
+We propose an alternative parametrization with $K-1$ latent \ac{GPs}.
+The likelihood stays the same but with one latent being fixed:
+\begin{align}
+    p(y=k|\{f_j\}_{j=1}^{K-1}) = \left\{
+        \begin{array}{cc}
+            \frac{\sigma(f_k)}{D + \sum_{j=1}^{K-1}\sigma(f_j)}, & \mathrm{if}\; 1 \leq k < K - 1\\
+            \frac{D}{D + \sum_{j=1}^{K-1}\sigma(f_j)}, & \mathrm{if}\; k = K - 1 \\
+    \end{array}
+    \right.,\label{eq:simplex_multiclass}
+\end{align}
+where $D = \sigma(f_K) \in [0, 1]$.
+We call this version of the likelihood \textbf{bijective} since the dimensionality of the simplex output is the same as the inputs.
+
+This likelihood comes with different properties.
+Unlike the softmax link, the logistic-softmax link is not translation invariant\footnote{There is no function $f(\Delta)$ such that $\sigma(x + \Delta) = f(\Delta)\sigma(x)$ for all $x$.}.
+We can not freely exchange classes, and the "fixed" class has a different behavior than the rest.
+For example, since we fix $D$, the probability for classes other than $K$ will be upper bounded by $\frac{1}{D + 1}$.
+For example, taking $D=0.5$ leads to a maximum probability of $1$ for the class $K$ and $2/3$ for all other classes.
+On the other hand, if $D=0$, the probability of the class $K$ will always be $0$.
+The bijective likelihood can still be practical if we do not care about one of the classes.
+Additionally, the scaled model presented in the next Section~\ref{sec:scale_multiclass} can also help with the imbalance between classes.
+
+Starting from the likelihood in Equation~\ref{eq:simplex_multiclass} the first augmentation that led to an improper prior in the over-parametrized model of Chapter~\ref{ch:multi-class}:
+\begin{align*}
+    \frac{1}{\sum_{j=1}^{K} \sigma(f_j)} = \int_0^\infty e^{-\lambda  \sum_{j=1}^{K} \sigma(f_j)}d\lambda
+\end{align*}
+is replaced by the known \ac{MGF} of a Gamma distribution with the following mixture:
+\begin{align*}
+    \frac{1}{D + \sum_{j=1}^{K-1} \sigma(f_j)} =& \frac{1}{D + \sum_{j=1}^{K-1} \sigma(f_j)} = \frac{1}{D}\frac{1}{1+\frac{1}{D}\sum_{j=1}^{K=1}\sigma(f_j)}\\
+    =& \frac{1}{D}\int_0^\infty e^{-\lambda \sum_{j=1}^{K-1} \sigma(f_j)}\Ga \left(\lambda|1, \frac{1}{D}\right)d\lambda,
+\end{align*}
+which is true for $D > 0$.
+
+The next augmentations steps are the same for the bijective and over-parametrized models:
+We use the \ac{MGF} of the Poisson distribution and finally the P\'olya-Gamma augmentation.
+We show the whole derivations on Algorithms~\ref{alg:gibbs_multiclass} and~\ref{alg:cavi_multiclass} and show an example on Figure~\ref{fig:bijective_multiclass}.
 \begin{algorithm}[H]
     \caption{Gibbs sampling updates: $\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}$ latent \ac{GPs} for $K$ classes}
     \begin{algorithmic}
@@ -357,7 +358,7 @@ These can also provide information about each class, a high $\theta_i$ meaning t
 
 We show 1-dimensional examples with 3 classes with and without the bijection on Figure~\ref{fig:bijective_multiclass} and~\ref{fig:multiclass}
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{./chapters/8_discussions/figures/categorical_bijective.pdf}
     \caption{Illustration of Algorithms~\ref{alg:gibbs_multiclass} and~\ref{alg:cavi_multiclass} with the bijective link introduced in Section~\ref{sec:simplex} and the marginalization of Section~\ref{sec:marg_multiclass}.
@@ -367,7 +368,7 @@ We show 1-dimensional examples with 3 classes with and without the bijection on 
     The plots at the bottom show the probabilities and latent GPs obtained via Gibbs sampling.}
     \label{fig:bijective_multiclass}
 \end{figure}
-\begin{figure}
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{./chapters/8_discussions/figures/categorical_nonbijective.pdf}
     \caption{Illustration of Algorithms~\ref{alg:gibbs_multiclass} and~\ref{alg:cavi_multiclass} with the non-bijective link with the marginalization of Section~\ref{sec:marg_multiclass}.
@@ -378,33 +379,65 @@ We show 1-dimensional examples with 3 classes with and without the bijection on 
     \label{fig:multiclass}
 \end{figure}
 
+\subsection{Scaling the logistic-softmax link}
+\label{sec:scale_multiclass}
+The logistic-softmax link has issues with the predictive probabilities, in particular with many classes.
+Because of the boundedness of the logistic function, the logistic-softmax link needs large values of $f_i$ to reach prediction probabilities close to $1$.
+Even when the model should be very confident about a prediction and the latent \ac{GPs} are correctly inferred, the predictive probability for the correct class will be around $(1-\epsilon) / ((K - 1) \epsilon +  1 - \epsilon)$ where $\epsilon$ is the minimum value taken by $\sigma(f)$.
+With a \ac{GP} prior centered at 0 and a reasonable kernel variance, $f$ can not take large values.
+For example, taking 10 classes, if we assume $f_y=4$ for the correct class and $-4$ for the others, $\epsilon \approx 1.8e-2$, which gives a probability of $0.858$ with the logistic-softmax link against $0.996$ for the softmax link.
+
+This can be solved by using a scaled logistic function.
+We add $K$ hyperparameters $\btheta=\{\theta_{i}\}_{i=1}^K$ such that the likelihood becomes
+\begin{align*}
+    p(y=k|\{f_j\}_{j=1}^K,\btheta) = \frac{\theta_k \sigma(f_k)}{\sum_{j=1}^K \theta_j \sigma(f_j)}.
+\end{align*}
+The $\btheta$ parameters can be optimized using the \ac{ELBO} with the other hyperparameters.
+These can also provide information about each class, a high $\theta_j$ meaning that the $j$-th class has zones of very high confidence.
+With the likelihood augmented with the variable $\lambda$, the collapsed-conditional and the maximum-likelihood optimum of $\btheta$ is available in closed-form.
+The maximum-likelihood optimizer is given by:
+\begin{align*}
+    \theta^*_k = \frac{\sum_{i=1}^N \delta(y^i, k)}{\sum_{i=1}^N \expec{q(\lambda^n)}{\lambda^n}(1 - \widetilde{\sigma}(q(f_k^i)))},
+\end{align*}
+where $\delta(x,y)$ is the delta function, equal to 1 if $x==y$ and 0 otherwise and where $\widetilde{\sigma}(q(f_k^i))$ is defined as in Algorithm~\ref{alg:cavi_multiclass}.
+We used the model definition where $\lambda$ is not marginalized out.
+
+By putting a prior $\mathrm{Ga}(\theta_k|\alpha,\beta)$, the collapsed conditional of each $\theta_k$ is given by:
+\begin{align*}
+    p(\theta_k|\boldf_k, \boldsymbol{\lambda}) = \mathrm{Ga}(\theta_k|\alpha + \sum_{i=1}^N\delta(y^i, k), \beta + \sum_{i=1}^N\lambda^i\sigma(f_k^i))
+\end{align*}
+
 A Julia implementation as well as detailed derivations can be found in the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} package \cite{theo_galy_fajou_2022_6347022}.
 
 \section{Sampling from a sparse augmented model}
 
 Another work in progress regards the sampling of sparse \ac{GPs} models.
-Being able to sample directly from the augmented model is ideal as it allows recovering samples from the original posterior $p(\boldf|\bX,\boldy)$.
-Unfortunately, this does not transfer when using sparse \ac{GPs}.
-Naively using an additional set of points, without using the \citet{Titsias2009} assumption, leads to an algorithm with complexity $\mathcal{O}((N+M)^3)$, defeating the point of using inducing points.
-However, we can resort to mixing variational inference and sampling.
-Instead of optimizing the parameters of the distribution $q(\boldu)$, we consider a free-form variational distribution defined as a collection of samples $\{\boldu_i\}_{i=1}^T$ coming from the optimal variational distribution $q^*(\boldu)$ \cite{hensmanMCMCVariationallySparse2015}.
-In other words, we want to sample from the optimal free-form $q^*(\boldu)$ which minimizes the \ac{KL} divergence with $p(\boldu|\bX,\boldy)$:
-\begin{align*}
-    \log q^*(\boldu) = \expec{p(\boldf|\boldu)}{\log p(\boldy|\boldf)} + \log p(\boldu) + C.
-\end{align*}
-The straightforward option is to use \ac{HMC} as in \cite{hensmanMCMCVariationallySparse2015} to sample from this objective.
-We can also derive a Gibbs sampling algorithm to draw samples from this objective using our previous work on augmentations.
+Sampling from the augmented model proves to be very effective (see Chapter~\ref{ch:general}) while still producing samples from the posterior $p(\boldf|\boldy)$ of the original model.
+Unfortunately, this property does not transfer when using sparse \ac{GPs} (see Section~\ref{sec:sparsegps}) and the scalability is limited.
+Naively using an additional set of points, without using the \citet{Titsias2009} assumption, leads to an algorithm with complexity $\mathcal{O}((N+M)^3)$, defeating the purpose of using inducing points.
+To solve this problem we propose to mix variational inference and sampling.
 
-In our new setting the optimal distribution is defined as $q^*(\boldf,\boldu,\bOmega) = p(\boldf|\boldu)q^*(\boldu, \bOmega)$, where $\bOmega$ denotes the set of augmented variables.
-Note that, unlike in the traditional \mycom{explicit} \ac{VI} setting, we do not assume independence between $\boldu$ and $\bOmega$.
-$\bOmega$, $\boldu$ and $\boldf$ are sampled one after another using the optimal conditional distributions $q^*(\bOmega|\boldu,\boldf)$ and $q^*(\boldu,\boldf|\bOmega)$.
-We sample $\boldu$ and $\boldf$ together since they are highly correlated.
-To identify the optimal conditional distributions, we look at the minimizer of the conditional \ac{KL} divergence, e.g. $q^*(\bOmega|\boldu,\boldf) = \arg_{q} \min \KL{q(\bOmega|\boldu,\boldf)}{p(\bOmega|\boldu,\boldf,\boldy)}$.
-The obvious minimizer here is to set $q^*=p$, and thanks to the augmentations, we know the full-conditional $p(\bOmega|\ldots)$ in closed-form.
+\citet{hensmanMCMCVariationallySparse2015} shows that the optimal variational distribution of $\boldu$ is given by:
+\begin{align}
+    \log q^*(\boldu) = \expec{p(\boldf|\boldu)}{\log p(\boldy|\boldf)} + \log p(\boldu) + C,\label{eq:obj_hensman}
+\end{align}
+where $C$ is an intractable constant.
+The idea is to sample from this objective and create an empirical variational distribution $q(\boldu) = \frac{1}{S}\sum_{s=1}^S \delta(\boldu,\boldu^s)$, where $\boldu^s \sim q^*(\boldu)$.
+The straightforward option is to use \ac{HMC} as in \cite{hensmanMCMCVariationallySparse2015} to sample from $q^*(\boldu)$~\eqref{eq:obj_hensman}.
+However, we can also derive a variational Gibbs sampling algorithm to draw samples from this objective by building on augmentations.
+
+In our setting the optimal distribution is defined as $q^*(\boldf,\boldu,\bOmega) = p(\boldf|\boldu)q^*(\boldu, \bOmega)$, where $\bOmega$ denotes the set of augmented variables.
+Note that, unlike in the \ac{CAVI} updates, we do not assume independence between $\boldu$ and $\bOmega$.
+$\bOmega$, $\boldu$ and $\boldf$ are sampled one after another using the optimal conditional distributions $q^*(\bOmega|\boldf)$ and $q^*(\boldu,\boldf|\bOmega)$.
+Note that we sample $\boldu$ and $\boldf$ together since they are highly correlated.
+To identify the optimal conditional distributions, we look at the minimizer of the conditional \ac{KL} divergence, e.g. $q^*(\bOmega|\boldf) = \arg_{q} \min \KL{q(\bOmega|\boldf)}{p(\bOmega|\boldf,\boldy)}$.
+The obvious minimizer here is to set $q^*(\bOmega|\boldf)=p(\bOmega|\boldf,\boldy)$, and thanks to the augmentations, we know the full-conditional $p(\bOmega|\ldots)$ in closed-form.
 We perform the same approach for $q^*(\boldu,\boldf|\bOmega)$.
+
 The only parameters left are the hyperparameters (omitted in the previous equations), which we sample with the \ac{HMC} algorithm in a separate Gibbs sampling step.
 The advantage of this approach is that no gradients are necessary (except for the hyper-parameters) as we know all the full-conditionals in closed-form, and we do not need any expectation over the log-likelihood.
-Our approach opens up more possibilities over more complex problems like the multi-class or heteroscedastic one where computing expectations is a limitation.
+
+Our approach opens up more possibilities over more complex likelihoods like the multi-class or heteroscedastic ones where computing expectations is a limitation.
 For medium-sized datasets, this outperforms the \ac{CAVI} algorithm as it has the same convergence speed but does not suffer from the mean-field assumption on the variational parameters.
 We show preliminary results on Figures~\ref{fig:magictelescope} and~\ref{fig:magictelescope_autocor} for a binary classification problem on the Magic Telescope dataset (10 dimensions, 19020 data points) \cite{bock2004methods}.
 We split the data in half into a training/test set and use $M=50$ inducing points selected via the k-means++ algorithm \cite{arthur2007k}.
