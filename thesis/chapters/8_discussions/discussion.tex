@@ -137,10 +137,15 @@ A 1-dimensional toy example is shown in Figure~\ref{fig:heteroscedastic} with th
 \begin{figure}[H]
 \includegraphics[width=\textwidth]{./chapters/8_discussions/figures/heteroscedastic.pdf}
 \caption{Toy example of a heteroscedastic Gaussian regression problem and the resulting inference from Algorithms~\ref{alg:cavi_hetero} and~\ref{alg:gibbs_hetero}.
-The left plots show the data in orange and the generating Gaussians (mean with one standard deviation in blue), the green bands show the predictive distributions obtained after posterior inference.
+The left plots show the output space.
+The training data $\boldy$ are in orange, the generating likelihood is shown in blue (mean in solid line and one standard deviation in dashed-line).
+The green bands show the predictive distributions with one standard deviation obtained after posterior inference (one band for variational inference and cumulative bands for the sampling approach).
 The right plots show the true latent functions $f$ and $g$ used to generate $y$ as well as the inferred posteriors: variational on top (mean with one standard deviation) and samples at the bottom.}
 \label{fig:heteroscedastic}
 \end{figure}
+
+We can see that on this one dimensional example, \ac{VI} but more particularly Gibbs sampling, manage to recover the original model.
+For \ac{VI}, the variance on the latent $f$ is almost negligible since all the data variance is absorbed into the likelihood variance term.
 
 Note that an implementation as well as detailed derivations can be found in the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} package \cite{theo_galy_fajou_2022_6347022}.
 
@@ -198,6 +203,7 @@ For the \ac{CAVI} updates, we reuse the double bound idea of Section~\ref{sec:he
 The full derivations, resulting algorithms and implementation can be found in the  \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} package \cite{theo_galy_fajou_2022_6347022}.
 
 \section{Using Hamilton Monte Carlo on the augmented model}
+
 The Gibbs sampler in the experiments of Chapters~\ref{ch:classification} and \ref{ch:general} outperforms the state-of-the-art \ac{HMC} algorithm introduced in Section~\ref{sec:hmc}.
 A recurrent question I got is:
 Is the performance gain due only to the augmentation or the Gibbs sampling scheme?
@@ -210,7 +216,7 @@ On the other hand, since the likelihood is simplified to a quadratic problem, th
 The second issue with using \ac{HMC} on the augmented model is that the \ac{pdf} of the prior distribution on augmented variables is not always available in closed-form or not usable at all.
 For example, one approximates the probability of a P\'olya-Gamma variable with a truncated alternating series,
 Truncated series are computationally expensive and can also be biased and unstable!
-My experience with the P\'olya-Gamma variables is that even when using tricks to improve numerical stability like the logsumexp function, the \ac{pdf} approximation can be negative, breaking the computations.
+My experience with the P\'olya-Gamma variables is that even when using tricks like "logsumexp" to improve numerical stability, the \ac{pdf} approximation can be negative, breaking the computations.
 Finally, the critical problem with \ac{HMC} is that it only works with continuous variables.
 Some augmentations directly involve discrete variables like the Poisson in the multi-class setting, making it incompatible with a scheme involving only \ac{HMC}.
 
