@@ -109,8 +109,8 @@ GPtheme = Theme(palette=sb, linewidth=10.0)
 fig = Figure(resolution=(900, 600))
 lw = 3.0
 with_theme(GPtheme, linewidth=3.0) do 
-    ax1 = Axis(fig[1, 2], title=L"y | f, g", titlesize=25.0)
-    ax2 = Axis(fig[1, 3], title="Latent GPs", titlesize=19.0)
+    ax1 = Axis(fig[1, 2], title=L"y | f, g", titlesize=26.0)
+    ax2 = Axis(fig[1, 3], title="Latent GPs", titlesize=22.0)
     ax3 = Axis(fig[2, 2], title="")
     ax4 = Axis(fig[2, 3], title="")
 
@@ -168,12 +168,13 @@ with_theme(GPtheme, linewidth=3.0) do
         LineElement(color = (sb[1], 0.5), points = Point2f[(0, 2//3), (1, 2//3)], linewidth=lw),
         LineElement(color = (sb[2], 0.5), points = Point2f[(0, 1//3), (1, 1//3)], linewidth=lw),
     ]
-    Legend(fig[1, 2], [ elem_3, elem_1, elem_2], [L"y", L"p(y|f,g)", L"E_{q(f,g)}[p(y|f,g)]"], tellwidth=false, halign=:center, valign=:top, margin=(10, 10, 10, 10), nbanks=3)
+    margin = (5, 5, 5, 5)
+    Legend(fig[1, 2], [ elem_3, elem_1, elem_2], [L"y", L"p(y|f,g)", L"E_{q(f,g)}[p(y|f,g)]"]; tellwidth=false, labelsize=25.0, halign=:center, valign=:top, margin=(0,0,0,0), nbanks=3, framevisible=false)
     aem = Char(0x200B)
-    Legend(fig[2, 2], [elem_2],  [latexstring("""{\$p(y|f_i,g_i)\$}\$$(aem)_{i=1}^S\$""")], tellwidth=false, halign=:center, valign=:top, margin=(10, 10, 10, 10), framevisible=false)
-    Legend(fig[2, 3], [elem_4], [latexstring("""{\$f_i,g_i\$}\$$(aem)_{i=1}^S\\sim p(f,g|y)\$""")],tellwidth=false, halign=:center, valign=:top, margin=(10, 10, 10, 10),framevisible=false)
+    Legend(fig[2, 2], [elem_2],  [latexstring("""{\$p(y~|f^s, g^s)\$}\$$(aem)_{s=1}^S\$""")]; tellwidth=false, halign=:center, valign=:top, margin, labelsize=25.0, framevisible=false)
+    Legend(fig[2, 3], [elem_4], [latexstring("""{\$f^s,g^s\$}\$$(aem)_{s=1}^S\\sim p(f,g|y)\$""")]; tellwidth=false, labelsize=25.0, halign=:center, valign=:top, margin,framevisible=false)
     # axislegend(ax1)
-    axislegend(ax2, nbanks=2)
+    axislegend(ax2; nbanks=2, valign=:top, halign=:center, labelsize=25.0, margin, framevisible=false)
     Label(fig[1, 1], text="Variational\nInference", textsize=20, rotation = pi/2, tellheight=false)
     Label(fig[2, 1], text="Gibbs\nSampling", textsize=20, rotation = pi/2, tellheight=false)
     fig_path = joinpath(@__DIR__, "..", "..", "thesis", "chapters", "8_discussions", "figures")

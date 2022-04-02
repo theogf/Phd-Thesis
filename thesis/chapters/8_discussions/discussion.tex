@@ -414,20 +414,20 @@ A Julia implementation as well as detailed derivations can be found in the \href
 Another work in progress regards the sampling of sparse \ac{GPs} models.
 Sampling from the augmented model proves to be very effective (see Chapter~\ref{ch:general}) while still producing samples from the posterior $p(\boldf|\boldy)$ of the original model.
 Unfortunately, this property does not transfer when using sparse \ac{GPs} (see Section~\ref{sec:sparsegps}) and the scalability is limited.
-Naively using an additional set of points, without using the \citet{Titsias2009} assumption, leads to an algorithm with complexity $\mathcal{O}((N+M)^3)$, defeating the purpose of using inducing points.
-To solve this problem we propose to mix variational inference and sampling.
+Naively using an additional set of points, without using the \citet{Titsias2009} assumption ($q(\boldu,\boldf)=q(\boldu)\prod_i p(f_i|\boldu)$), leads to an algorithm with complexity $\mathcal{O}((N+M)^3)$, defeating the purpose of using inducing points.
+To solve this problem we propose to mix the Gibbs sampling approach we presented in Chapter~\ref{ch:general} with variational inference.
 
-\citet{hensmanMCMCVariationallySparse2015} shows that the optimal variational distribution of $\boldu$ is given by:
+\citet{hensmanMCMCVariationallySparse2015} shows that the optimal variational free-form distribution of the inducing variables $\boldu$ is given by:
 \begin{align}
-    \log q^*(\boldu) = \expec{p(\boldf|\boldu)}{\log p(\boldy|\boldf)} + \log p(\boldu) + C,\label{eq:obj_hensman}
+    \log q^*(\boldu) = \sum_{i}\expec{p(f_i|\boldu)}{\log p(\boldy|f_i)} + \log p(\boldu) + C,\label{eq:obj_hensman}
 \end{align}
 where $C$ is an intractable constant.
-The idea is to sample from this objective and create an empirical variational distribution $q(\boldu) = \frac{1}{S}\sum_{s=1}^S \delta(\boldu,\boldu^s)$, where $\boldu^s \sim q^*(\boldu)$.
+We can sample from this objective and create an empirical variational distribution $q(\boldu) = \frac{1}{S}\sum_{s=1}^S \delta(\boldu,\boldu^s)$, where $\boldu^s \sim q^*(\boldu)$.
 The straightforward option is to use \ac{HMC} as in \cite{hensmanMCMCVariationallySparse2015} to sample from $q^*(\boldu)$~\eqref{eq:obj_hensman}.
 However, we can also derive a variational Gibbs sampling algorithm to draw samples from this objective by building on augmentations.
 
-In our setting the optimal distribution is defined as $q^*(\boldf,\boldu,\bOmega) = p(\boldf|\boldu)q^*(\boldu, \bOmega)$, where $\bOmega$ denotes the set of augmented variables.
-Note that, unlike in the \ac{CAVI} updates, we do not assume independence between $\boldu$ and $\bOmega$.
+In our setting, the optimal distribution is defined as $q^*(\boldf,\boldu,\bOmega) = p(\boldf|\boldu)q^*(\boldu, \bOmega)$, where $\bOmega$ denotes the set of augmented variables.
+We are assuming independence between each $f_i$ given $\boldu$ and note that we do not assume any blocked \ac{MF} assumptions, so we do not assume independence between $\boldu$ and $\bOmega$.
 $\bOmega$, $\boldu$ and $\boldf$ are sampled one after another using the optimal conditional distributions $q^*(\bOmega|\boldf)$ and $q^*(\boldu,\boldf|\bOmega)$.
 Note that we sample $\boldu$ and $\boldf$ together since they are highly correlated.
 To identify the optimal conditional distributions, we look at the minimizer of the conditional \ac{KL} divergence, e.g. $q^*(\bOmega|\boldf) = \arg_{q} \min \KL{q(\bOmega|\boldf)}{p(\bOmega|\boldf,\boldy)}$.
@@ -461,15 +461,16 @@ We kept the hyper-parameters fixed in this setup.
     \label{fig:magictelescope_autocor}
 \end{figure}
 
-We will release this work in the near future.
+We will release this work soon.
 
 \section{Limitations}
 
-As mentioned in the chapters about augmentations, working with augmented models has its issues.
-The main one is to identify potential augmentations in a given model and compute lengthy derivations to arrive at the correct result.
-The idea of generalization using \ac{MGF} \mycom{refer chapter} is promising but is also limited.
-Often we need to rearrange terms and use mathematics identities.
-Someone with expertise can do it, but automatizing the process is complicated.
+Unfortunately, augmentations are not a silver bullet for approximate Bayesian inference.
+The largest issue is naturally the limited domain of application, only a constrained set of functions can be augmented.
+The idea of generalization using \ac{MGF} as mentioned in Section~\ref{sec:further} is promising but limited nonetheless.
+When they exist, the identification of augmentable functions in a given model can be tedious and may require lengthy derivations.
+We often need to rearrange terms and use mathematical identities before applying procedures like the ones described in this thesis.
+It is accessible to someone with expertise, but automatizing this derivation process is complicated.
 Current progress in symbolic programming could eventually help in this direction.
 We could automate this process by having a lookup table of augmentable functions and manipulating terms symbolically.
 
