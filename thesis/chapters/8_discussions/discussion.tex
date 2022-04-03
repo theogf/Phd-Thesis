@@ -8,6 +8,7 @@
 \graphicspath{{8/figures/}}
 % ----------------------- contents from here ------------------------
 This chapter presents both discussions and extensions on the models and ideas presented in Chapters~\ref{ch:classification},~\ref{ch:multi-class},~\ref{ch:general}.
+All figures presented are reproducible by running the example provided in the GitHub repository \url{https://github.com/theogf/Phd-Thesis}.
 Section~\ref{sec:further} considers how augmentations can be generalized further and what analysis we need to fully understand the improvement brought by augmentations.
 
 \section{Further generalizations and understanding}
@@ -31,7 +32,17 @@ This marginalization step is avoidable by identifying the right \ac{MGF} from th
 As shown in Section~\ref{sec:heteroscedastic_nongaussian}, switching between marginalized and augmented models gives a great inference flexibility.
 
 Finally, an unfinished work (despite trying) is to establish convergence rates (error as a function of the number of iterations) for the \ac{CAVI} algorithm and of the correlation of the kernel for the Gibbs sampler.
-Experimental results indicate that the error on the variational free energy is decreasing as $\|\VFE^{*} - \VFE^{t}\|\leq C e^{-t}$, where $t$ is the number of iterations, but we did not manage to write a formal proof.
+Experimental results indicate that the error on the variational free energy (and variational parameters) is decreasing as $\|\VFE^{*} - \VFE^{t}\|\propto C\_0 e^{-ct}$, where $t$ is the number of iterations, but we did not manage to write a formal proof.
+We show the decay for both the variational free energy and the variational parameters for different examples in Figure~\ref{fig:convergence}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{./chapters/8_discussions/figures/convergence.pdf}
+\caption{Convergence plot of the \ac{CAVI} updates for a one-dimensional toy example with different likelihoods (y-axis in log scale).
+The solid blue line shows the empirical error over the number of iterations and the dashed green line shows the fit of the function $C_0 \exp(-c t)$.
+The exponential coefficient is written down explicitly for each likelihood.}
+\label{fig:convergence}
+\end{figure}
 
 
 \section{Double bounds for intricate latent GPs}
@@ -136,7 +147,7 @@ A 1-dimensional toy example is shown in Figure~\ref{fig:heteroscedastic} with th
 
 \begin{figure}[H]
 \includegraphics[width=\textwidth]{./chapters/8_discussions/figures/heteroscedastic.pdf}
-\caption{Toy example of a heteroscedastic Gaussian regression problem and the resulting inference from Algorithms~\ref{alg:cavi_hetero} and~\ref{alg:gibbs_hetero}.
+\caption{Toy example of a heteroscedastic Gaussian regression problem and the resulting inference from Algorithm ~\ref{alg:gibbs_hetero} (Gibbs sampling, bottom plots) and Algorithm~\ref{alg:cavi_hetero} (Variational Inference, top plots).
 The left plots show the output space.
 The training data $\boldy$ are in orange, the generating likelihood is shown in blue (mean in solid line and one standard deviation in dashed-line).
 The green bands show the predictive distributions with one standard deviation obtained after posterior inference (one band for variational inference and cumulative bands for the sampling approach).
@@ -144,10 +155,11 @@ The right plots show the true latent functions $f$ and $g$ used to generate $y$ 
 \label{fig:heteroscedastic}
 \end{figure}
 
-We can see that on this one dimensional example, \ac{VI} but more particularly Gibbs sampling, manage to recover the original model.
+We can see that on this one-dimensional example, \ac{VI} but more particularly Gibbs sampling, manage to recover the original model.
 For \ac{VI}, the variance on the latent $f$ is almost negligible since all the data variance is absorbed into the likelihood variance term.
+The samples obtained with Gibbs sampling, without any warmup, fit nicely the true processes of $f$ and $g$.
 
-Note that an implementation as well as detailed derivations can be found in the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} package \cite{theo_galy_fajou_2022_6347022}.
+An implementation as well as detailed derivations are in the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} package \cite{theo_galy_fajou_2022_6347022}.
 
 \subsection{Heteroscedastic Non-Gaussian Likelihood}
 
@@ -230,7 +242,10 @@ Moreover, the algorithm produces antithetic chains, making it harder to have a p
 The Gibbs sampler has the smallest intra-chain correlation, but one could argue that negative correlations are desirable to compute expectations.
 However, \ac{HMC} and \ac{NUTS} turned out to be much slower than the Gibbs sampler:
 the Gibbs sampler took around 20 sec to run against an average of 12 minutes for \ac{HMC} and \ac{NUTS}.
+This difference is due to \ac{HMC} (and \ac{NUTS}) needing to compute many gradients for every sample.  
 Perhaps surprisingly, there was no significant time difference between the augmented and original models for \ac{HMC} and \ac{NUTS}.
+
+Note that \ac{HMC} is already, in a sense, making an augmentation of its own with the momentum variables, and it could be added to the list of successful types of augmentations improving inference.
 
 We should only consider these results preliminary since we used a simple likelihood, and the dataset is relatively small and easy.
 
@@ -330,6 +345,7 @@ which is true for $D > 0$.
 The next augmentations steps are the same for the bijective and over-parametrized models:
 We use the \ac{MGF} of the Poisson distribution and finally the P\'olya-Gamma augmentation.
 We show the whole derivations on Algorithms~\ref{alg:gibbs_multiclass} and~\ref{alg:cavi_multiclass} and show an example on Figure~\ref{fig:bijective_multiclass}.
+We show 1-dimensional examples with 3 classes with and without the bijection on Figure~\ref{fig:bijective_multiclass} and~\ref{fig:multiclass}
 \begin{algorithm}[H]
     \caption{Gibbs sampling updates: $\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}$ latent \ac{GPs} for $K$ classes}
     \begin{algorithmic}
@@ -362,8 +378,6 @@ We show the whole derivations on Algorithms~\ref{alg:gibbs_multiclass} and~\ref{
     \label{alg:cavi_multiclass}
 \end{algorithm}
 
-We show 1-dimensional examples with 3 classes with and without the bijection on Figure~\ref{fig:bijective_multiclass} and~\ref{fig:multiclass}
-
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{./chapters/8_discussions/figures/categorical_bijective.pdf}
@@ -377,13 +391,19 @@ We show 1-dimensional examples with 3 classes with and without the bijection on 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{./chapters/8_discussions/figures/categorical_nonbijective.pdf}
-    \caption{Illustration of Algorithms~\ref{alg:gibbs_multiclass} and~\ref{alg:cavi_multiclass} with the non-bijective link with the marginalization of Section~\ref{sec:marg_multiclass}.
+    \caption{Illustration of Algorithms~\ref{alg:gibbs_multiclass} and~\ref{alg:cavi_multiclass} with the overparametrized link with the marginalization of Section~\ref{sec:marg_multiclass}.
     Each color represents a class, and we compare the true process to the inferred one for both Gibbs sampling and variational inference.
     The solid lines represent the true probabilities and latent \ac{GPs}.
     The plots on top show the variational inference results, with the expected predictive probability on the left and the variational posterior on the right.
     The plots at the bottom show the probabilities and latent GPs obtained via Gibbs sampling.}
     \label{fig:multiclass}
 \end{figure}
+
+Both the bijective and over-parametrized links fit correctly this one-dimensional example.
+The over-parametrized link in Figure~\ref{fig:multiclass} do not approximate correctly the fixed latent $f_K=0$ but still returns good predictive distributions.
+
+When repeatedly running these examples, we observe that the predictive probabilities for the bijective link are consistently more accurate, but the predictive log-likelihood for the correct class is higher on the over-parametrized link.
+To confirm this trend, we would need further experiments, on real datasets and a higher number of classes. 
 
 \subsection{Scaling the logistic-softmax link}
 \label{sec:scale_multiclass}
@@ -419,8 +439,8 @@ A Julia implementation as well as detailed derivations can be found in the \href
 
 Another work in progress regards the sampling of sparse \ac{GPs} models.
 Sampling from the augmented model proves to be very effective (see Chapter~\ref{ch:general}) while still producing samples from the posterior $p(\boldf|\boldy)$ of the original model.
-Unfortunately, this property does not transfer when using sparse \ac{GPs} (see Section~\ref{sec:sparsegps}) and the scalability is limited.
-Naively using an additional set of points, without using the \citet{Titsias2009} assumption ($q(\boldu,\boldf)=q(\boldu)\prod_i p(f_i|\boldu)$), leads to an algorithm with complexity $\mathcal{O}((N+M)^3)$, defeating the purpose of using inducing points.
+Unfortunately, this property does not transfer when using sparse \ac{GPs} (for a reminder see Section~\ref{sec:sparsegps}) and the scalability is limited.
+Naively using an additional set of points, without additional assumptions but $p(\boldu,\boldf|\boldy) = p(\boldf|\boldu)p(\boldu|\boldy)$, leads to an algorithm with complexity $\mathcal{O}((N+M)^3)$, defeating the purpose of using inducing points.
 To solve this problem we propose to mix the Gibbs sampling approach we presented in Chapter~\ref{ch:general} with variational inference.
 
 \citet{hensmanMCMCVariationallySparse2015} shows that the optimal variational free-form distribution of the inducing variables $\boldu$ is given by:
