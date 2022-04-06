@@ -1416,7 +1416,8 @@ supported!}
 {\Large \centering \singlespacing
   \vspace*{1ex}
     {{\@collegeordept} \par}
-    {{\@university} \par}
+    {{\@university} \par}\vspace*{2ex}
+    {\centering   \includegraphics[width=4cm]{./chapters/0_frontmatter/TU_Logo_kurz_1c_schwarz.pdf} \par}\vspace*{1ex}
     {{zur Erlangung des akademischen Grades} \par}
     \vspace*{1ex}
     {{\@degreefull} \par}

@@ -20,11 +20,11 @@ These ideas do not represent an actual theory for now, and we need a thorough an
 A better understanding could give insights into how convergence speed and variable correlation are connected.
 
 Another challenge, as pointed out in Chapter~\ref{ch:discussion}, is to widen the class of functions viewed as mixtures.
-The most promising lead is moment generating functions, but there is little theory on their properties.
+The most promising lead are \acf{MGF}, but there is little theory on their properties.
 \citet{schwartz1952transformation} is one of the few persons who developed a theory on distributions based on their Laplace distribution. However, these texts can be confusing as distributions can have different meanings (analytic or probabilistic).
 
 Regardless, one of the biggest challenges is to popularize the use of such models.
-The approach of \citet{Hensman2015} is by far the most popular, partly due to the success of the \href{https://github.com/GPflow/GPflow}{GPFlow} library \cite{GPflow2017}.
+The gradient descent approach for \ac{VI} of \citet{Hensman2015} is by far the most popular, partly due to the success of the \href{https://github.com/GPflow/GPflow}{GPFlow} library \cite{GPflow2017}.
 Implementing these augmentations in popular libraries would be a good step.
 There have been an effort in Julia with the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} \cite{theo_galy_fajou_2022_6347022}, and implementations in \href{https://gpytorch.ai/}{GPyTorch} \cite{gardner2018gpytorch} or GPFlow would accelerate the adoption of these techniques.
 
