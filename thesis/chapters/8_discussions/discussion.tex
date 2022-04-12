@@ -546,7 +546,7 @@ Another issue is the variational distribution $q(\boldf, \bOmega)$ (or $q(\boldu
 Although the original model can be recovered from the augmented model by marginalizing out the augmented variables $\bOmega$, the \ac{MF} approximation loses information (correlation between $\bOmega$ and $\boldf$) and breaks this link.
 Marginalizing out $\bOmega$ in $q^*(\boldf, \bOmega)$ will not return the optimal $q^*(\boldf)$ trained on the original model.
 Interestingly, the bound difference comes exclusively from the mean-field assumption between $q(\boldf)$ and $q(\bOmega)$.
-We can even identify these bound differences via the interpretation of \citet{jaakkolaVariationalApproachBayesian1997} as missing terms from a Taylor series.\mycom{refer to chapter}
+We can even identify these bound differences via the interpretation of \citet{jaakkolaVariationalApproachBayesian1997} as missing terms from a Taylor series, as shown in Chapter~\ref{ch:classification}.
 When analyzing the quality of the predictive distributions, the variational distribution trained on the augmented model proves to be almost as good as the variational distribution trained on the original model.
 The difference of bounds mentioned earlier is often not significant at convergence but will create a difference nonetheless.
 These empirical results give us an indication that $\boldf$ and $\bOmega$ are naturally strongly decorrelated, which would explain why the Gibbs sampling and \ac{CAVI} updates are so efficient.
