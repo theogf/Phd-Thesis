@@ -438,7 +438,7 @@ The maximum-likelihood optimizer is given by:
 \begin{align*}
     \theta^*_k = \frac{\sum_{i=1}^N \delta(y^i, k)}{\sum_{i=1}^N \expec{q(\lambda^n)}{\lambda^n}(1 - \widetilde{\sigma}(q(f_k^i)))},
 \end{align*}
-where $\delta(x,y)$ is the delta function, equal to 1 if $x==y$ and 0 otherwise and where $\widetilde{\sigma}(q(f_k^i))$ is defined as in Algorithm~\ref{alg:cavi_multiclass}.
+where $\delta(x,y)$ is the Kronecker delta function, equal to 1 if $x=y$ and 0 otherwise and where $\widetilde{\sigma}(q(f_k^i))$ is defined as in Algorithm~\ref{alg:cavi_multiclass}.
 We used the model definition where $\lambda$ is not marginalized out.
 
 By putting a prior $\mathrm{Ga}(\theta_k|\alpha,\beta)$, the collapsed conditional of each $\theta_k$ is given by:
@@ -461,8 +461,7 @@ To solve this problem, we propose to mix the Gibbs sampling approach we presente
     \log q^*(\boldu) = \sum_{i}\expec{p(f_i|\boldu)}{\log p(y_i|f_i)} + \log p(\boldu) + C,\label{eq:obj_hensman}
 \end{align}
 where $C$ is an intractable constant.
-We can sample from this objective and create an empirical variational distribution $q(\boldu) = \frac{1}{S}\sum_{s=1}^S \delta(\boldu,\boldu^s)$, where $\boldu^s \sim q^*(\boldu)$.
-The straightforward option is to use \ac{HMC} as in \cite{hensmanMCMCVariationallySparse2015} to sample from $q^*(\boldu)$~\eqref{eq:obj_hensman}.
+We can sample from this distribution, using for example \ac{HMC} as in \cite{hensmanMCMCVariationallySparse2015}.
 However, we can also derive a variational Gibbs sampling algorithm to draw samples from this objective by building on augmentations.\\
 
 In our setting, the optimal distribution is defined as $q^*(\boldf,\boldu,\bOmega) = p(\boldf|\boldu)q^*(\boldu, \bOmega)$, where $\bOmega$ denotes the set of augmented variables and where we also use Titsias' assumption, i.e. $p(\boldf|\boldu) = \prod_{i}p(f_i|\boldu)$.
@@ -521,9 +520,9 @@ Another issue is the variational distribution $q(\boldf, \bOmega)$ (or $q(\boldu
 Although the original model can be recovered from the augmented model by marginalizing out the augmented variables $\bOmega$, the \ac{MF} approximation loses information (correlation between $\bOmega$ and $\boldf$) and breaks this link.
 Marginalizing out $\bOmega$ in $q^*(\boldf, \bOmega)$ will not return the optimal $q^*(\boldf)$ trained on the original model.
 Interestingly, the bound difference comes exclusively from the mean-field assumption between $q(\boldf)$ and $q(\bOmega)$.
-We can even identify these bound differences via the interpretation of \citet{jaakkolaVariationalApproachBayesian1997} as missing terms from a Taylor series.
-When analyzing the quality of the predictive distributions, the variational distribution trained the augmented model proves to be almost as good as the variational distribution trained on the original model.
-The difference of bounds mentioned earlier is not significant at convergence but will create a difference nonetheless.
+We can even identify these bound differences via the interpretation of \citet{jaakkolaVariationalApproachBayesian1997} as missing terms from a Taylor series.\mycom{refer to chapter}
+When analyzing the quality of the predictive distributions, the variational distribution trained on the augmented model proves to be almost as good as the variational distribution trained on the original model.
+The difference of bounds mentioned earlier is often not significant at convergence but will create a difference nonetheless.
 These empirical results give us an indication that $\boldf$ and $\bOmega$ are naturally strongly decorrelated, which would explain why the Gibbs sampling and \ac{CAVI} updates are so efficient.
 % The work of \citet{gorinovaAutomaticReparameterisationProbabilistic2020} mentioned in the introduction aims at finding a perfect balance between two parametrizations by ensuring that the posterior is as close as possible to an isotropic multivariate Gaussian with independent dimensions. \mycom{unfinished}
 
