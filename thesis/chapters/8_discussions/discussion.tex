@@ -507,7 +507,7 @@ Our approach opens up more possibilities over more complex likelihoods like the 
 For medium-sized datasets, this outperforms the \ac{CAVI} algorithm as it has the same convergence speed but does not suffer from the mean-field assumption on the variational parameters.
 We show preliminary results on Figures~\ref{fig:magictelescope} and~\ref{fig:magictelescope_autocor} for a binary classification problem on the Magic Telescope dataset (10 dimensions, 19020 data points) \cite{bock2004methods}.
 We split the data in half into a training/test set and use $M=50$ inducing points selected via the k-means++ algorithm \cite{arthur2007k}.
-We compare our approach (\textbf{VI-Gibbs}) against the sampling methods \ac{HMC} (\textbf{VI-HMC}), Elliptical Slice Sampling (\textbf{VI-ESS}), and a standard \ac{VI} method (with an L-BFGS optimizer), by showing the error and test negative log-likelihood over time on Figure~\ref{fig:magictelescope}.
+We compare our approach (\textbf{VI-Gibbs}) with $\alpha=0$ against the sampling methods \ac{HMC} (\textbf{VI-HMC}), Elliptical Slice Sampling (\textbf{VI-ESS}), and a standard \ac{VI} method (with an L-BFGS optimizer), by showing the error and test negative log-likelihood over time on Figure~\ref{fig:magictelescope}.
 Each sampling method draws 10 chains of 1000 samples.
 We kept the hyperparameters fixed in this setup.
 
