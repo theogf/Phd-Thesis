@@ -8,10 +8,10 @@
 \graphicspath{{9_conclusion/figures/}}
 % ----------------------- contents from here ------------------------
 With this thesis, I want to motivate the use of different representations to ease inference in probabilistic models.
-The work on scale mixtures proves to be very efficient and exploits the best out of the blocked Gibbs sampling and the blocked \ac{CAVI} algorithms.
-The steps of these algorithms are typically complicated to derive, but with the augmentations, we can derive them with ease. \mycom{unclear}
+The work on scale mixtures exploits the best out of the blocked Gibbs sampling and the blocked \ac{CAVI} algorithms.
+Deriving these augmentations can be complicated, but with more generalizations, computations can be simplified.
 
-However, we do not have a clear theoretical understanding of the reason for this efficiency. \mycom{clarify what efficiency}
+However, we do not have a clear theoretical understanding of the reason for the fast convergence of these algorithms.
 By exploring the properties of these likelihoods, we work on obtaining bounds on the convergence speed of these algorithms.
 An intuition on why these augmentations work so well is the notion of decoupling.
 Many inference bottlenecks come from very highly-correlated variables and heavy tails of distributions \cite{betancourt2017conceptual}.
@@ -21,13 +21,13 @@ A better understanding could give insights into how convergence speed and variab
 
 Another challenge, as pointed out in Chapter~\ref{ch:discussion}, is to widen the class of functions representable as mixtures.
 The most promising lead are \acf{MGF}, but there is little theory on their properties.
-\citet{schwartz1952transformation} is one of the few persons who developed a theory on distributions relevant to our work.
+\citet{schwartz1952transformation} is one of the few persons who developed a theory on distributions and their Laplace transforms, but, to our knowledge, the relevant pieces are missing.
 % However, these texts can be confusing as distributions can have different meanings (analytic or probabilistic).
 
 Regardless, one of the biggest challenges is to popularize the use of such models.
 The gradient descent approach for \ac{VI} of \citet{Hensman2015} is by far the most popular, partly due to the success of the \href{https://github.com/GPflow/GPflow}{GPFlow} library \cite{GPflow2017}.
 Implementing these augmentations in popular libraries would be a good step.
-There has been an effort in the Julia programming language \cite{Julia-2017} with the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} \cite{theo_galy_fajou_2022_6347022}, while implementations in \href{https://gpytorch.ai/}{GPyTorch} \cite{gardner2018gpytorch} or GPFlow would accelerate the adoption of these techniques.
+There has been an effort in the Julia programming language \cite{Julia-2017} with the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} \cite{theo_galy_fajou_2022_6347022}, but implementations in \href{https://gpytorch.ai/}{GPyTorch} \cite{gardner2018gpytorch} or GPFlow would help the adoption of these techniques.
 
 % ---------------------------------------------------------------------------
 % ----------------------- end of thesis sub-document ------------------------

@@ -46,3 +46,4 @@ reparametrizing
 unmarginalize
 unmarginalize
 parametrizations
+Renyi

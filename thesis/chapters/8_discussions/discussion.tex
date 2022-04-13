@@ -452,8 +452,8 @@ A Julia implementation as well as detailed derivations can be found in the \href
 
 Another work in progress regards the sampling of sparse \ac{GPs} models.
 Sampling from the augmented model proves to be very effective (see Chapter~\ref{ch:general}) while still producing samples from the posterior $p(\boldf|\boldy)$ of the original model.
-Unfortunately, this property does not transfer when using sparse \ac{GPs} (for a reminder see Section~\ref{sec:sparsegps}) and the scalability is limited.
-Simply augmenting with an additional set of inducing points $Z$ with realizations $\boldu = f(Z)$ leads to a Gibbs sampling algorithm with a computational complexity of $\mathcal{O}((N+M)^3)$ per step.
+Unfortunately, this property does not transfer when using sparse \ac{GPs} (for a reminder on sparse \ac{GPs}, see Section~\ref{sec:sparsegps}) and the scalability is limited.
+Simply adding inducing points locations $Z$ with realizations $\boldu = f(Z)$ leads to a Gibbs sampling algorithm with a computational complexity of $\mathcal{O}((N+M)^3)$ per step and does not help with scalability.
 To solve this problem, we propose to mix the Gibbs sampling approach we presented in Chapter~\ref{ch:general} with variational inference.
 
 We build on the work of \citet{hensmanMCMCVariationallySparse2015}, who shows that by taking the Titsias' assumption \cite{Titsias2009}, i.e. setting the variational distribution as $q(\boldu,\boldf) = q(\boldu)\prod_i p(f_i|\boldu)$, the optimal variational distribution of the inducing variables $\boldu$ minimizing $\KL{q(\boldu, \boldf)}{p(\boldu)p(\boldf|\boldu)p(\boldy|\boldf)}$ for a factorizable likelihood $p(\boldy|\boldf)=\prod_i p(y_i|f_i)$ is given by:
@@ -463,30 +463,31 @@ We build on the work of \citet{hensmanMCMCVariationallySparse2015}, who shows th
 where $C$ is an intractable constant.
 $q^*(\boldu)$ does not have a specific form in the general case, but we can sample from it by using \ac{HMC} and evaluating the integrals $\expec{p(f_i|\boldu)}{\log p(y_i|f_i)}$ numerically\footnote{With quadrature for low-dimensions} as in \cite{hensmanMCMCVariationallySparse2015}.
 
-We propose instead to derive a variational Gibbs sampling algorithm to draw samples from the variational distribution minimizing the Renyi divergence
+We propose instead to derive a variational Gibbs sampling algorithm to draw samples from the variational distribution minimizing the Renyi divergence \cite{van2014renyi} defined as
 \begin{align}
-    D_\alpha(p,q) = \frac{1}{\alpha - 1}\log\int p^\alpha(x)q^{1-\alpha}(x)dx,\label{eq:renyi}
+    D_\alpha(p,q) = \frac{1}{\alpha - 1}\log\int p^\alpha(x)q^{1-\alpha}(x)dx,\quad \alpha \in \mathbb{R}^+.\label{eq:renyi}
 \end{align}
-where $\lim_{\alpha\rightarrow 1} D_\alpha(p, q) = \KL{p}{q}$, the forward KL divergence.
-For $\alpha=0$, obtain $D_0(p,q) = \KL{q}{p}$, the reverse KL divergence.
-Our variational distribution is defined as $q(\boldu,\boldf,\bOmega) = q(\boldu,\bOmega)\prod_i p(f_i|\boldu)$, and we want to minimize $D_\alpha(p(\boldu,\boldf,\bOmega|\boldy),q(\boldu,\boldf,\bOmega))$.
+The Renyi divergence converges to the forward KL divergence $\KL{p}{q}$ for $\alpha=1$ and the reverse KL divergence $\KL{q}{p}$ for $\alpha=0$ \cite{van2014renyi}.
+We define our variational distribution as $q(\boldu,\boldf,\bOmega) = q(\boldu,\bOmega)\prod_i p(f_i|\boldu)$, and aim at minimizing $D_\alpha(p(\boldu,\boldf,\bOmega|\boldy),q(\boldu,\boldf,\bOmega))$.
 Note that we do not assume any independence between $\boldu$ and $\bOmega$, only that every $f_i$ is conditionally independent given $\boldu$.
-There is no closed-form $q$  minimizing the divergence in Equation~\eqref{eq:renyi}, hence we want to adopt the approach of \citet{hensmanMCMCVariationallySparse2015} and sample from it.
-We draw $\boldu$, $\boldf$ and $\bOmega$ in a blocked Gibbs sampling manner, by sampling from the optimal variational distribution minimizing the conditional Renyi divergence:
+There is no parametric closed-form for the optimal distribution $q^*(\boldu,\bOmega)$ minimizing the divergence in Equation~\eqref{eq:renyi}, hence we take the approach of \citet{hensmanMCMCVariationallySparse2015} and sample from it instead.
+We draw $\boldu$, $\boldf$ and $\bOmega$ with a blocked Gibbs sampler, by sampling from the optimal variational distribution minimizing the conditional Renyi divergences:
 \begin{align}
     \bOmega^i \sim q^*(\bOmega) =& \arg_q \min D_\alpha\left(p(\bOmega|\boldu^{i-1},\boldf^{i-1},\boldy),q(\bOmega)\right)\label{eq:var_omega}\\
     \boldu^i, \boldf^i \sim q^*(\boldu,\boldf) =& \arg_q \min D_\alpha\left(p(\boldu,\boldf|\bOmega^i,\boldy),q(\boldu,\boldf)\right)\nonumber\\
     =& \arg_q \min D_\alpha\left(p(\boldu)p(\boldf|\boldu)p(\boldf|\bOmega^i,\boldy),q(\boldu)\prod_i p(f_i|\boldu)\right).\label{eq:var_uf}
 \end{align}
-For all $\alpha$, the minimizer for $q^*(\bOmega)$ is $p(\bOmega|\boldu,\boldf,\boldy)$, effectively setting the conditional divergence to 0.
-With the approach from Chapter~\ref{ch:general}, we know $p(\bOmega|\boldu,\boldf,\boldy)$ (which can be simplified to $p(\bOmega|\boldf,\boldy)$) in closed-form and can sample from it with linear complexity with respect to the number of data points.\\
-Equation~\eqref{eq:var_uf} is a problem known as Power-EP, solved by \citet{buiUnifyingFrameworkGaussian2017} for sparse \ac{GPS} with conjugate likelihoods.
-Since $p(\boldf|\bOmega,\boldy)$ is conjugate in $\boldf$, we know that the optimal $q^*(\boldu)$ is a multivariate Gaussian, with known parameters.
-Like in the Power-EP setting, $\alpha=0$ corresponds to the variational approach of \citet{Titsias2009} while $\alpha=1$ corresponds to the FITC approach of \citet{snelsonSparseGaussianProcesses2009}.
+For all $\alpha$, the minimizer for $q^*(\bOmega)$ is $p(\bOmega|\boldu^{i-1},\boldf^{i-1},\boldy)$, setting the conditional divergence to 0.
+With the approach from Chapter~\ref{ch:general}, we know $p(\bOmega|\boldu,\boldf,\boldy)$ (which can be simplified to $p(\bOmega|\boldf,\boldy)$) in closed-form and can sample from it with linear complexity with respect to the number of data points.
 
-The only parameters left are the hyperparameters $\btheta$, omitted in the previous equations, which we can sample with the \ac{HMC} algorithm in a separate Gibbs sampling step.
-The advantage of this approach is that no gradients are necessary (except for the hyperparameters) as we know all the full-conditionals in closed-form, and we do not need any expectation over the log-likelihood.
-The whole
+Equation~\eqref{eq:var_uf} is a problem known as Power-EP, solved in \citet{buiUnifyingFrameworkGaussian2017} for sparse \ac{GPs} with conjugate likelihoods.
+Since $p(\boldf|\bOmega,\boldy)$ is conjugate in $\boldf$, the optimal $q^*(\boldu)$ is a multivariate normal distribution with the mean and variance known in closed-form for all $\alpha \in \mathbb{R}^+$.
+Like in the Power-EP setting, $\alpha=0$ corresponds to solving the variational approach of \citet{Titsias2009}, while $\alpha=1$ corresponds to solve the Fully Independent Training Conditional (FITC) approach of \citet{snelsonSparseGaussianProcesses2009}, as shown in \citet{buiUnifyingFrameworkGaussian2017}.
+
+The only parameters left are the hyperparameters $\btheta$, omitted in the previous equations, and can represent a real challenge.
+For $\alpha=0$, we could sample from $q^*(\theta)$ with the \ac{HMC} algorithm in a separate Gibbs sampling step.
+For other $\alpha$, we could optimize $q(\theta)$ with variational inference methods \cite{li2016renyi, hernandez2016black}, and use a hot-start with the previous distribution.
+The complete variational Gibbs sampler is described in Algorithm~\ref{alg:sparsegp}.
 
 \begin{algorithm}[H]
     \caption{Variational Gibbs Sampler for Sparse \ac{GPs}}
@@ -494,8 +495,8 @@ The whole
         \State \textbf{input:} $\boldy$, $\boldu^0 \sim p(u)$, $\boldf^0 \sim p(\boldf|\boldu^0)$, $\btheta^0 \sim p(\btheta)$
     \For{$t$ in 1: \# samples}
         \State Draw $\bOmega^i \sim p(\bOmega|\boldf^{i-1},\btheta^{i-1}\boldy)$ \textit{(in closed form)}
-        \State Draw $\boldu^i,\boldf^i \sim q^*(\boldu,\boldf) = \arg \min D_\alpha\left(p(\boldu,\boldf|\bOmega^i,\btheta^{i-1},\boldy),q(\boldu,\boldf)\right)$ \textit{(in closed form)}
-        \State Draw $\btheta^i \sim q^*(\btheta^i) = \arg \min D_\alpha\left(p(\btheta|\boldu^i, \boldf^i, \bOmega^i, \boldy), q(\btheta)\right)$ \textit{(\ac{HMC} or other sampler)}
+        \State Draw $\boldu^i,\boldf^i \sim q^*(\boldu,\boldf) = \arg \min D_\alpha\left(p(\boldu,\boldf|\bOmega^i,\btheta^{i-1},\boldy),q(\boldu,\boldf)\right)$ (\textit{in closed form})
+        \State Draw $\btheta^i \sim q^*(\btheta^i) = \arg \min D_\alpha\left(p(\btheta|\boldu^i, \boldf^i, \bOmega^i, \boldy), q(\btheta)\right)$ (\textit{\ac{HMC} or optimization})
     \EndFor
     \end{algorithmic}
     \label{alg:sparsegp}
@@ -525,8 +526,6 @@ We kept the hyperparameters fixed in this setup.
     \caption{Intra-chain correlation against the lag for the sampling approaches.}
     \label{fig:magictelescope_autocor}
 \end{figure}
-
-We will release this work soon.
 
 \section{Limitations}
 
