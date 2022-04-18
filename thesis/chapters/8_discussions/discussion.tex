@@ -456,7 +456,9 @@ Unfortunately, this property does not transfer when using sparse \ac{GPs} (for a
 Simply adding inducing points locations $Z$ with realizations $\boldu = f(Z)$ leads to a Gibbs sampling algorithm with a computational complexity of $\mathcal{O}((N+M)^3)$ per step and does not help with scalability.
 To solve this problem, we propose to mix the Gibbs sampling approach we presented in Chapter~\ref{ch:general} with variational inference.
 
-We build on the work of \citet{hensmanMCMCVariationallySparse2015}, who shows that by taking the Titsias' assumption \cite{Titsias2009}, i.e. setting the variational distribution as $q(\boldu,\boldf) = q(\boldu)\prod_i p(f_i|\boldu)$, the optimal variational distribution of the inducing variables $\boldu$ minimizing $\KL{q(\boldu, \boldf)}{p(\boldu)p(\boldf|\boldu)p(\boldy|\boldf)}$ for a factorizable likelihood $p(\boldy|\boldf)=\prod_i p(y_i|f_i)$ is given by:
+We build on the work of \citet{hensmanMCMCVariationallySparse2015}. 
+They make the Titsias' assumption \cite{Titsias2009}, i.e. setting the variational distribution as $q(\boldu,\boldf) = q(\boldu)\prod_i p(f_i|\boldu)$.
+With this assumption, they show the optimal variational distribution of the inducing variables $\boldu$ minimizing $\KL{q(\boldu, \boldf)}{p(\boldu)p(\boldf|\boldu)p(\boldy|\boldf)}$ for a factorizable likelihood $p(\boldy|\boldf)=\prod_i p(y_i|f_i)$ is given by:
 \begin{align}
     \log q^*(\boldu) = \sum_{i}\expec{p(f_i|\boldu)}{\log p(y_i|f_i)} + \log p(\boldu) + C,\label{eq:obj_hensman}
 \end{align}
@@ -480,7 +482,7 @@ We draw $\boldu$, $\boldf$ and $\bOmega$ with a blocked Gibbs sampler, by sampli
 For all $\alpha$, the minimizer for $q^*(\bOmega)$ is $p(\bOmega|\boldu^{i-1},\boldf^{i-1},\boldy)$, setting the conditional divergence to 0.
 With the approach from Chapter~\ref{ch:general}, we know $p(\bOmega|\boldu,\boldf,\boldy)$ (which can be simplified to $p(\bOmega|\boldf,\boldy)$) in closed-form and can sample from it with linear complexity with respect to the number of data points.
 
-Equation~\eqref{eq:var_uf} is a problem known as Power-EP, solved in \citet{buiUnifyingFrameworkGaussian2017} for sparse \ac{GPs} with conjugate likelihoods.
+\citet{buiUnifyingFrameworkGaussian2017} solved the optimization problem of Equation~\eqref{eq:var_uf} for Gaussian likelihoods, with the \textbf{Power-EP} algorithm.
 Since $p(\boldf|\bOmega,\boldy)$ is conjugate in $\boldf$, the optimal $q^*(\boldu)$ is a multivariate normal distribution with the mean and variance known in closed-form for all $\alpha \in \mathbb{R}^+$.
 Like in the Power-EP setting, $\alpha=0$ corresponds to solving the variational approach of \citet{Titsias2009}, while $\alpha=1$ corresponds to solve the Fully Independent Training Conditional (FITC) approach of \citet{snelsonSparseGaussianProcesses2009}, as shown in \citet{buiUnifyingFrameworkGaussian2017}.
 
