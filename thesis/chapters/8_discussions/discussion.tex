@@ -29,7 +29,7 @@ For example, we used the \ac{MGF} of a Poisson distribution in Chapter~\ref{ch:m
     \exp(\lambda(e^x - 1)) = \sum_{n=0}^\infty e^{n e^x} \Po(n|\lambda).
 \end{align*}
 It is not a scale mixture of Gaussians, but with the right variable transformations, it can still be useful.
-The \ac{MGF} of a Poisson is known, but we could consider also arbitrary \ac{MGF} since we are able to sample from a distribution given its Laplace transform only \cite{ridout2009generating}.
+The \ac{MGF} of a Poisson is known, but we could also consider arbitrary \ac{MGF} since we are able to sample from a distribution given its Laplace transform only \cite{ridout2009generating}.
 
 The \ac{MGF} is also an interesting tool to create hierarchical models. 
 Since scale mixtures are of the form $\sum_{x} e^{tx} p(x)$ or $\int e^{tx}p(x)dx$, by setting $t=\log \sigma(f)$, we get scales mixtures of the form $\sum_x \sigma^x(f)$.
@@ -41,7 +41,7 @@ A potential improvement for augmented models is the identification of marginaliz
 For example, in the multi-class model from Chapter~\ref{ch:multi-class}, the augmented variable $\lambda$ can be marginalized out, as shown in Section~\ref{sec:improvemulticlass}.
 We can reduce the dimensionality of the model and avoid tricky situations like the inner loop updates in Chapter~\ref{ch:multi-class}.
 This marginalization step is avoidable by identifying the right \ac{MGF} from the start.
-As shown in Section~\ref{sec:heteroscedastic_nongaussian}, switching between marginalized and augmented models gives a great inference flexibility.
+As shown in Section~\ref{sec:heteroscedastic_nongaussian}, switching between marginalized and augmented models gives great inference flexibility.
 
 \paragraph{Convergence speed analysis}\mbox{}\\
 An unfinished work (despite trying) is to establish convergence rates (error as a function of the number of iterations) for the \ac{CAVI} algorithm and of the correlation of the kernel for the Gibbs sampler.
@@ -467,7 +467,7 @@ $q^*(\boldu)$ does not have a specific form in the general case, but we can samp
 
 We propose instead to derive a variational Gibbs sampling algorithm to draw samples from the variational distribution minimizing the Renyi divergence \cite{van2014renyi} defined as
 \begin{align}
-    D_\alpha(p,q) = \frac{1}{\alpha - 1}\log\int p^\alpha(x)q^{1-\alpha}(x)dx,\quad \alpha \in \mathbb{R}^+.\label{eq:renyi}
+    D_\alpha(p,q) = \frac{1}{\alpha(\alpha - 1)}\log\int \alpha p(x) + (1-\alpha)q(x) - p^\alpha(x)q^{1-\alpha}(x)dx,\quad \alpha \in \mathbb{R}^+.\label{eq:renyi}
 \end{align}
 The Renyi divergence converges to the forward KL divergence $\KL{p}{q}$ for $\alpha=1$ and the reverse KL divergence $\KL{q}{p}$ for $\alpha=0$ \cite{van2014renyi}.
 We define our variational distribution as $q(\boldu,\boldf,\bOmega) = q(\boldu,\bOmega)\prod_i p(f_i|\boldu)$, and aim at minimizing $D_\alpha(p(\boldu,\boldf,\bOmega|\boldy),q(\boldu,\boldf,\bOmega))$.
@@ -483,10 +483,10 @@ For all $\alpha$, the minimizer for $q^*(\bOmega)$ is $p(\bOmega|\boldu^{i-1},\b
 With the approach from Chapter~\ref{ch:general}, we know $p(\bOmega|\boldu,\boldf,\boldy)$ (which can be simplified to $p(\bOmega|\boldf,\boldy)$) in closed-form and can sample from it with linear complexity with respect to the number of data points.
 
 \citet{buiUnifyingFrameworkGaussian2017} solved the optimization problem of Equation~\eqref{eq:var_uf} for Gaussian likelihoods, with the \textbf{Power-EP} algorithm.
-Since $p(\boldf|\bOmega,\boldy)$ is conjugate in $\boldf$, the optimal $q^*(\boldu)$ is a multivariate normal distribution with the mean and variance known in closed-form for all $\alpha \in \mathbb{R}^+$.
+Since $p(\boldf|\bOmega,\boldy)$ is conjugate in $\boldf$, the optimal $q^*(\boldu)$ is a multivariate normal distribution with the mean and variance known in closed-form for all $\alpha \in \mathbb{R}^+$. \com{mention that the complexity is M3}
 Like in the Power-EP setting, $\alpha=0$ corresponds to solving the variational approach of \citet{Titsias2009}, while $\alpha=1$ corresponds to solve the Fully Independent Training Conditional (FITC) approach of \citet{snelsonSparseGaussianProcesses2009}, as shown in \citet{buiUnifyingFrameworkGaussian2017}.
 
-The only parameters left are the hyperparameters $\btheta$, omitted in the previous equations, and can represent a real challenge.
+The only parameters left are the hyperparameters $\btheta$, omitted in the previous equations, that can represent a real challenge.
 For $\alpha=0$, we could sample from $q^*(\theta)$ with the \ac{HMC} algorithm in a separate Gibbs sampling step.
 For other $\alpha$, we could optimize $q(\theta)$ with variational inference methods \cite{li2016renyi, hernandez2016black}, and use a hot-start with the previous distribution.
 The complete variational Gibbs sampler is described in Algorithm~\ref{alg:sparsegp}.
@@ -509,7 +509,7 @@ Our approach opens up more possibilities over more complex likelihoods like the 
 For medium-sized datasets, this outperforms the \ac{CAVI} algorithm as it has the same convergence speed but does not suffer from the mean-field assumption on the variational parameters.
 We show preliminary results on Figures~\ref{fig:magictelescope} and~\ref{fig:magictelescope_autocor} for a binary classification problem on the Magic Telescope dataset (10 dimensions, 19020 data points) \cite{bock2004methods}.
 We split the data in half into a training/test set and use $M=50$ inducing points selected via the k-means++ algorithm \cite{arthur2007k}.
-We compare our approach (\textbf{VI-Gibbs}) with $\alpha=0$ against the sampling methods \ac{HMC} (\textbf{VI-HMC}), Elliptical Slice Sampling (\textbf{VI-ESS}), and a standard \ac{VI} method (with an L-BFGS optimizer), by showing the error and test negative log-likelihood over time on Figure~\ref{fig:magictelescope}.
+We compare our approach (\textbf{VI-Gibbs}) with $\alpha=0$ against the sampling methods \ac{HMC} (\textbf{VI-HMC}), Elliptical Slice Sampling (\textbf{VI-ESS}), \com{mention what these methods are} and a standard \ac{VI} method (with an L-BFGS optimizer), by showing the error and test negative log-likelihood over time on Figure~\ref{fig:magictelescope}.
 Each sampling method draws 10 chains of 1000 samples.
 We kept the hyperparameters fixed in this setup.
 
