@@ -225,7 +225,7 @@ For $\omega$, $g$, and $k$ (used as a mixture of inverse Gamma and Poisson) we w
 This will give a combination of collapsed conditionals and full conditionals directly usable in a Gibbs sampling scheme.
 For the \ac{CAVI} updates, we reuse the double bound idea of Section~\ref{sec:hetero_gaussian}.
 
-The full derivations, resulting algorithms and implementation can be found in the  \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} package \cite{theo_galy_fajou_2022_6347022}.
+The full derivations, resulting algorithms and implementation will be found in the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{\texttt{AugmentedGPLikelihoods.jl}} package \cite{theo_galy_fajou_2022_6347022}.
 
 \section{Using Hamilton Monte Carlo on the augmented model}
 
@@ -243,7 +243,7 @@ For example, one approximates the probability of a P\'olya-Gamma variable with a
 Truncated series are computationally expensive and can also be biased and unstable!
 My experience with the P\'olya-Gamma variables is that even when using tricks like "logsumexp" to improve numerical stability, the \ac{pdf} approximation can be negative, breaking the computations.
 Finally, the critical problem with \ac{HMC} is that it only works with continuous variables.
-Some augmentations directly involve discrete variables like the Poisson in the multi-class setting, making it incompatible with a scheme involving only \ac{HMC}.
+Some augmentations directly involve discrete variables like the Poisson in the multi-class setting, making it incompatible with a scheme involving only \ac{HMC}.\\
 
 We try running \ac{HMC} and \ac{NUTS} with a compatible augmentation (augmented variable \ac{pdf} known in closed-form, no discrete variables).
 Figure~\ref{fig:hmc_vs_gibbs} shows the auto-correlation plots on \ac{GP} regression problem with a Student-t likelihood with $\nu=3$ degrees of freedom applied on the Boston housing dataset (506 data points, 13 dimensions) \cite{harrison1978hedonic}.
@@ -483,12 +483,13 @@ For all $\alpha$, the minimizer for $q^*(\bOmega)$ is $p(\bOmega|\boldu^{i-1},\b
 With the approach from Chapter~\ref{ch:general}, we know $p(\bOmega|\boldu,\boldf,\boldy)$ (which can be simplified to $p(\bOmega|\boldf,\boldy)$) in closed-form and can sample from it with linear complexity with respect to the number of data points.
 
 \citet{buiUnifyingFrameworkGaussian2017} solved the optimization problem of Equation~\eqref{eq:var_uf} for Gaussian likelihoods, with the \textbf{Power-EP} algorithm.
-Since $p(\boldf|\bOmega,\boldy)$ is conjugate in $\boldf$, the optimal $q^*(\boldu)$ is a multivariate normal distribution with the mean and variance known in closed-form for all $\alpha \in \mathbb{R}^+$. \mycom{mention that the complexity is M3}
+Since $p(\boldf|\bOmega,\boldy)$ is conjugate in $\boldf$, the optimal $q^*(\boldu)$ is a multivariate normal distribution with the mean and variance known in closed-form for all $\alpha \in \mathbb{R}^+$.
+Each sampling step for $\boldu$ and $\boldf$ only has complexity $\mathcal{O}(M^3 + M^2N)$.
 Like in the Power-EP setting, $\alpha=0$ corresponds to solving the variational approach of \citet{Titsias2009}, while $\alpha=1$ corresponds to solve the Fully Independent Training Conditional (FITC) approach of \citet{snelsonSparseGaussianProcesses2009}, as shown in \citet{buiUnifyingFrameworkGaussian2017}.
 
 The only parameters left are the hyperparameters $\btheta$, omitted in the previous equations, that can represent a real challenge.
-For $\alpha=0$, we could sample from $q^*(\theta)$ with the \ac{HMC} algorithm in a separate Gibbs sampling step.
-For other $\alpha$, we could optimize $q(\theta)$ with variational inference methods \cite{li2016renyi, hernandez2016black}, and use a hot-start with the previous distribution.
+For $\alpha=0$, we could sample from $q^*(\btheta)$ with the \ac{HMC} algorithm in a separate Gibbs sampling step.
+For other $\alpha$, we could optimize $q(\btheta)$ with variational inference methods \cite{li2016renyi, hernandez2016black}, and use a hot-start with the previous distribution.
 The complete variational Gibbs sampler is described in Algorithm~\ref{alg:sparsegp}.
 
 \begin{algorithm}[H]
@@ -507,11 +508,10 @@ The complete variational Gibbs sampler is described in Algorithm~\ref{alg:sparse
 
 Our approach opens up more possibilities over more complex likelihoods like the multi-class or heteroscedastic ones where computing expectations, like in Equation~\eqref{eq:obj_hensman}, is a limitation.
 For medium-sized datasets, this outperforms the \ac{CAVI} algorithm as it has the same convergence speed but does not suffer from the mean-field assumption on the variational parameters.
-We show preliminary results on Figures~\ref{fig:magictelescope} and~\ref{fig:magictelescope_autocor} for a binary classification problem on the Magic Telescope dataset (10 dimensions, 19020 data points) \cite{bock2004methods}.
-We split the data in half into a training/test set and use $M=50$ inducing points selected via the k-means++ algorithm \cite{arthur2007k}.
-We compare our approach (\textbf{VI-Gibbs}) with $\alpha=0$ against the sampling methods \ac{HMC} (\textbf{VI-HMC}), Elliptical Slice Sampling (\textbf{VI-ESS}), \mycom{mention what these methods are} and a standard \ac{VI} method (with an L-BFGS optimizer), by showing the error and test negative log-likelihood over time on Figure~\ref{fig:magictelescope}.
-Each sampling method draws 10 chains of 1000 samples.
-We kept the hyperparameters fixed in this setup.
+We show preliminary results on Figure~\ref{fig:magictelescope} for a binary classification problem on the Magic Telescope dataset (10 dimensions, 19020 data points) \cite{bock2004methods}.
+The experiment is run with a 10-fold cross-validation, we use $M=50$ inducing points selected via the k-means++ algorithm \cite{arthur2007k}, and we keep the hyperparameters fixed.
+We compare our approach (\textbf{VI-Gibbs}) with $\alpha=0$ against the \ac{HMC}\footnote{HMC is run with a fixed step-size of 0.1 and with 10 leapfrog steps.} variational sampling method of \citet{hensmanMCMCVariationallySparse2015} mentioned earlier (\textbf{VI-HMC}), a standard \ac{VI} method optimized with an L-BFGS optimizer (\textbf{Std. VI}) and the augmented \ac{VI} approach from Chapter~\ref{ch:classification} with \ac{CAVI} updates (\textbf{Aug. VI}).
+We show the classification error and test negative log-likelihood over time on Figure~\ref{fig:magictelescope}.
 
 \begin{figure}[H]
     \centering
@@ -522,12 +522,20 @@ We kept the hyperparameters fixed in this setup.
     \label{fig:magictelescope}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\textwidth]{./chapters/8_discussions/figures/magictelescope_autocor.pdf}
-    \caption{Intra-chain correlation against the lag for the sampling approaches.}
-    \label{fig:magictelescope_autocor}
-\end{figure}
+These are first results, and there is still work on optimizing the implementation, but some first impressions can already be drawn.
+In terms of iterations, VI-Gibbs is just as fast as the \ac{CAVI} updates but seem to have a slightly better optima.
+It also completely outperforms methods applied on the original model.
+
+These preliminary graphs look very promising, but adding hyperparameter sampling might slow down the process.
+We also need to compare results with different likelihoods and different $\alpha$s.
+
+
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.5\textwidth]{./chapters/8_discussions/figures/magictelescope_autocor.pdf}
+%     \caption{Intra-chain correlation against the lag for the sampling approaches.}
+%     \label{fig:magictelescope_autocor}
+% \end{figure}
 
 \section{Limitations}
 
