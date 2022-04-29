@@ -18,7 +18,7 @@ Additionally, this chapter dives more into the basics of probabilistic Bayesian 
 
 \label{sec:prob_bayes}
 
-Bayes' theorem is one of the simplest theorems in probability theory, and its proof fits in one line, yet its implications are immeasurably important.
+Bayes' theorem is one of the simplest theorems in probability theory, and its proof fits in one line, yet its implications are immeasurably\footnote{Pun intended.} important.
 
 Let us give a very general modeling setting that we will follow for the rest of this chapter.
 Given a set of observed variables $\bX$, a set of latent (unobserved) variables $\btheta$ with a \textbf{prior} distribution $p(\btheta)$, and a \textbf{likelihood} function $p(\bX|\btheta)$, we obtain the \textbf{posterior} distribution $p(\btheta|\bX)$ via Bayes' theorem:
@@ -27,7 +27,7 @@ p(\btheta|\bX) = \frac{p(\bX|\btheta)p(\btheta)}{p(\bX)} = \frac{p(\bX|\btheta)p
 \label{eq:bayes}
 \end{align}
 
-Here $p(\bX)$ represents the so-called evidence and can be used to compare different models (the dependency on the used model is implicit here).
+$p(\bX)$ represents the so-called evidence and can be used to compare different models (the dependency on the used model is implicit here).
 The posterior allows us to obtain a distribution of the latent variables with its uncertainty given the prior $p(\btheta)$ and the data $\bX$.
 The posterior is used for computing all kinds of expectations of the form $\expec{p(\btheta|\bX)}{f(\btheta)} = \int f(\btheta)p(\btheta|\bX)d\btheta$.
 Expected values of interest can be statistics of the posterior like the mean ($\expec{p(\btheta|\bX)}{\btheta}$) or predictive distribution of new data points $p(\bx'|\bX) = \expec{p(\btheta|\bX)}{p(\bx'|\btheta)}$.
@@ -38,16 +38,16 @@ Given an input $\bx \in \mathbb{R}^D$ and a binary label $y\in \{ 0, 1\}$, we mo
     y \sim \Be\left(\sigma(\btheta^\top \bx)\right),
 \end{align}
 where $\Be$ is the Bernoulli distribution, $\btheta\in\mathbb{R}^D$ is a vector of weights (our latent variable), and $\sigma : \mathbb{R} \to [0, 1]$ is the logistic function $\sigma(x) = \frac{1}{1 + \exp(-x)}$.
-The likelihood function is given by: $p(y_i|\btheta,\bx_i) =\sigma\left(\btheta^\top \bx_i\right)^{y_i}\sigma\left(-\btheta^\top \bx_i\right)^{1-y_i}$ for an output label $y_i$ and input features $\bx_i$.
+The likelihood function is given by: $p(y_i|\btheta,\bx_i) =\sigma\left(\btheta^\top \bx_i\right)^{y_i}\sigma\left(-\btheta^\top \bx_i\right)^{1-y_i}$.
 
 Now let's suppose that we have $N$ pairs of input $\bx_i$ and label $y_i$, that we assume to be \ac{iid}, we get a training set $\bX = \{\bx_1,\ldots,\bx_N\}$, $\boldy = \{y_1,\ldots,y_N\}$.
 With a prior distribution $p(\btheta)$ on $\btheta$, we build the posterior as $p(\btheta|\boldy,\bX) \propto p(\btheta)\prod_{i=1}^N p(y_i|\btheta, \bx_i)$.
-Predictions for a new data input $\bx^*$ can be then computed as:
+We can then compute the predictive distribution for a new data input $\bx^*$:
 \begin{align}
-p(y^*|\bx^*,\boldy,\bX) = \int p(y^*, \btheta|\bx^*\boldy, \bX)d\btheta = \int p(y^*|\btheta,\bx^*) p(\btheta|\boldy,\bX)d\btheta.
+p(y^*|\bx^*,\boldy,\bX) = \int p(y^*, \btheta|\bx^*\boldy, \bX)d\btheta = \int p(y^*|\btheta,\bx^*) p(\btheta|\boldy,\bX)d\btheta.\label{eq:pred_dist}
 \end{align}
 
-Note that the last term of the equation directly involves the posterior distribution $p(\btheta|\by,\bX)$.
+Note that the last term of Equation~\eqref{eq:pred_dist} directly involves the posterior distribution $p(\btheta|\by,\bX)$.
 To solve this integral, we must either know the posterior distribution and compute the integral numerically (or analytically) or sample from the posterior and estimate the integral using Monte Carlo integration.
 
 \subsection{Posterior computations}
@@ -64,7 +64,7 @@ For a general example, we consider a likelihood part of the \textbf{exponential 
     p(\bx|\btheta) = h(\bx)\exp(\boldeta(\btheta)^\top T(\bx) - A(\btheta)),
     \label{eq:explikelihood}
 \end{align}
-where $\btheta$ are the \textbf{distribution parameters}, $h(\bx)$ is the \textbf{base measure}, $\boldeta(\btheta)$ corresponds to the \textbf{natural parameters}, $T(\bx)$ is the \textbf{sufficient statistics} and $A(\btheta)$ is the \textbf{log-partition}.
+where $\btheta$ are the \textbf{distribution parameters}, $h(\bx)$ is the \textbf{base measure}, $\boldeta(\btheta)$ corresponds to the \textbf{natural parameters}, $T(\bx)$ are the \textbf{sufficient statistics} and $A(\btheta)$ is the \textbf{log-partition}.
 
 Formally, a \textbf{conjugate prior} to the likelihood \eqref{eq:explikelihood} is defined as:
 \begin{align}
@@ -78,13 +78,14 @@ Given a factorizable likelihood $p(\bX|\btheta) = \prod_{i=1}^N p(\bx_i|\btheta)
 \end{align}
 Note that the only dependence on $\bX$ is via the sufficient statistics $T(\bx)$.
 
-Conjugate models are very practical as the posterior can be found in one step, but due to the constraints also tend to be too simple for many applications.
+Conjugate models are very practical as the posterior can be found in one step, but are very constraining in the choice of the prior.
+They tend to be considered too simple for many applications.
 
 If the prior is not conjugate of the likelihood, an alternative is to look for \textbf{conditional conjugacy}.
-A parameter $\theta_i$ with a conditionally conjugate prior will have a full-conditional distribution of the same family.
-The full-conditional distribution is defined as $p(\theta_i|
+A parameter $\theta_i$ with a \textbf{conditionally conjugate prior} will have a full conditional distribution of the same family.
+The full conditional distribution is defined as $p(\theta_i|
 \bX, \btheta_{/i})$ where $\btheta_{/i} = \{\theta_1, \ldots, \theta_{i-1},\theta_{i+1},\ldots\theta_D\}$.
-This notion of full-conditional also extends to blocks of variables.
+This notion of full conditional also extends to blocks of variables.
 2In the same exponential family example in equation \eqref{eq:expprior}, we are interested in the conjugate prior to the distribution $p(\bX, \btheta_{/i} | \theta_i)$
 
 \section{Gaussian Processes}
@@ -142,7 +143,7 @@ A Gaussian prior is only conjugate to the mean parameter of a Gaussian likelihoo
 Therefore, the \ac{GP} posterior obtained in the previous section is only tractable for homoscedastic (the noise variance is independent of the input) Gaussian likelihoods, for all other cases we talk about \textbf{non-conjugate \ac{GPs}}.
 Examples of non-conjugate \ac{GP} problems are binary classification, regression using non-Gaussian noise such as Student-t or Laplace noise, or Poisson regression.
 Other examples, such as multi-class classification or heteroscedastic regression, require multiple latent \ac{GPs}.
-Figure~\ref{fig:gp_class_example} shows an example of 1-dimension binary classification with a \ac{GP} where the posterior was approximated using variational inference (see Section~\ref{sec:vi}).
+Figure~\ref{fig:gp_class_example} shows an example of 1-dimensional binary classification with a \ac{GP} where the posterior was approximated using variational inference (see Section~\ref{sec:vi}).
 Although the \ac{GP} does not recover exactly the true process, most of it is in the \ac{GP}'s 95\% confidence interval.
 
 Posteriors of non-conjugate problems are not analytically tractable, and one needs to resort to the approximation methods presented in Section~\ref{sec:approx_inf}.
@@ -191,7 +192,7 @@ where $m_* = K_{\bx_*,\bZ} K^{-1}_{\bZ,\bZ} \bmu$ and $s_* = K_{\bx_*,\bx_*} - K
 
 The posterior distribution in Equation~\eqref{eq:bayes} cannot be computed in closed-form for non-trivial problems such as the ones presented in Section~\ref{sec:nonconj_gps} and \ref{sec:sparsegps}.
 We can approximate the posterior to obtain a valuable estimator for predictions and expected values of interest.
-\textbf{Approximate Bayesian Inference} is a research field of its own, and this chapter will focus specifically on sampling and variational inference, the most used methods for \ac{GPs}.
+\textbf{Approximate Bayesian Inference} is a research field of its own, and this chapter will focus specifically on sampling and \acl{VI}, the most popular approximate inference methods for \ac{GPs}.
 
 \subsection{Sampling}
 
@@ -215,14 +216,14 @@ Next are presented some categories of choice for the proposal $q$.
 
 \paragraph{Gibbs Sampling}\mbox{}\\
 Gibbs sampling is a particular \ac{MCMC} method where we sample each component of the random vector one after another.
-The proposal distribution for each component is given by the full-conditional  $p(\theta_i|\bx,\btheta_{/i})$, where $\btheta_{/i}=\{\theta_1, \ldots \theta_{i-1}, \theta_{i+1},\ldots \theta_{D}\}$.
+The proposal distribution for each component is given by the full conditional  $p(\theta_i|\bx,\btheta_{/i})$, where $\btheta_{/i}=\{\theta_1, \ldots \theta_{i-1}, \theta_{i+1},\ldots \theta_{D}\}$.
 The most prominent feature of Gibbs sampling is its acceptance probability, guaranteed to be 1:
 \begin{align*}
     A =& \frac{p(\theta^{t+1}_i,\btheta^t_{/i}|\bx)}{p(\theta^t_i,\btheta^t_{/i}|\bx)}\frac{p(\theta^t_i|\bx,\btheta^{t}_{/i})}{p(\theta^{t+1}_i|\bx,\btheta^t_{/i})}\\
     =& \frac{p(\theta^{t+1}_i|\bx, \btheta^{t}_{/i})}{p(\theta^t_i|\bx,\btheta^t_{/i})}\frac{p(\btheta^t_{/i}|\bx)}{p(\btheta^t_{/i}|\bx)}\frac{p(\theta^t_i|\bx,\btheta^{t}_{/i})}{p(\theta^{t+1}_i|\bx,\btheta^t_{/i})} = 1.
 \end{align*}
 At every step, all proposed samples are therefore guaranteed to be accepted.
-Also, since we are sampling from the full-conditionals, regions of high density are reached pretty quickly.
+Also, since we are sampling from the full conditionals, regions of high density are reached pretty quickly.
 Although it is not a guarantee, the sampler usually converges to the stationary distribution quickly.
 
 We illustrate the path of the sampler on a two-dimensional bimodal example in Figure~\ref{fig:gibbs_samp}.
@@ -235,19 +236,19 @@ We illustrate the path of the sampler on a two-dimensional bimodal example in Fi
 \end{figure}
 
 The Gibbs sampling approach is a conundrum.
-On the one hand, sampling each component using the full-conditional is easy since it only involves drawing a scalar.
-However, reforming a sampler for each full-conditional can be slow and costly.
-The sampler can also get stuck or move very slowly if the components are highly correlated.
-We can solve these drawbacks by using additional techniques like the \textbf{blocked Gibbs sampler} \cite{jensen1995blocking} where we sample groups of variables jointly, or \textbf{collapsed Gibbs sampling} \cite{liu1994collapsed} where we marginalize out some variables from the full-conditional distributions.
+On the one hand, sampling each component using the full conditional is easy since it only involves drawing a scalar.
+However, building a sampler for each full conditional at each step can be slow and costly.
+The sampler can also get stuck or move very slowly if the components are highly correlated with another.
+We can solve these drawbacks by using additional techniques like the \textbf{blocked Gibbs sampler} \cite{jensen1995blocking} where we sample groups of variables jointly, or \textbf{collapsed Gibbs sampling} \cite{liu1994collapsed} where we marginalize out some variables from the full conditional distributions.
 But blocked or collapsed updates are much less available and require heavier sampling machinery.
 
-The augmentations proposed in this thesis allow using both the blocked and collapsed version by deriving the full-conditionals for each group of variables analytically.
-Experiments show that the correlations between each group of variables are very low, and the sampler converges to the stationary distribution very fast.
+The augmentations proposed in this thesis allow using both the blocked and collapsed version by deriving the full conditionals for each group of variables analytically.
+Experiments show that the correlations are very low between each group of variables, and the sampler converges to the stationary distribution very fast.
 
 
 \paragraph{Hamilton/Hybrid Monte Carlo}\mbox{}\\
 \label{sec:hmc}
-\acf{HMC} or Hybrid Monte Carlo \cite{duane1987hybrid, neal2011mcmc, betancourt2017conceptual} is an \ac{MCMC} method that uses Hamiltonian dynamics to make a new proposal.
+\acf{HMC} or Hybrid Monte Carlo \cite{duane1987hybrid, neal2011mcmc, betancourt2017conceptual} is a \ac{MCMC} method that uses Hamiltonian dynamics to make a new proposal.
 We augment $\btheta^t$ with an extra momentum $\boldsymbol{p}^t$ sampled randomly for every proposal from $\No(0,M)$ where $M$ is the mass matrix.
 Next we run the Hamiltonian dynamics based on the Hamiltonian $H(\btheta, \boldsymbol{p}) = -\log \pi(\btheta) + \frac{1}{2}\boldsymbol{p}^\top M \boldsymbol{p}$ over $L$ leapfrog steps with step size $\Delta t$.
 The proposal at time $L\Delta t$ is accepted or rejected based on the acceptance rate:
@@ -278,7 +279,7 @@ This computational cost can be prohibitively expensive for high-dimensional prob
 There are other solid choices for sampling from \ac{GPs}.
 For example, elliptical slice sampling \citet{murray2010elliptical} is particularly well-fitted for Gaussian priors.
 The \ac{NUTS} algorithm \cite{hoffman2014no} is an extension of \ac{HMC} where $L$ is chosen automatically.
-We run the path integration with both $\boldsymbol{p}$ and $-\boldsymbol{p}$ until one of the particles goes backward or if one of the Hamiltonian estimates becomes too inaccurate\footnote{Details are skipped here.}.
+We run the path integration with both $\boldsymbol{p}$ and $-\boldsymbol{p}$ until one of the particles goes backward or if one of the Hamiltonian estimates becomes too inaccurate\footnote{Technical details are skipped here.}.
 The proposal is finally sampled randomly from both paths.
 \ac{NUTS} is good at avoiding oscillatory dynamics and is particularly strong for quadratic problems, which appear regularly in \ac{GPs} problems.
 Finally, another orthogonal approach to sample from predictive distributions with a known \ac{GP} posterior is pathwise sampling \cite{wilson2021pathwise}.
@@ -313,9 +314,10 @@ By minimizing $\VFE(\bphi)$ instead of the \ac{KL} divergence, we can expect to 
 
 A standard way to find the $\bphi^* = \arg_{\bphi}\min \VFE(\bphi)$ is to perform gradient descent on the variational parameters $\bphi$:
 \begin{align}
-\bphi^{t+1} = \bphi^{t} - \epsilon \grad_{\bphi}\VFE(\bphi^{t}).
+\bphi^{t+1} = \bphi^{t} - \epsilon^t \grad_{\bphi}\VFE(\bphi^{t}),
 \label{eq:vigraddescent}
 \end{align}
+where $\epsilon^t > 0$ is the learning rate.
 
 Computing the gradient $\grad_{\bphi}\VFE(\bphi)$ can be non-trivial.
 It involves derivatives over expectations, but "tricks" like reparametrization \cite{titsiasDoublyStochasticVariational} help to reduce the cost of these computations.
@@ -338,7 +340,7 @@ A \ac{MF} variational family can be specified as:
 \end{align}
 where $\bphi_i$ are the variational parameters for the variable $\theta_i$.
 Under the \ac{MF} approximation, the number of variational parameters grows linearly with the dimensionality of $\btheta$ instead of quadratically.
-Additionally, some integrals in Equation~\eqref{eq:vfe} turn out to be one-dimensional and more easily solvable.
+Additionally, integrals in Equation~\eqref{eq:vfe} can become one-dimensional or sometimes analytically tractable (the \ac{KL} for example), and therefore more easily solvable.
 However, \ac{MF} can not capture potential posterior correlations between the components of $\btheta$.
 
 An intermediate solution is to assume independence between blocks of variables instead, similarly to the blocked Gibbs sampler.
@@ -348,7 +350,7 @@ The variational distribution based on this \ac{BMF} approximation is then define
     q^{BMF}_{\bphi}(\btheta) = \prod_{k=1}^K q_{\bphi_k}(\btheta_{\mathcal{I}_k}),
 \end{align}
 where $\bphi_k$ are the variational parameters for the set of variable $\btheta_{\mathcal{I}_k}$.
-The \ac{BMF} can capture correlations inside blocks of variables but lose some of \ac{MF}'s computational attractiveness.
+The \ac{BMF} approximation can capture correlations inside blocks of variables but loses some of \ac{MF}'s computational attractiveness.
 
 \paragraph{Coordinate Ascent VI}\mbox{}\\
 \label{sec:cavi}
@@ -373,7 +375,7 @@ where $\btheta_{/i}$ represent the collection of variables $\btheta_{/i} = \{\th
 Note that Equation~\eqref{eq:optdist_vi} is not always normalizable, but we are usually only interested in the different moments of $q_{\bphi_i}(\btheta_i)$.
 
 Algorithm~\ref{alg:CAVI} summarizes the \ac{CAVI} algorithm.
-The order of the updates does not matter as long as the variational parameters $\bphi$ are initialized in their domain.
+The order of the updates does not matter as long as the variational parameters $\bphi$ are initialized in their respective domain.
 
 \begin{algorithm}
     \caption{\ac{CAVI} algorithm}
@@ -388,7 +390,7 @@ The order of the updates does not matter as long as the variational parameters $
 \end{algorithm}
 
 The \ac{CAVI} and Gibbs sampling algorithms are very similar in nature.
-The observations on Gibbs sampling also apply: \ac{CAVI} updates on a distribution with \ac{MF} is easily computable but has slower convergence, while updates with the \ac{BMF} approach are more complex, avoid some \ac{MF} pitfalls, and provide a richer distribution.
+The observations on Gibbs sampling also apply: \ac{CAVI} updates on a distribution with \ac{MF} is easily computable but has slower convergence, while updates with the \ac{BMF} approach are more complex to derive, avoid some \ac{MF} pitfalls, and provide a richer distribution.
 
 \paragraph{Natural Gradients}
 
@@ -404,8 +406,8 @@ The natural gradient is given by :
 \begin{align*}
     \widetilde{\grad}_{\bphi}\mathcal{F}(\bphi) = \mathcal{I}^{-1} \grad_{\bphi}\mathcal{F}(\bphi)
 \end{align*}
-The natural gradient works in a metric that maximizes the change of the infinitesimal \ac{KL} divergence between the given distribution and its target\cite{salimbeniNaturalGradientsPractice2018}.
-The updates of the \ac{CAVI} algorithm \ref{alg:CAVI} for exponential distributions, can be interpreted as natural gradient ascent updates with learning rate $1$.
+The natural gradient works in a metric that maximizes the change of the infinitesimal \ac{KL} divergence between the given distribution and its target \cite{salimbeniNaturalGradientsPractice2018}.
+The updates of the \ac{CAVI} algorithm \ref{alg:CAVI} for exponential distributions, can be interpreted as natural gradient ascent updates with learning rate $1$ \cite{wenzelEfficientGaussianProcess2018}.
 \begin{align*}
     \bphi^{t+1} = \bphi^t + \mathcal{I}^{-1}_\theta\grad_{\bphi}\mathcal{F}(\bphi^t)
 \end{align*}

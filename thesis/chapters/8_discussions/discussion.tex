@@ -31,7 +31,7 @@ For example, we used the \ac{MGF} of a Poisson distribution in Chapter~\ref{ch:m
 It is not a scale mixture of Gaussians, but with the right variable transformations, it can still be useful.
 The \ac{MGF} of a Poisson is known, but we could also consider arbitrary \ac{MGF} since we are able to sample from a distribution given its Laplace transform only \cite{ridout2009generating}.
 
-The \ac{MGF} is also an interesting tool to create hierarchical models. 
+The \ac{MGF} is also an interesting tool for creating hierarchical models. 
 Since scale mixtures are of the form $\sum_{x} e^{tx} p(x)$ or $\int e^{tx}p(x)dx$, by setting $t=\log \sigma(f)$, we get scales mixtures of the form $\sum_x \sigma^x(f)$.
 Thanks to the property that not only $\sigma(f)$ is augmentable but also $\sigma^n(f)$ for any $n\in \mathbb{R}^+$, we can use P\'olya-Gamma variables and obtain a conditionally conjugate model for a \ac{GP}.
 Additional examples of such constructions are shown in this chapter in Sections \ref{sec:heteroscedastic} and \ref{sec:improvemulticlass}.
@@ -44,7 +44,7 @@ This marginalization step is avoidable by identifying the right \ac{MGF} from th
 As shown in Section~\ref{sec:heteroscedastic_nongaussian}, switching between marginalized and augmented models gives great inference flexibility.
 
 \paragraph{Convergence speed analysis}\mbox{}\\
-An unfinished work (despite trying) is to establish convergence rates (error as a function of the number of iterations) for the \ac{CAVI} algorithm and of the correlation of the kernel for the Gibbs sampler.
+An unfinished work (despite trying) is to establish convergence rates (error as a function of the number of iterations) for the \ac{CAVI} algorithm and the correlation of the kernel for the Gibbs sampler.
 Experimental results indicate that the error on the variational free energy (and variational parameters) is decreasing as $\|\VFE^{*} - \VFE^{t}\|\propto C_0 e^{-ct}$, where $t$ is the number of iterations, but we did not manage to write a formal proof.
 We show the decay for both the variational free energy and the variational parameters for different examples in Figure~\ref{fig:convergence}.
 
@@ -85,7 +85,7 @@ Using the P\'olya-Gamma augmentation and the additivity property of P\'olya-Gamm
 \begin{align}
     p(y,n,\omega\mid f,g,\lambda) = \frac{\sqrt{\lambda}}{2^n\sqrt{\pi}}\exp\left(\frac{1}{2}\left(g\left(\frac{1}{2}-n\right) - \frac{g^2}{\omega}\right)\right)\PG \left(\omega \mid \half + n, 0\right) \Po \left(n \mid \lambda\frac{(y-f)^2}{2}\right)\label{eq:heteroscedastic}
 \end{align}
-The interesting part about this augmented likelihood is that although it is conditionally conjugate in $g$, $\omega$ and, $n$, it is unclear how to infer $f$:
+The interesting part about this augmented likelihood is that although it is conditionally conjugate in $g$, $\omega$, and $n$, it is unclear how to infer $f$:
 the final likelihood~\eqref{eq:heteroscedastic} is quadratic in $g$ but not in $f$.
 It turns out that the Gibbs sampler for this model is very simple:
 We take the augmented likelihood $p(y|f,g,\lambda,\omega,n)$, we marginalize out $n$ and $\omega$ and, as expected, we get the original likelihood~\eqref{eq:heteroscedastic}, which is conditionally conjugate with $f$.
@@ -99,7 +99,7 @@ By putting a Gamma prior $\Ga(\lambda|\alpha, \beta)$, where $\alpha$ is the sha
 \end{align*}
 
 
-As underlined in Section~\ref{sec:cavi}, the \ac{CAVI} updates need the full-conditionals of the model, and is not compatible with collapsed conditionals.
+As underlined in Section~\ref{sec:cavi}, the \ac{CAVI} updates need the model's full conditionals and are not compatible with collapsed conditionals.
 To solve this problem, we need to reverse-engineer how \ac{CAVI} updates are obtained and start with a first bound on the \ac{KL} divergence:
 \begin{align*}
     \KL{q(\boldf)q(\boldg)}{p(\boldf,\boldg|\boldy)}\leq& \min_{q(\boldg)}-\expec{q(\boldg)}{\expec{q(\boldf)}{\log p(\boldy|\boldf,\boldg)}} + \KL{q(\boldf)q(\boldg)}{p(\boldf)p(\boldg)} - \log p(\boldy)\\
@@ -219,10 +219,10 @@ The final step is the P\'olya-Gamma augmentation:
 Like for the heteroscedastic Gaussian likelihood, the augmented likelihood~\eqref{eq:augmented_studentt} is conjugate in $g$ but not in $f$.
 We can find the collapsed conditional for $f$ in closed-form.
 
-The key to perform inference on this augmented model, is to use the right augmented likelihood for each variable.
+The key to performing inference on this augmented model, is to use the right augmented likelihood for each variable.
 For example, for $f$ and $\lambda$, we only want to use the Inverse Gamma augmentation described in Equation~\eqref{eq:aug_gamma_studentt}.
 For $\omega$, $g$, and $k$ (used as a mixture of inverse Gamma and Poisson) we will use the fully augmented likelihood~\eqref{eq:augmented_studentt}.
-This will give a combination of collapsed conditionals and full-conditionals directly usable in a Gibbs sampling scheme.
+This will give a combination of collapsed conditionals and full conditionals directly usable in a Gibbs sampling scheme.
 For the \ac{CAVI} updates, we reuse the double bound idea of Section~\ref{sec:hetero_gaussian}.
 
 The full derivations, resulting algorithms and implementation can be found in the  \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} package \cite{theo_galy_fajou_2022_6347022}.
@@ -298,7 +298,7 @@ Which is proportional to a negative multinomial $\operatorname{NM}(x_0, \boldsym
 with parameters $x_0=1$, $\boldsymbol{p}=\left\{\frac{\sigma(-f_j)}{K}\right\}_{j=1}^K$, and where $p_0 = 1 - \sum_{j=1}^K p_j$.
 Note that the normalization term $p_0$ is missing in Equation~\eqref{eq:NM}.
 However, we do not add it, as it would render the likelihood unusable.
-We keep the prior unnormalized, but this does not influence the inference, as in Chapter~\ref{ch:multi-class}, since all full-conditionals are available in closed-form and normalized.
+We keep the prior unnormalized, but this does not influence the inference, as in Chapter~\ref{ch:multi-class}, since all full conditionals are available in closed-form and normalized.
 
 These derivations could have been avoided by noticing that the \ac{MGF} of a negative binomial distribution is given by:
 \begin{align*}
@@ -483,7 +483,7 @@ For all $\alpha$, the minimizer for $q^*(\bOmega)$ is $p(\bOmega|\boldu^{i-1},\b
 With the approach from Chapter~\ref{ch:general}, we know $p(\bOmega|\boldu,\boldf,\boldy)$ (which can be simplified to $p(\bOmega|\boldf,\boldy)$) in closed-form and can sample from it with linear complexity with respect to the number of data points.
 
 \citet{buiUnifyingFrameworkGaussian2017} solved the optimization problem of Equation~\eqref{eq:var_uf} for Gaussian likelihoods, with the \textbf{Power-EP} algorithm.
-Since $p(\boldf|\bOmega,\boldy)$ is conjugate in $\boldf$, the optimal $q^*(\boldu)$ is a multivariate normal distribution with the mean and variance known in closed-form for all $\alpha \in \mathbb{R}^+$. \com{mention that the complexity is M3}
+Since $p(\boldf|\bOmega,\boldy)$ is conjugate in $\boldf$, the optimal $q^*(\boldu)$ is a multivariate normal distribution with the mean and variance known in closed-form for all $\alpha \in \mathbb{R}^+$. \mycom{mention that the complexity is M3}
 Like in the Power-EP setting, $\alpha=0$ corresponds to solving the variational approach of \citet{Titsias2009}, while $\alpha=1$ corresponds to solve the Fully Independent Training Conditional (FITC) approach of \citet{snelsonSparseGaussianProcesses2009}, as shown in \citet{buiUnifyingFrameworkGaussian2017}.
 
 The only parameters left are the hyperparameters $\btheta$, omitted in the previous equations, that can represent a real challenge.
@@ -509,7 +509,7 @@ Our approach opens up more possibilities over more complex likelihoods like the 
 For medium-sized datasets, this outperforms the \ac{CAVI} algorithm as it has the same convergence speed but does not suffer from the mean-field assumption on the variational parameters.
 We show preliminary results on Figures~\ref{fig:magictelescope} and~\ref{fig:magictelescope_autocor} for a binary classification problem on the Magic Telescope dataset (10 dimensions, 19020 data points) \cite{bock2004methods}.
 We split the data in half into a training/test set and use $M=50$ inducing points selected via the k-means++ algorithm \cite{arthur2007k}.
-We compare our approach (\textbf{VI-Gibbs}) with $\alpha=0$ against the sampling methods \ac{HMC} (\textbf{VI-HMC}), Elliptical Slice Sampling (\textbf{VI-ESS}), \com{mention what these methods are} and a standard \ac{VI} method (with an L-BFGS optimizer), by showing the error and test negative log-likelihood over time on Figure~\ref{fig:magictelescope}.
+We compare our approach (\textbf{VI-Gibbs}) with $\alpha=0$ against the sampling methods \ac{HMC} (\textbf{VI-HMC}), Elliptical Slice Sampling (\textbf{VI-ESS}), \mycom{mention what these methods are} and a standard \ac{VI} method (with an L-BFGS optimizer), by showing the error and test negative log-likelihood over time on Figure~\ref{fig:magictelescope}.
 Each sampling method draws 10 chains of 1000 samples.
 We kept the hyperparameters fixed in this setup.
 

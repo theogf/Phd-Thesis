@@ -47,3 +47,4 @@ unmarginalize
 unmarginalize
 parametrizations
 Renyi
+pathwise
