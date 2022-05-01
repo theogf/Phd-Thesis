@@ -10,6 +10,11 @@
 This chapter presents both discussions and extensions on the models and ideas presented in Chapters~\ref{ch:classification},~\ref{ch:multi-class},~\ref{ch:general}.
 All figures presented are reproducible by running the examples provided in the GitHub repository \url{https://github.com/theogf/Phd-Thesis}.
 Section~\ref{sec:further} considers how augmentations can be generalized further and what analysis we need to fully understand the improvement brought by augmentations.
+Section~\ref{sec:heteroscedastic} presents new augmented models for \ac{GP} regression with heteroscedastic noise.
+Section~\ref{sec:hmc_vs_gibbs} explores how \ac{HMC} could be used (or not) with augmented models.
+Section~\ref{sec:improvemulticlass} shows how the multi-class model of Chapter~\ref{ch:multi-class} can be improved in multiple ways.
+Section~\ref{sec:sample_sparse} presents a way to combine inducing points and sampling using augmentations.
+Finally, Section~\ref{sec:limits} consider more largely the limitations existing with our augmentation approach.
 
 \section{Further generalizations and understanding}
 \label{sec:further}
@@ -20,9 +25,9 @@ Already mentioned in Chapters~\ref{ch:multi-class} and \ref{ch:general},
 the connection with the \acf{MGF} of a distribution is a promising direction.
 We already identified augmentable functions as being a transformed \ac{MGF} of the augmented variables in Chapter~\ref{ch:general}:
 \begin{align*}
-    \varphi(x^2) = \int_0^\infty e^{-x^2\omega}p(\omega)d\omega \forall x \in \mathbb{R} \;\equiv\; \mathrm{MGF}_{p(\omega)}(x) = \varphi(-x) \forall x \geq 0.
+    \varphi(x^2) = \int_0^\infty e^{-x^2\omega}p(\omega)d\omega \forall x \in \mathbb{R} \;\equiv\; \mathrm{MGF}_{p(\omega)}(x) = \varphi(-\sqrt{x}),\qquad \forall x \geq 0.
 \end{align*}
-However, this is limited to \ac{MGF} of continuous distributions with a square transformation on the inputs.
+However, this is limited to \ac{MGF} of continuous variables with a square transformation on the inputs.
 We can extend the notion of augmentable functions to \ac{MGF} of discrete and multivariate distributions, where the domain of $\omega$ is not always $\mathbb{R}^+$.
 For example, we used the \ac{MGF} of a Poisson distribution in Chapter~\ref{ch:multi-class}:
 \begin{align*}
@@ -228,7 +233,7 @@ For the \ac{CAVI} updates, we reuse the double bound idea of Section~\ref{sec:he
 The full derivations, resulting algorithms and implementation will be found in the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{\texttt{AugmentedGPLikelihoods.jl}} package \cite{theo_galy_fajou_2022_6347022}.
 
 \section{Using Hamilton Monte Carlo on the augmented model}
-
+\label{sec:hmc_vs_gibbs}
 The Gibbs sampler in the experiments of Chapters~\ref{ch:classification} and \ref{ch:general} outperforms the state-of-the-art \ac{HMC} algorithm introduced in Section~\ref{sec:hmc}.
 A recurrent question I got is:
 Is the performance gain due only to the augmentation or the Gibbs sampling scheme?
@@ -449,7 +454,7 @@ By putting a prior $\mathrm{Ga}(\theta_k|\alpha,\beta)$, the collapsed condition
 A Julia implementation as well as detailed derivations can be found in the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{\texttt{AugmentedGPLikelihoods.jl}} package \cite{theo_galy_fajou_2022_6347022}.
 
 \section{Sampling from a sparse augmented model}
-
+\label{sec:sample_sparse}
 Another work in progress regards the sampling of sparse \acp{GP} models.
 Sampling from the augmented model proves to be very effective (see Chapter~\ref{ch:general}) while still producing samples from the posterior $p(\boldf|\boldy)$ of the original model.
 Unfortunately, this property does not transfer when using sparse \acp{GP} (for a reminder on sparse \acp{GP}, see Section~\ref{sec:sparsegps}) and the scalability is limited.
@@ -538,7 +543,7 @@ We also need to compare results with different likelihoods and different $\alpha
 % \end{figure}
 
 \section{Limitations}
-
+\label{sec:limits}
 Unfortunately, augmentations are not a silver bullet for approximate Bayesian inference.
 \paragraph[]{Augmentable functions}\mbox{}\\
 The largest issue is naturally the limited domain of application. 

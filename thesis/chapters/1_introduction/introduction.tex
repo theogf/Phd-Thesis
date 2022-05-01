@@ -16,10 +16,10 @@
 \ac{ML} is a wide field of research with plenty of successful applications \cite{jordan2015machine}.
 % , in particular in domains such as computer vision, natural language processing, or reinforcement learning .
 Some problems have specific requirements; for example, computing the probability of a prediction is essential for decision-making algorithms.
-One of the best ways to integrate uncertainty in \ac{ML} models is through the lens of probability theory.
+One of the best ways to incorporate uncertainty in \ac{ML} models is through the lens of probability theory.
 % A particular approach of interest is \textbf{probabilistic machine learning}.
 Probabilistic \ac{ML} defines quantities of interest as random variables and considers data-generative processes as stochastic.
-We can produce more robust models and get more faithful to reality by accounting for the intrinsic uncertainty and the unknown random processes.
+We can produce more robust models and get more faithful to reality by accounting for the intrinsic measurement uncertainty and unknown random processes.
 Additionally, stochastic models return probabilistic predictions, allowing answers like "I don't know."
 % Centuries of research in probability and statistics have built well-tested methods and strong theories we can reuse.
 % Statistics is also a standard tool for classical sciences like physics, climatology, or biology, and a common language helps inter-domain collaborations.
@@ -34,12 +34,12 @@ A typical example is in medicine, where data is scarce, but the predictive outco
 Providing uncertainties helps the practitioner make a better decision given the model predictions.
 
 Generally, Bayesian models have a higher computational cost: a probability distribution contains more information than a point estimate and requires more parameters.
-Calculus with random variables is a complex science, and finding analytical solutions happens almost exclusively for trivial models.
-Approximation methods allow working with more complex models at the cost of lower accuracy. 
+Calculus with random variables is a difficult art, and finding analytical solutions happens almost exclusively for trivial models.
+Approximation methods allow working with more complex models at the cost of a potential bias or inaccuracies. 
 \textbf{\ac{ABI}} focuses on these algorithms finding a similar solution to the true posterior.
 
 The research in \ac{ABI} goes in many directions, but some main ones are: How to compute a highly accurate posterior approximation as efficiently as possible? How can it scale to large amounts of data and parameters? What are the guarantees of such algorithms?
-This thesis aims to partially answer these questions for some given setups, mainly through the idea of changing representations.
+This thesis aims to partially answer these questions for some given setups, mainly through a focus on representations.
 
 \section{The underestimated power of representations choices}
 
@@ -79,6 +79,7 @@ There are two equivalent representations, called centered and non-centered, show
     \label{fig:neals_noncentered}
 \end{minipage}
 \vspace{0.5cm}
+
 While both parameterizations are the same, the distribution geometry of $p(x,z)$ is less favorable to inference.
 $x$ and $z$ are strongly correlated for small $z$, and the density function is highly non-smooth.
 These constraints matter when running a sampling chain or fitting a variational distribution.
@@ -96,12 +97,12 @@ We avoid computational bottlenecks and add flexibility by representing the distr
 
 \section{Gaussian Processes}
 
-The techniques mentioned above apply to many probabilistic models; however, we focus on Gaussian-based models, and more particularly \acfp{GPs}.
+The techniques mentioned above apply to many probabilistic models; however, we focus on Gaussian-based models, and more particularly \acp{GP} \cite{rasmussen2006gaussian}.
 A \ac{GP} is a strong non-parametric tool to approximate functions using probabilistic methods.
 They were initially applied to regression problems with Gaussian noise, like the original \textbf{kriging problem} \cite{cressie1990origins}.
 However, they are also used as prior over latent functions for more complex problems like classification, ordinal regression, and more.
 Compared to other general function approximators like neural networks, they have the advantage of providing uncertainty on the prediction they make.
-Their non-parametric nature naturally avoids over-parametrization: while modern neural networks have billions of parameters to optimize, \acp{GP} only depend on a mean function and a kernel function.
+% Their non-parametric nature naturally avoids over-parametrization: while modern neural networks have billions of parameters to optimize, \acp{GP} only depend on a mean function and a kernel function.
 Most importantly, as their name suggests, they are based on Gaussian distributions, making them the best candidates for the presented work on augmentation.
 A full technical introduction to basic \acp{GP} and its extensions is given in Section~\ref{sec:gps}.
 
@@ -109,7 +110,7 @@ A full technical introduction to basic \acp{GP} and its extensions is given in S
 \section{Open-source projects}
 
 All the works presented in this thesis, as well as additional tools, are backed-up by user-friendly packages in Julia \cite{Julia-2017}.
-Throughout my time as a Ph.D. student, I have developed numerous Julia packages and was involved in the \href{https://github.com/JuliaGaussianProcesses}{JuliaGaussianProcesses organisation} to develop a flexible, efficient and easy-to-use framework to work with \acp{GP} from the very low-end to high-end interfaces through a series of packages: \href{https://github.com/JuliaGaussianProcesses/KernelFunctions.jl}{\texttt{KernelFunctions.jl}}~\cite{theo_galy_fajou_2022_6246597}, \href{https://github.com/JuliaGaussianProcesses/AbstractGPs.jl}{\texttt{AbstractGPs.jl}}~\cite{david_widmann_2022_5939997}, \href{https://github.com/JuliaGaussianProcesses/ApproximateGPs.jl}{\texttt{ApproximateGPs.jl}}, \href{https://github.com/JuliaGaussianProcesses/InducingPoints.jl}{\texttt{InducingPoints.jl}}and \href{https://github.com/JuliaGaussianProcesses/GPLikelihoods.jl}{\texttt{GPLikelihoods.jl}}.
+Throughout my time as a Ph.D. student, I have developed numerous Julia packages and was involved in the \href{https://github.com/JuliaGaussianProcesses}{JuliaGaussianProcesses organisation} to develop a flexible, efficient and easy-to-use framework to work with \acp{GP} from the very low-end to high-end interfaces through a series of packages: \href{https://github.com/JuliaGaussianProcesses/KernelFunctions.jl}{\texttt{KernelFunctions.jl}}~\cite{theo_galy_fajou_2022_6246597}, \href{https://github.com/JuliaGaussianProcesses/AbstractGPs.jl}{\texttt{AbstractGPs.jl}}~\cite{david_widmann_2022_5939997}, \href{https://github.com/JuliaGaussianProcesses/ApproximateGPs.jl}{\texttt{ApproximateGPs.jl}}, \href{https://github.com/JuliaGaussianProcesses/InducingPoints.jl}{\texttt{InducingPoints.jl}} and \href{https://github.com/JuliaGaussianProcesses/GPLikelihoods.jl}{\texttt{GPLikelihoods.jl}}.
 The particular strength of our work is the one-to-one mapping between theory and code.
 For example to define the posterior for some given data, the code looks like:
 \begin{minted}[breaklines,escapeinside=||,mathescape=true, numbersep=3pt, gobble=2, frame=lines, fontsize=\small, framesep=2mm]{julia}
@@ -121,6 +122,7 @@ For example to define the posterior for some given data, the code looks like:
 Here, each computational object represents exactly its mathematical equivalent.
 
 The work of this thesis is represented as well with the package \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{\texttt{AugmentedGPLikelihoods.jl}}, which provide all the necessary tools to work with augmentations.
+
 Julia's advantage is its strong interoperability capacity.
 This allows to use the augmentation work on more specialized implementations such as temporal \acp{GP} with a concrete example given in \href{https://github.com/JuliaGaussianProcesses/TemporalGPs.jl}{\texttt{TemporalGPs.jl}} (see \texttt{examples/augmented\_inference.jl}).
 
@@ -133,7 +135,7 @@ This thesis is constructed as follows:
     \item Chapter~\ref{ch:background} introduces in detail all the common concepts of Bayesian inference and \acp{GP}.
     There are introductions to these concepts in each published article, but this chapter dives more into the background theory.
     Bayesian inference, especially, is properly introduced, focusing on variational inference and sampling.
-    \item Chapter~\ref{ch:classification} contains the paper \textit{Efficient Gaussian Process Classification Using P\'olya-Gamma Data Augmentation}, which was the first augmentation we explored.
+    \item Chapter~\ref{ch:classification} contains the paper \textit{Efficient Gaussian Process Classification Using P\'olya-Gamma Data Augmentation}, which was the first variable augmentation we explored.
     \item Chapter~\ref{ch:multi-class} introduces the paper \textit{Multi-Class Gaussian Process Classification Made Conjugate: Efficient Inference via Data Augmentation}.
     This paper brings new augmentation concepts to a more complex problem: multi-class classification.
     \item Chapter~\ref{ch:general} presents the paper \textit{Automated Augmented Conjugate Inference for Non-conjugate Gaussian Process Models}.

@@ -28,17 +28,20 @@ p(\btheta|\bX) = \frac{p(\bX|\btheta)p(\btheta)}{p(\bX)} = \frac{p(\bX|\btheta)p
 \end{align}
 
 $p(\bX)$ represents the so-called evidence and can be used to compare different models (the dependency on the used model is implicit here).
-The posterior allows us to obtain a distribution of the latent variables with its uncertainty given the prior $p(\btheta)$ and the data $\bX$.
+The posterior allows us to obtain a distribution of the latent variables with its uncertainty given the prior $p(\btheta)$ and the observed data $\bX$.
 The posterior is used for computing all kinds of expectations of the form $\expec{p(\btheta|\bX)}{f(\btheta)} = \int f(\btheta)p(\btheta|\bX)d\btheta$.
 Expected values of interest can be statistics of the posterior like the mean ($\expec{p(\btheta|\bX)}{\btheta}$) or predictive distribution of new data points $p(\bx'|\bX) = \expec{p(\btheta|\bX)}{p(\bx'|\btheta)}$.
 
 Let's take the simple example of linear logistic regression, a discriminative model.
 Given an input $\bx \in \mathbb{R}^D$ and a binary label $y\in \{ 0, 1\}$, we model the process as:
-\begin{align}
+\begin{align*}
     y \sim \Be\left(\sigma(\btheta^\top \bx)\right),
-\end{align}
+\end{align*}
 where $\Be$ is the Bernoulli distribution, $\btheta\in\mathbb{R}^D$ is a vector of weights (our latent variable), and $\sigma : \mathbb{R} \to [0, 1]$ is the logistic function $\sigma(x) = \frac{1}{1 + \exp(-x)}$.
-The likelihood function is given by: $p(y_i|\btheta,\bx_i) =\sigma\left(\btheta^\top \bx_i\right)^{y_i}\sigma\left(-\btheta^\top \bx_i\right)^{1-y_i}$.
+The likelihood function is given by: 
+\begin{align*}
+    p(y_i|\btheta,\bx_i) =\sigma\left(\btheta^\top \bx_i\right)^{y_i}\sigma\left(-\btheta^\top \bx_i\right)^{1-y_i}.
+\end{align*}
 
 Now let's suppose that we have $N$ pairs of input $\bx_i$ and label $y_i$, that we assume to be \ac{iid}, we get a training set $\bX = \{\bx_1,\ldots,\bx_N\}$, $\boldy = \{y_1,\ldots,y_N\}$.
 With a prior distribution $p(\btheta)$ on $\btheta$, we build the posterior as $p(\btheta|\boldy,\bX) \propto p(\btheta)\prod_{i=1}^N p(y_i|\btheta, \bx_i)$.
@@ -52,7 +55,7 @@ To solve this integral, we must either know the posterior distribution and compu
 
 \subsection{Posterior computations}
 \label{sec:posterior}
-Given a prior $p(\btheta)$ and a likelihood $p(\bx|\btheta)$, computing the posterior distribution function \eqref{eq:bayes} in closed-form requires the integral\footnote{Even if the integral is known, it might not be enough to compute some expectations or statistics.} $p(\bx)=\int p(\bx|\btheta)p(\btheta)d\btheta$.
+Given a prior $p(\btheta)$ and a likelihood $p(\bX|\btheta)$, computing the posterior distribution function \eqref{eq:bayes} in closed-form requires the integral\footnote{Even if the integral is known, it might not be enough to compute some expectations or statistics.} $p(\bX)=\int p(\bX|\btheta)p(\btheta)d\btheta$.
 For most non-trivial models, this integral is intractable, and approximations to the posterior are needed.
 Such methods are introduced in Section~\ref{sec:approx_inf}.
 
@@ -71,7 +74,7 @@ Formally, a \textbf{conjugate prior} to the likelihood \eqref{eq:explikelihood} 
     p(\btheta|\balpha) = h'(\btheta)\exp(\boldeta'(\balpha)^\top T'(\btheta) - A'(\balpha)),
     \label{eq:expprior}
 \end{align}
-where $T'(\btheta) = \left\{\boldeta(\btheta), A(\btheta)\right\}$ and where $\balpha$ is the prior distribution parameters.
+where $T'(\btheta) = \left\{\boldeta(\btheta), A(\btheta)\right\}$ and where $\balpha$ represents the prior distribution parameters.
 Given a factorizable likelihood $p(\bX|\btheta) = \prod_{i=1}^N p(\bx_i|\btheta)$, the posterior will be proportional to
 \begin{align}
     p(\btheta|\bX) \propto h'(\btheta)\exp\left(\left(\{\sum_{i=1}^N T(\bx_i), N\} + \boldeta'(\balpha)\right)^\top T'(\btheta)\right).\label{eq:posterior}
@@ -86,7 +89,7 @@ A parameter $\theta_i$ with a \textbf{conditionally conjugate prior} will have a
 The full conditional distribution is defined as $p(\theta_i|
 \bX, \btheta_{/i})$ where $\btheta_{/i} = \{\theta_1, \ldots, \theta_{i-1},\theta_{i+1},\ldots\theta_D\}$.
 This notion of full conditional also extends to blocks of variables.
-2In the same exponential family example in equation \eqref{eq:expprior}, we are interested in the conjugate prior to the distribution $p(\bX, \btheta_{/i} | \theta_i)$
+%In the same exponential family example in equation \eqref{eq:expprior}, we are interested in the conjugate prior to the distribution $p(\bX, \btheta_{/i} | \theta_i)$
 
 \section{Gaussian Processes}
 \label{sec:gps}
@@ -103,19 +106,19 @@ A symmetric function $k:\mathcal{X}\times\mathcal{X}\rightarrow \mathbb{R} $ is 
 
 One of the interpretations of a \ac{GP}($\mu_0$, $k$) is as a prior on the function space.
 % To perform concrete computations, we need to project it into a finite-dimensional space.
-Given a random function $f$ we wish to represent with a \ac{GP}, we can project $f$ into a finite space by evaluating it on a set of data inputs $\bX = \{\bx_1, \ldots, \bx_N\}$ such that we obtain the finite-dimensional vector $\boldf$ where $f_i = f(\bx_i)$.
+Given a random function $f$ with a \ac{GP} prior, we can project $f$ into a finite space by evaluating it on a set of data inputs $\bX = \{\bx_1, \ldots, \bx_N\}$ such that we obtain the finite-dimensional vector $\boldf$ where $f_i = f(\bx_i)$.
 The prior on the projected \ac{GP} on $\bX$ is given by $\mathcal{N}\left(\bmu_0(\bX), K_{X}\right)$ where $\bmu_0(\bX) = \{\mu_0(\bx_i)\}_{i=1}^N$ and $K \in \mathbb{R}^{N\times N}$ is the kernel matrix, defined by $K_{ij} = k(\bx_i, \bx_j)$.
 
 \subsection{Gaussian Process Regression}
 
-Let us have a look at the most standard problem: Gaussian regression.
+% Let us have a look at the most standard problem: Gaussian regression.
 Given our prior $p(\boldf) = \No(\boldf|\bmu_0, \bK)$, we can add noisy observations $\by = \{y_i\}_{i=1}^N$ for each respective $\bx_i$ and model the process as:
 \begin{align}
 y_i = f(\bx_i) + \epsilon_i,
 \end{align}
 where $\epsilon_i \sim \No(0,\sigma^2)$.
 This leads to the likelihood $p(y_i|f_i) = \No(y_i|f_i, \sigma^2)$.
-Fortunately, adding a zero-mean Gaussian variable to another leads to another Gaussian distribution function with increased variance and the posterior for $\boldf$ is given by $p(\boldf|\by) = \No(\boldf|\by, \bK + \sigma^2 I)$.
+Fortunately, adding a zero-mean Gaussian variable to another gives another Gaussian variable with increased variance and the posterior for $\boldf$ is given by $p(\boldf|\by) = \No(\boldf|\by, \bK_{\bX} + \sigma^2 I)$.
 The predictive distribution of $f_*=f(\bx_*)$ on a new input $\bx_*$ can be evaluated by computing:
 \begin{align}
 p(f_*|\bx_*,\bX,\by) = \int p(f_*|\boldf,\bx_*)p(\boldf|\bX,\by)d\boldf.
@@ -125,7 +128,7 @@ This integral is analytically tractable and results in
     p(f_*|\bx_*,\bX,\by)=\No(f_*|m_*,s_*),
     \label{eq:pred_gp}
 \end{align}
-where $m_* = K_{\bx_*,\bX}(K_{\bX,\bX} + \sigma^{2}I)^{-1}\boldy$ and $s_*=K_{\bx_*,\bx_*} - K_{\bx_*,\bX}\left(K_{\bX,\bX}+\sigma^2I\right)^{-1}K_{\bX,\bx_*}$.
+where $m_* = K_{\bx_*,\bX}(K_{\bX} + \sigma^{2}I)^{-1}\boldy$ and $s_*=K_{\bx_*} - K_{\bx_*,\bX}\left(K_{\bX}+\sigma^2I\right)^{-1}K_{\bX,\bx_*}$, with $(K_{\bx_*,\bX})_{i} = k(\bx_*, \bx_i)$.
 The predictive distribution for $f_*$ is Gaussian, with a known mean $m_*$ and a measure of uncertainty given by the variance $s_*$.
 Note that $s_*$ depends directly on $K_{\bx_*,\bX}$: if $\bx_*$ is far from all points in $\bX$ (in the sense of the distance used in the kernel $k$), then $K_{\bx_*,\bX}$ will be very small and the variance $s_*$ maximized.
 The predictive uncertainty will be high when new inputs $\bx_*$ are distant from the training data $\bX$.
@@ -140,11 +143,12 @@ A concrete example is shown on Figure~\ref{fig:gp_example}.
 \subsection{Non-Conjugate Gaussian Processes}
 \label{sec:nonconj_gps}
 A Gaussian prior is only conjugate to the mean parameter of a Gaussian likelihood.
-Therefore, the \ac{GP} posterior obtained in the previous section is only tractable for homoscedastic (the noise variance is independent of the input) Gaussian likelihoods, for all other cases we talk about \textbf{non-conjugate \acp{GP}}.
+Therefore, the \ac{GP} posterior obtained in the previous section is only tractable for homoscedastic\footnote{The noise variance is independent of the input} Gaussian likelihoods.
+For all other cases we talk about \textbf{non-conjugate \acp{GP}}.
 Examples of non-conjugate \ac{GP} problems are binary classification, regression using non-Gaussian noise such as Student-t or Laplace noise, or Poisson regression.
-Other examples, such as multi-class classification or heteroscedastic regression, require multiple latent \acp{GP}.
+Other examples, such as multi-class classification or heteroscedastic regression, can nrequire multiple latent \acp{GP}.
 Figure~\ref{fig:gp_class_example} shows an example of 1-dimensional binary classification with a \ac{GP} where the posterior was approximated using variational inference (see Section~\ref{sec:vi}).
-Although the \ac{GP} does not recover exactly the true process, most of it is in the \ac{GP}'s 95\% confidence interval.
+Although the \ac{GP} does not recover exactly the true process, most of it lies in the \ac{GP}'s 95\% confidence interval (blue band).
 
 Posteriors of non-conjugate problems are not analytically tractable, and one needs to resort to the approximation methods presented in Section~\ref{sec:approx_inf}.
 A strong focus of this thesis is to take these non-conjugate likelihoods and find a representation where inference is simplified and basic methods can be used.
@@ -170,13 +174,14 @@ The first approach to reduce the complexity was to use a Nystr\"om approximation
 \citet{snelsonSparseGaussianProcesses2009} expanded this theory to the offline framework and \citet{csato2002gaussian} followed by \citet{Titsias2009} developed an alternative approximation based on KL divergence where the "inducing points" are not necessarily a subset of the training data and do not even have to belong to the same domain \cite{NIPS2009_5ea1649a, vdw2020framework}.
 For a unified view on sparse \acp{GP}, see \citet{quinonero2005unifying} and \citet{bui2017unifying}.
 
-The rest of this thesis is based on Titsias' approach \cite{Titsias2009}:
+The works of thesis relying on inducing points are based on Titsias' approach \cite{Titsias2009}:
 The sparse approximation is made by defining a set of inducing points location $Z=\{\boldz_i\}_{i=1}^M$ and the realization of a \ac{GP} $u$ on them: $\boldu$ where $u_i = u(\boldz_i)$.
-We proceed to use variational inference (see Section~\ref{sec:vi}) and approximate the posterior $p(\boldu,\boldf|\boldy)$ by the variational distribution.
+We proceed to use variational inference (see Section~\ref{sec:vi}) and approximate the posterior $p(\boldu,\boldf|\boldy)$ by the variational distribution
 \begin{align}
-    q(\boldu,\boldf) = q(\boldu)\prod_{i=1}^N p(f_i|\boldu).
+    q(\boldu,\boldf) = q(\boldu)\prod_{i=1}^N p(f_i|\boldu),
     \label{eq:titsias_assumption}
 \end{align}
+minimizing $\KL{q(\boldu,\boldf)}{p(\boldu,\boldf|\boldy)}$.
 The assumption used is that all components of the random vector $\boldf$ are independent of each other given the random vector $\boldu$.
 It is a strong assumption, but the inference and prediction complexity reduces to $\mathcal{O}(NM^2 + M^3)$, where $N$ can be reduced to a smaller batch-size $B$ with stochastic inference approaches \cite{Hensman2013, Hensman2015}.
 Given $q(\boldu) = \No(\bmu,\bSigma)$, the predictive distribution of $f_*=f(\bx_*)$ on a new input $\bx_*$ is given by
@@ -185,7 +190,7 @@ Given $q(\boldu) = \No(\bmu,\bSigma)$, the predictive distribution of $f_*=f(\bx
     \approx& \int p(f_*|\boldu) q(\boldu)d\boldu\\
     =& p(f_*|m_*,s_*),
 \end{align*}
-where $m_* = K_{\bx_*,\bZ} K^{-1}_{\bZ,\bZ} \bmu$ and $s_* = K_{\bx_*,\bx_*} - K_{\bx_*,\bZ}K_{\bZ,\bZ}^{-1}(I - \Sigma) K^{-1}_{\bZ,\bZ}K_{\bZ,\bx_*}$.
+where $m_* = K_{\bx_*,\bZ} K^{-1}_{\bZ} \bmu$ and $s_* = K_{\bx_*} - K_{\bx_*,\bZ}K_{\bZ}^{-1}(I - \Sigma) K^{-1}_{\bZ}K_{\bZ,\bx_*}$.
 
 \section{Approximate Bayesian Inference}
 \label{sec:approx_inf}
@@ -196,7 +201,13 @@ We can approximate the posterior to obtain a valuable estimator for predictions 
 
 \subsection{Sampling}
 
-Even if the posterior distribution $p(\btheta|\bX)$ is not available in closed-form, one can try to draw samples from it.
+We can compute predictive estimates $\expec{p(\btheta|\bX)}{f(\btheta)}$ with Monte Carlo integration:
+\begin{align*}
+    \expec{p(\btheta|\bX)}{f(\btheta)} \approx \frac{1}{N}\sum_{i=1}^N f(\btheta_i),\quad \btheta_i \sim p(\btheta|\bX),
+\end{align*}
+where the samples $\btheta_i$ are \ac{iid}.
+
+Even if the posterior distribution $p(\btheta|\bX)$ is not available in closed-form or has no direct sampler, there are many alternatives to draw samples from it.
 The advantage of sampling is its unbiasedness: one obtains exact expectations in the limit of infinitely many samples.
 Sampling is an art of its own, and the number of methods is too large to mention them all in this thesis.
 Therefore, the scope is restricted to methods popular with or tailored to \acp{GP}.
@@ -223,8 +234,6 @@ The most prominent feature of Gibbs sampling is its acceptance probability, guar
     =& \frac{p(\theta^{t+1}_i|\bx, \btheta^{t}_{/i})}{p(\theta^t_i|\bx,\btheta^t_{/i})}\frac{p(\btheta^t_{/i}|\bx)}{p(\btheta^t_{/i}|\bx)}\frac{p(\theta^t_i|\bx,\btheta^{t}_{/i})}{p(\theta^{t+1}_i|\bx,\btheta^t_{/i})} = 1.
 \end{align*}
 At every step, all proposed samples are therefore guaranteed to be accepted.
-Also, since we are sampling from the full conditionals, regions of high density are reached pretty quickly.
-Although it is not a guarantee, the sampler usually converges to the stationary distribution quickly.
 
 We illustrate the path of the sampler on a two-dimensional bimodal example in Figure~\ref{fig:gibbs_samp}.
 
@@ -240,10 +249,10 @@ On the one hand, sampling each component using the full conditional is easy sinc
 However, building a sampler for each full conditional at each step can be slow and costly.
 The sampler can also get stuck or move very slowly if the components are highly correlated with another.
 We can solve these drawbacks by using additional techniques like the \textbf{blocked Gibbs sampler} \cite{jensen1995blocking} where we sample groups of variables jointly, or \textbf{collapsed Gibbs sampling} \cite{liu1994collapsed} where we marginalize out some variables from the full conditional distributions.
-But blocked or collapsed updates are much less available and require heavier sampling machinery.
+But blocked or collapsed updates are not always available and require heavier sampling machinery.
 
-The augmentations proposed in this thesis allow using both the blocked and collapsed version by deriving the full conditionals for each group of variables analytically.
-Experiments show that the correlations are very low between each group of variables, and the sampler converges to the stationary distribution very fast.
+The augmentations proposed in this thesis allow using both the blocked and collapsed version by deriving the blocked full conditionals for each group of variables analytically.
+Experiments show that the correlations are very low between each group of variables, and that the sampler converges to the stationary distribution very fast.
 
 
 \paragraph{Hamilton/Hybrid Monte Carlo}\mbox{}\\
@@ -265,7 +274,7 @@ Figure~\ref{fig:hmc} illustrates the sampling process with the Hamiltonian dynam
 \ac{HMC} is very popular due to its plug-and-play characteristics but suffers from different issues.
 It is gradient-based and can not sample discrete variables.
 The integration of the Hamiltonian dynamics requires $2L$ gradients per proposal.
-This computational cost can be prohibitively expensive for high-dimensional problems or $\pi(\btheta)$ distributions with costly computations.
+This computational cost can be prohibitively expensive for high-dimensional problems or for target distributions with costly computations.
 
 \begin{figure}[H]
     \centering
@@ -294,9 +303,9 @@ Given a family of distributions $\mathcal{Q}$, parametrized by the variational p
 \label{eq:prob_VI}
 \end{align}
 where $\mathcal{D}$ is a dissimilarity measure between two distributions and $q_{\bphi}$ is the distribution $q\in \mathcal{Q}$ parametrized by $\bphi$.
-One of the most used dissimilarity measure is the backward \ac{KL} divergence, defined for continuous distributions as:
+One of the most used dissimilarity measure is the reverse \ac{KL} divergence, defined for continuous distributions as:
 \begin{align}
-\KL{q(x)}{p(x)} = \int q(x) \log \frac{q(x)}{p(x)}dx
+\KL{q(\bx)}{p(\bx)} = \int q(\bx) \log \frac{q(\bx)}{p(\bx)}d\bx
 \label{eq:kl}
 \end{align}
 
@@ -328,7 +337,7 @@ A standard example for continuous variables is the \ac{VGA}\footnote{The \ac{VGA
 Many expectations can be computed analytically under \ac{VGA}, in particular when the prior on $\btheta$ is Gaussian as well.
 The Gaussian distribution is easily reparametrizable, and it is straightforward to sample from it.
 Many operations will be of the cost $\mathcal{O}(D^3)$ where $D$ is the dimensionality of $\btheta$.
-Restricting $\mathcal{Q}$ further by constraining $S$ can reduce this cost.
+Restricting $\mathcal{Q}$ further by constraining the covariance $S$ can reduce this cost.
 For example, setting $S$ to be diagonal will reduce the number of variational parameters and avoid inverse matrix operations.
 
 \paragraph{Mean-Field Approximation}\mbox{}\\
@@ -372,7 +381,7 @@ The solution to Equation~\eqref{eq:optimalbphi} is always given by
 q_{\bphi_i}^*(\btheta_i) \propto \exp\left(\expec{q_{\bphi}(\btheta_{/i})}{\log p\left(\btheta_i|\btheta_{/i},\bx\right)}\right)\label{eq:optdist_vi}
 \end{align}
 where $\btheta_{/i}$ represent the collection of variables $\btheta_{/i} = \{\theta_j | j \neq i\}$ \cite{murphyMachineLearningProbabilistic2012}.
-Note that Equation~\eqref{eq:optdist_vi} is not always normalizable, but we are usually only interested in the different moments of $q_{\bphi_i}(\btheta_i)$.
+Even when the expectation involved in Equation~\eqref{eq:optdist_vi} is available in closed-form, the resulting distribution might not always normalizable, but we are usually only interested in the different moments of $q_{\bphi_i}(\btheta_i)$.
 
 Algorithm~\ref{alg:CAVI} summarizes the \ac{CAVI} algorithm.
 The order of the updates does not matter as long as the variational parameters $\bphi$ are initialized in their respective domain.
@@ -438,7 +447,7 @@ Certain likelihoods $p(\bx|\btheta)$ can be defined as scale mixtures $\int p(\b
 We can "unmarginalize" the likelihood by adding the scale variable $\omega$ to our model.
 We  augment $p(\bx|\btheta)$ to $p(\bx,\omega|\btheta)$.
 For example, we can augment a Student-T likelihood into a Gaussian likelihood with a Gamma prior on the variance.
-The advantage of the augmented model is to produce conditionally conjugate likelihoods for all the model variables.
+The advantage of the augmented model is to produce conditionally conjugate likelihoods for all the model variables as the next chapters will show.
 
 % ---------------------------------------------------------------------------
 % ----------------------- end of thesis sub-document ------------------------
