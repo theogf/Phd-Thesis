@@ -109,7 +109,7 @@
 %
 
 \usepackage{todonotes}
-\usepackage{acronym}
+\usepackage[printonlyused]{acronym}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{hyperref}
@@ -195,20 +195,20 @@
 % Glossary entries can also be defined in the main text. See glossary.tex
 \cleardoublepage
 %\chapter{Glossary}
+\section*{Acronyms}
 \begin{multicols}{2} % \begin{multicols}{#columns}[header text][space]
-\begin{footnotesize} % scriptsize(7) < footnotesize(8) < small (9) < normal (10)
+% \begin{footnotesize} % scriptsize(7) < footnotesize(8) < small (9) < normal (10)
 % \ifCLASSINFOlangDE
 % \printglossary[type=\acronymtype,title=Abkürzungsverzeichnis]
 % \else
 % \printglossary[type=\acronymtype,title=Abbreviations]
 % \fi
-
-\include{utils/acronyms}
+\input{utils/acronyms}
 %\printglossary
 %\printnomenclature[\include{acronyms}1.5cm] % [] = distance between entry and description
 %\printglossery
-\label{nom} % target name for links to glossary
-\end{footnotesize}
+% \label{nom} % target name for links to glossary
+% \end{footnotesize}
 \end{multicols}
 
 % \begin{multicols}{2} % \begin{multicols}{#columns}[header text][space]

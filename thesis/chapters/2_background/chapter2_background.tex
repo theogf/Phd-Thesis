@@ -10,7 +10,7 @@
 % ----------------------- contents from here ------------------------
 
 To fully comprehend the papers to be presented, we present a general overview of the needed concepts.
-A short introduction to the basic theory of \acl{GPs} as well as their extension to large datasets using inducing points \cite{Titsias2009} is given in Chapters~\ref{ch:classification},~\ref{ch:multi-class} and \ref{ch:general}.
+A short introduction to the basic theory of \aclp{GP} as well as their extension to large datasets using inducing points \cite{Titsias2009} is given in Chapters~\ref{ch:classification},~\ref{ch:multi-class} and \ref{ch:general}.
 However, this chapter presents a more thorough and basic description.
 Additionally, this chapter dives more into the basics of probabilistic Bayesian modeling, variational inference, and sampling methods.
 
@@ -91,7 +91,7 @@ This notion of full conditional also extends to blocks of variables.
 \section{Gaussian Processes}
 \label{sec:gps}
 
-\acf{GPs} are a class of stochastic processes used as non-parametric probabilistic representations of functions.
+\acfp{GP} are a class of stochastic processes used as non-parametric probabilistic representations of functions.
 A \ac{GP} is a stochastic process $\{f_t\}$, where the joint distribution on any finite collection of random variables $\{f_t\}$ follows a (multivariate) Gaussian distribution \cite{rasmussen2006gaussian}.
 Since all the variables are Gaussian, we can perform all linear operations analytically, making them computationally attractive.
 We can also compute marginals exactly, and a product of Gaussian distributions of the same variable is still proportional to another Gaussian.
@@ -140,9 +140,9 @@ A concrete example is shown on Figure~\ref{fig:gp_example}.
 \subsection{Non-Conjugate Gaussian Processes}
 \label{sec:nonconj_gps}
 A Gaussian prior is only conjugate to the mean parameter of a Gaussian likelihood.
-Therefore, the \ac{GP} posterior obtained in the previous section is only tractable for homoscedastic (the noise variance is independent of the input) Gaussian likelihoods, for all other cases we talk about \textbf{non-conjugate \ac{GPs}}.
+Therefore, the \ac{GP} posterior obtained in the previous section is only tractable for homoscedastic (the noise variance is independent of the input) Gaussian likelihoods, for all other cases we talk about \textbf{non-conjugate \acp{GP}}.
 Examples of non-conjugate \ac{GP} problems are binary classification, regression using non-Gaussian noise such as Student-t or Laplace noise, or Poisson regression.
-Other examples, such as multi-class classification or heteroscedastic regression, require multiple latent \ac{GPs}.
+Other examples, such as multi-class classification or heteroscedastic regression, require multiple latent \acp{GP}.
 Figure~\ref{fig:gp_class_example} shows an example of 1-dimensional binary classification with a \ac{GP} where the posterior was approximated using variational inference (see Section~\ref{sec:vi}).
 Although the \ac{GP} does not recover exactly the true process, most of it is in the \ac{GP}'s 95\% confidence interval.
 
@@ -161,14 +161,14 @@ A strong focus of this thesis is to take these non-conjugate likelihoods and fin
 
 \subsection{Sparse Gaussian Processes}
 \label{sec:sparsegps}
-One of the largest drawbacks of \ac{GPs}, regardless of the conjugacy of the likelihood, is the scalability with the number of observed samples.
+One of the largest drawbacks of \acp{GP}, regardless of the conjugacy of the likelihood, is the scalability with the number of observed samples.
 When computing the predictive mean and covariance, the inverse matrix operation in Equation~\eqref{eq:pred_gp} has a computational complexity of $\mathcal{O}(N^3)$ where $N$ is the number of samples.
 For one-dimensional inputs ($D=1$), solutions exist for specific kernels using state-space models representation \cite{pmlr-v9-turner10a,solinInfiniteHorizonGaussianProcesses2018}, leading to an $\mathcal{O}(N)$ complexity.
 However, higher-dimensional problems require alternative solutions.
 The first approach to reduce the complexity was to use a Nystr\"om approximation \cite{williams2002observations}.
 \citet{csato2002sparse} proposed to create an approximation of the posterior using a subset of the points only in the context of online learning.
 \citet{snelsonSparseGaussianProcesses2009} expanded this theory to the offline framework and \citet{csato2002gaussian} followed by \citet{Titsias2009} developed an alternative approximation based on KL divergence where the "inducing points" are not necessarily a subset of the training data and do not even have to belong to the same domain \cite{NIPS2009_5ea1649a, vdw2020framework}.
-For a unified view on sparse \ac{GPs}, see \citet{quinonero2005unifying} and \citet{bui2017unifying}.
+For a unified view on sparse \acp{GP}, see \citet{quinonero2005unifying} and \citet{bui2017unifying}.
 
 The rest of this thesis is based on Titsias' approach \cite{Titsias2009}:
 The sparse approximation is made by defining a set of inducing points location $Z=\{\boldz_i\}_{i=1}^M$ and the realization of a \ac{GP} $u$ on them: $\boldu$ where $u_i = u(\boldz_i)$.
@@ -192,14 +192,14 @@ where $m_* = K_{\bx_*,\bZ} K^{-1}_{\bZ,\bZ} \bmu$ and $s_* = K_{\bx_*,\bx_*} - K
 
 The posterior distribution in Equation~\eqref{eq:bayes} cannot be computed in closed-form for non-trivial problems such as the ones presented in Section~\ref{sec:nonconj_gps} and \ref{sec:sparsegps}.
 We can approximate the posterior to obtain a valuable estimator for predictions and expected values of interest.
-\textbf{Approximate Bayesian Inference} is a research field of its own, and this chapter will focus specifically on sampling and \acl{VI}, the most popular approximate inference methods for \ac{GPs}.
+\textbf{Approximate Bayesian Inference} is a research field of its own, and this chapter will focus specifically on sampling and \acl{VI}, the most popular approximate inference methods for \acp{GP}.
 
 \subsection{Sampling}
 
 Even if the posterior distribution $p(\btheta|\bX)$ is not available in closed-form, one can try to draw samples from it.
 The advantage of sampling is its unbiasedness: one obtains exact expectations in the limit of infinitely many samples.
 Sampling is an art of its own, and the number of methods is too large to mention them all in this thesis.
-Therefore, the scope is restricted to methods popular with or tailored to \ac{GPs}.
+Therefore, the scope is restricted to methods popular with or tailored to \acp{GP}.
 In particular, we restrict ourselves to \ac{MCMC} methods.
 
 \paragraph{Markov Chain Monte Carlo and Metropolis-Hastings}\mbox{}\\
@@ -276,12 +276,12 @@ This computational cost can be prohibitively expensive for high-dimensional prob
 
 
 \paragraph{Other samplers}\mbox{}\\
-There are other solid choices for sampling from \ac{GPs}.
+There are other solid choices for sampling from \acp{GP}.
 For example, elliptical slice sampling \citet{murray2010elliptical} is particularly well-fitted for Gaussian priors.
 The \ac{NUTS} algorithm \cite{hoffman2014no} is an extension of \ac{HMC} where $L$ is chosen automatically.
 We run the path integration with both $\boldsymbol{p}$ and $-\boldsymbol{p}$ until one of the particles goes backward or if one of the Hamiltonian estimates becomes too inaccurate\footnote{Technical details are skipped here.}.
 The proposal is finally sampled randomly from both paths.
-\ac{NUTS} is good at avoiding oscillatory dynamics and is particularly strong for quadratic problems, which appear regularly in \ac{GPs} problems.
+\ac{NUTS} is good at avoiding oscillatory dynamics and is particularly strong for quadratic problems, which appear regularly in \acp{GP} problems.
 Finally, another orthogonal approach to sample from predictive distributions with a known \ac{GP} posterior is pathwise sampling \cite{wilson2021pathwise}.
 By taking a mix of random Fourier features, specific to a particular class of kernels, the sampling complexity can be reduced from $\mathcal{O}(N^3)$ to $\mathcal{O}(T^3)$ where $N$ is the number of test inputs, and $T$ is the chosen number of basis.
 

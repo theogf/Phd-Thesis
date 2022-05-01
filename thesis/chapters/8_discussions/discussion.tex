@@ -58,11 +58,11 @@ The exponential coefficient is written down explicitly for each likelihood.}
 \end{figure}
 
 
-\section{Double bounds for intricate latent GPs}
+\section{Double bounds for intricate latent \acsp{GP}}
 \label{sec:heteroscedastic}
 The multi-class model developed in Chapter~\ref{ch:multi-class} paves the way to work with multi-latent models and hierarchical augmentations.
 Based on this idea, we developed another multi-latent model on the heteroscedastic regression likelihood  \cite{wangGaussianProcessRegression2012,lazaro2011variational}.
-It models simultaneously the mean and variance of a regression likelihood with two latent \ac{GPs} $f$ and $g$.
+It models simultaneously the mean and variance of a regression likelihood with two latent \acp{GP} $f$ and $g$.
 We consider both Gaussian and Non-Gaussian likelihoods since augmentations can stack in this situation.
 We start with the simplest model: the heteroscedastic Gaussian likelihood.
 
@@ -322,7 +322,7 @@ On a side note, the fact that augmentations with improper priors still lead to v
 
 These two issues seem connected, but we do not have any proof for it.
 
-We propose an alternative parametrization with $K-1$ latent \ac{GPs}.
+We propose an alternative parametrization with $K-1$ latent \acp{GP}.
 The likelihood stays the same but with one latent being fixed:
 \begin{align}
     p(y=k|\{f_j\}_{j=1}^{K-1}) = \left\{
@@ -360,7 +360,7 @@ We use the \ac{MGF} of the Poisson distribution and finally the P\'olya-Gamma au
 We show the whole derivations on Algorithms~\ref{alg:gibbs_multiclass} and~\ref{alg:cavi_multiclass} and show an example on Figure~\ref{fig:bijective_multiclass}.
 We show 1-dimensional examples with 3 classes with and without the bijection on Figure~\ref{fig:bijective_multiclass} and~\ref{fig:multiclass}
 \begin{algorithm}[H]
-    \caption{Gibbs sampling updates: $\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}$ latent \ac{GPs} for $K$ classes}
+    \caption{Gibbs sampling updates: $\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}$ latent \acp{GP} for $K$ classes}
     \begin{algorithmic}
     \State \textbf{input:} $\boldsymbol{F} = \{\boldf_k\}_{k=1}^K$, $p(\boldsymbol{F}) = \prod_{k=1}^{\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}} p(\boldf_k|\bmu_0, K_{XX})$, $Y=\{\boldy^i\}_{i=1}^N$ (one-hot encoded)
     \For{$t$ in 1: \# samples}
@@ -375,7 +375,7 @@ We show 1-dimensional examples with 3 classes with and without the bijection on 
 \end{algorithm}
 
 \begin{algorithm}[H]
-    \caption{\ac{CAVI} updates: $\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}$ latent \ac{GPs} for $K$ classes}
+    \caption{\ac{CAVI} updates: $\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}$ latent \acp{GP} for $K$ classes}
     \begin{algorithmic}
     \State \textbf{input:} $q(\boldsymbol{F}) = \prod_{k=1}^{\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}} q(\boldf_k|\bmu_k, \bSigma_k)$, $p(\boldsymbol{F} = \prod_{k=1}^{\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}} p(\boldf_k|\bmu_0, K)$, $Y=\{\boldy^i\}_{i=1}^N$ (one-hot encoded)
     \While{convergence criteria is not met}
@@ -396,9 +396,9 @@ We show 1-dimensional examples with 3 classes with and without the bijection on 
     \includegraphics[width=\textwidth]{./chapters/8_discussions/figures/categorical_bijective.pdf}
     \caption{Illustration of Algorithms~\ref{alg:gibbs_multiclass} and~\ref{alg:cavi_multiclass} with the bijective link introduced in Section~\ref{sec:simplex} and the marginalization of Section~\ref{sec:marg_multiclass}.
     Each color represents a class, and we compare the true process to the inferred one for both Gibbs sampling and variational inference.
-    The solid lines represent the true probabilities and latent \ac{GPs}.
+    The solid lines represent the true probabilities and latent \acp{GP}.
     The plots on top show the variational inference results, with the expected predictive probability on the left and the variational posterior on the right.
-    The plots at the bottom show the probabilities and latent GPs obtained via Gibbs sampling.}
+    The plots at the bottom show the probabilities and latent \acp{GP} obtained via Gibbs sampling.}
     \label{fig:bijective_multiclass}
 \end{figure}
 \begin{figure}[H]
@@ -406,9 +406,9 @@ We show 1-dimensional examples with 3 classes with and without the bijection on 
     \includegraphics[width=\textwidth]{./chapters/8_discussions/figures/categorical_nonbijective.pdf}
     \caption{Illustration of Algorithms~\ref{alg:gibbs_multiclass} and~\ref{alg:cavi_multiclass} with the overparametrized link with the marginalization of Section~\ref{sec:marg_multiclass}.
     Each color represents a class, and we compare the true process to the inferred one for both Gibbs sampling and variational inference.
-    The solid lines represent the true probabilities and latent \ac{GPs}.
+    The solid lines represent the true probabilities and latent \acp{GP}.
     The plots on top show the variational inference results, with the expected predictive probability on the left and the variational posterior on the right.
-    The plots at the bottom show the probabilities and latent GPs obtained via Gibbs sampling.}
+    The plots at the bottom show the probabilities and latent \acp{GP} obtained via Gibbs sampling.}
     \label{fig:multiclass}
 \end{figure}
 
@@ -422,7 +422,7 @@ To confirm this trend, we would need further experiments on real datasets and wi
 \label{sec:scale_multiclass}
 The logistic-softmax link has issues with the predictive probabilities, in particular with many classes.
 Because of the boundedness of the logistic function, the logistic-softmax link needs large values of $f_i$ to reach prediction probabilities close to $1$.
-Even when the model should be very confident about a prediction and the latent \ac{GPs} are correctly inferred, the predictive probability for the correct class will be around $(1-\epsilon) / ((K - 1) \epsilon +  1 - \epsilon)$ where $\epsilon$ is the minimum value taken by $\sigma(f)$.
+Even when the model should be very confident about a prediction and the latent \acp{GP} are correctly inferred, the predictive probability for the correct class will be around $(1-\epsilon) / ((K - 1) \epsilon +  1 - \epsilon)$ where $\epsilon$ is the minimum value taken by $\sigma(f)$.
 With a \ac{GP} prior centered at 0 and a reasonable kernel variance, $f$ can not take large values.
 For example, taking 10 classes, if we assume $f_y=4$ for the correct class and $-4$ for the others, $\epsilon \approx 0.018$, which gives a probability of $0.858$ with the logistic-softmax link against $0.996$ for the softmax link.
 
@@ -446,13 +446,13 @@ By putting a prior $\mathrm{Ga}(\theta_k|\alpha,\beta)$, the collapsed condition
     p(\theta_k|\boldf_k, \boldsymbol{\lambda}) = \mathrm{Ga}(\theta_k|\alpha + \sum_{i=1}^N\delta(y^i, k), \beta + \sum_{i=1}^N\lambda^i\sigma(f_k^i))
 \end{align*}
 
-A Julia implementation as well as detailed derivations can be found in the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{AugmentedGPLikelihoods.jl} package \cite{theo_galy_fajou_2022_6347022}.
+A Julia implementation as well as detailed derivations can be found in the \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{\texttt{AugmentedGPLikelihoods.jl}} package \cite{theo_galy_fajou_2022_6347022}.
 
 \section{Sampling from a sparse augmented model}
 
-Another work in progress regards the sampling of sparse \ac{GPs} models.
+Another work in progress regards the sampling of sparse \acp{GP} models.
 Sampling from the augmented model proves to be very effective (see Chapter~\ref{ch:general}) while still producing samples from the posterior $p(\boldf|\boldy)$ of the original model.
-Unfortunately, this property does not transfer when using sparse \ac{GPs} (for a reminder on sparse \ac{GPs}, see Section~\ref{sec:sparsegps}) and the scalability is limited.
+Unfortunately, this property does not transfer when using sparse \acp{GP} (for a reminder on sparse \acp{GP}, see Section~\ref{sec:sparsegps}) and the scalability is limited.
 Simply adding inducing points locations $Z$ with realizations $\boldu = f(Z)$ leads to a Gibbs sampling algorithm with a computational complexity of $\mathcal{O}((N+M)^3)$ per step and does not help with scalability.
 To solve this problem, we propose to mix the Gibbs sampling approach we presented in Chapter~\ref{ch:general} with variational inference.
 
@@ -493,7 +493,7 @@ For other $\alpha$, we could optimize $q(\btheta)$ with variational inference me
 The complete variational Gibbs sampler is described in Algorithm~\ref{alg:sparsegp}.
 
 \begin{algorithm}[H]
-    \caption{Variational Gibbs Sampler for Sparse \ac{GPs}}
+    \caption{Variational Gibbs Sampler for Sparse \acp{GP}}
     \begin{algorithmic}
         \State \textbf{input:} $\boldy$, $\boldu^0 \sim p(u)$, $\boldf^0 \sim p(\boldf|\boldu^0)$, $\btheta^0 \sim p(\btheta)$
     \For{$t$ in 1: \# samples}

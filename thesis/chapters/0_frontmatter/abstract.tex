@@ -9,16 +9,16 @@
 \addcontentsline{toc}{chapter}{Abstract}
 Performing inference on probabilistic models can represent a challenge even in seemingly simple problems.
 When working with non-conjugate Bayesian models, we need approximate methods such as variational inference or sampling, each with its pitfalls and limits.
-For instance, heavy-tailed distributions represent a challenge for sampling methods, and heavily correlated variables quickly become a bottleneck for many inference algorithms.
+For instance, heavy-tailed distributions represent a challenge for sampling methods, and strongly correlated variables quickly become a bottleneck for many inference algorithms.
 Instead of developing yet another new state-of-the-art sampler or optimizer, we focus on reinterpreting models such that standard inference algorithms like blocked Gibbs sampling, usually restricted to more trivial models, become the best choice.
 In the first part, we derive model augmentations for different Gaussian Process models such as classification and multi-class classification.
-We focus on the effect on inference, and develop a generalization for a given class of likelihoods.
+We focus on the effects on inference and develop a generalization for a given class of likelihoods.
 We show that augmentations are scalable with data and outperform all existing methods in terms of speed and stability.
-The second part focuses on a specific approximation based on a Gaussian variational distribution.
-We show that by parametrizing the Gaussian distribution by a set of particles instead of its parameters, we avoid expensive computations, increase the model flexibility, and we prove theoretical convergence bounds.
+The second part focuses on approximations based on a Gaussian variational distribution.
+We show that by parametrizing the Gaussian distribution by a set of particles instead of its parameters, we avoid expensive computations, increase the model flexibility, and prove theoretical convergence bounds.
 In addition to the published papers, we discuss the impact of these different augmentations, including their limitations.
 We also expose outlooks on new research directions, including concrete advances.
-In particular, we present ways to compensate for issues raised in the papers and present new augmentation models and new inference approaches compatible with augmented models.
+In particular, we present ways to compensate for issues raised in the presented papers and present new augmentation models and new inference approaches compatible with augmented models.
 \end{abstracts}
 %\end{abstractlongs}
 \ifCLASSINFOlangDE

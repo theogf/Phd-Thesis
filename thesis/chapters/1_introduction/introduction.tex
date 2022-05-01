@@ -85,7 +85,7 @@ These constraints matter when running a sampling chain or fitting a variational 
 % An analogy in physics would be how easier it is to work with spherical coordinates instead of Euclidean ones for electrodynamics. 
 
 The use of different model representations has an often underestimated effect and is mainly considered "tricks."
-For example, when working with \acl{GPs}, it is generally preferable to use the so-called "whitened" representation, which corresponds to the non-centered representation of Neal's funnel (Figure~\ref{fig:neals_noncentered}).
+For example, when working with \aclp{GPs}, it is generally preferable to use the so-called "whitened" representation, which corresponds to the non-centered representation of Neal's funnel (Figure~\ref{fig:neals_noncentered}).
 The different segments of this thesis show that finding better representations can confidently make inference easier, faster, and significantly more stable. 
 The first part will use basic inference methods by representing likelihoods as (hierarchical) mixtures.
 Rewriting distributions as scale mixtures, defined later in Section~\ref{sec:scale-mixtures}, has a lot of advantages and interesting properties.
@@ -96,20 +96,20 @@ We avoid computational bottlenecks and add flexibility by representing the distr
 
 \section{Gaussian Processes}
 
-The techniques mentioned above apply to many probabilistic models; however, we focus on Gaussian-based models, and more particularly \acf{GPs}.
+The techniques mentioned above apply to many probabilistic models; however, we focus on Gaussian-based models, and more particularly \acfp{GPs}.
 A \ac{GP} is a strong non-parametric tool to approximate functions using probabilistic methods.
 They were initially applied to regression problems with Gaussian noise, like the original \textbf{kriging problem} \cite{cressie1990origins}.
 However, they are also used as prior over latent functions for more complex problems like classification, ordinal regression, and more.
 Compared to other general function approximators like neural networks, they have the advantage of providing uncertainty on the prediction they make.
-Their non-parametric nature naturally avoids over-parametrization: while modern neural networks have billions of parameters to optimize, \ac{GPs} only depend on a mean function and a kernel function.
+Their non-parametric nature naturally avoids over-parametrization: while modern neural networks have billions of parameters to optimize, \acp{GP} only depend on a mean function and a kernel function.
 Most importantly, as their name suggests, they are based on Gaussian distributions, making them the best candidates for the presented work on augmentation.
-A full technical introduction to basic \ac{GPs} and its extensions is given in Section~\ref{sec:gps}.
+A full technical introduction to basic \acp{GP} and its extensions is given in Section~\ref{sec:gps}.
 
 
 \section{Open-source projects}
 
 All the works presented in this thesis, as well as additional tools, are backed-up by user-friendly packages in Julia \cite{Julia-2017}.
-Throughout my time as a Ph.D. student, I have developed numerous Julia packages and was involved in the \href{https://github.com/JuliaGaussianProcesses}{JuliaGaussianProcesses organisation} to develop a flexible, efficient and easy-to-use framework to work with \ac{GPs} from the very low-end to high-end interfaces through a series of packages: \href{https://github.com/JuliaGaussianProcesses/KernelFunctions.jl}{\texttt{KernelFunctions.jl}}~\cite{theo_galy_fajou_2022_6246597}, \href{https://github.com/JuliaGaussianProcesses/AbstractGPs.jl}{\texttt{AbstractGPs.jl}}~\cite{david_widmann_2022_5939997}, \href{https://github.com/JuliaGaussianProcesses/ApproximateGPs.jl}{\texttt{ApproximateGPs.jl}}, \href{https://github.com/JuliaGaussianProcesses/InducingPoints.jl}{\texttt{InducingPoints.jl}}and \href{https://github.com/JuliaGaussianProcesses/GPLikelihoods.jl}{\texttt{GPLikelihoods.jl}}.
+Throughout my time as a Ph.D. student, I have developed numerous Julia packages and was involved in the \href{https://github.com/JuliaGaussianProcesses}{JuliaGaussianProcesses organisation} to develop a flexible, efficient and easy-to-use framework to work with \acp{GP} from the very low-end to high-end interfaces through a series of packages: \href{https://github.com/JuliaGaussianProcesses/KernelFunctions.jl}{\texttt{KernelFunctions.jl}}~\cite{theo_galy_fajou_2022_6246597}, \href{https://github.com/JuliaGaussianProcesses/AbstractGPs.jl}{\texttt{AbstractGPs.jl}}~\cite{david_widmann_2022_5939997}, \href{https://github.com/JuliaGaussianProcesses/ApproximateGPs.jl}{\texttt{ApproximateGPs.jl}}, \href{https://github.com/JuliaGaussianProcesses/InducingPoints.jl}{\texttt{InducingPoints.jl}}and \href{https://github.com/JuliaGaussianProcesses/GPLikelihoods.jl}{\texttt{GPLikelihoods.jl}}.
 The particular strength of our work is the one-to-one mapping between theory and code.
 For example to define the posterior for some given data, the code looks like:
 \begin{minted}[breaklines,escapeinside=||,mathescape=true, numbersep=3pt, gobble=2, frame=lines, fontsize=\small, framesep=2mm]{julia}
@@ -122,7 +122,7 @@ Here, each computational object represents exactly its mathematical equivalent.
 
 The work of this thesis is represented as well with the package \href{https://github.com/JuliaGaussianProcesses/AugmentedGPLikelihoods.jl}{\texttt{AugmentedGPLikelihoods.jl}}, which provide all the necessary tools to work with augmentations.
 Julia's advantage is its strong interoperability capacity.
-This allows to use the augmentation work on more specialized implementations such as temporal \ac{GPs} with a concrete example given in \href{https://github.com/JuliaGaussianProcesses/TemporalGPs.jl}{\texttt{TemporalGPs.jl}} (see \texttt{examples/augmented\_inference.jl}).
+This allows to use the augmentation work on more specialized implementations such as temporal \acp{GP} with a concrete example given in \href{https://github.com/JuliaGaussianProcesses/TemporalGPs.jl}{\texttt{TemporalGPs.jl}} (see \texttt{examples/augmented\_inference.jl}).
 
 Independently, I also developed \href{https://github.com/theogf/AugmentedGaussianProcesses.jl}{\texttt{AugmentedGaussianProcesses.jl}}~\cite{theo_galy_fajou_2021_5728215} as a stand-alone \ac{GP} package providing the augmentations techniques presented in the thesis, additional likelihoods, and standard inference approaches.
 
@@ -130,7 +130,7 @@ Independently, I also developed \href{https://github.com/theogf/AugmentedGaussia
 
 This thesis is constructed as follows:
 \begin{itemize}
-    \item Chapter~\ref{ch:background} introduces in detail all the common concepts of Bayesian inference and \ac{GPs}.
+    \item Chapter~\ref{ch:background} introduces in detail all the common concepts of Bayesian inference and \acp{GP}.
     There are introductions to these concepts in each published article, but this chapter dives more into the background theory.
     Bayesian inference, especially, is properly introduced, focusing on variational inference and sampling.
     \item Chapter~\ref{ch:classification} contains the paper \textit{Efficient Gaussian Process Classification Using P\'olya-Gamma Data Augmentation}, which was the first augmentation we explored.

@@ -5,17 +5,17 @@
 \begin{zusammenfassung}        %this creates the heading for the abstract page
 \addcontentsline{toc}{chapter}{Zusammenfassung}
 Die Inferenz auf probabilistische Modelle kann selbst bei scheinbar einfachen Problemen eine Herausforderung darstellen.
-Bei der Arbeit mit nicht-konjugierten Bayes'schen Modellen sind Näherungsmethoden wie Variationsinferenz oder Sampling erforderlich, die jeweils ihre Tücken und Grenzen haben.
+Bei der Arbeit mit nicht-konjugierten Bayes'schen Modellen benötigen wir Näherungsmethoden wie Variationsinferenz oder Sampling, die jeweils ihre Tücken und Grenzen haben.
 So stellen beispielsweise stark schwanzlastige Verteilungen eine Herausforderung für Sampling-Methoden dar, und stark korrelierte Variablen werden für viele Inferenzalgorithmen schnell zu einem Engpass.
-Anstatt neue hochmoderne Inferenzalgorithmen zu entwickeln, konzentrieren wir uns darauf, Modelle so umzuinterpretieren, dass Standardinferenzalgorithmen wie blockiertes Gibbs-Sampling, die normalerweise auf trivialere Modelle beschränkt sind, die beste Wahl werden.
+Anstatt einen weiteren hochmodernen Sampler oder Optimierer zu entwickeln, konzentrieren wir uns darauf, Modelle so umzuinterpretieren, dass Standard-Inferenzalgorithmen wie blockiertes Gibbs-Sampling, die normalerweise auf trivialere Modelle beschränkt sind, die beste Wahl werden.
 Im ersten Teil leiten wir Modellerweiterungen für verschiedene Gauß'sche Prozessmodelle wie Klassifikation und Mehrklassenklassifikation ab.
-Wir konzentrieren uns auf die Auswirkungen auf die Inferenz und entwickeln eine Verallgemeinerung für eine gegebene Klasse von Likelihoods.
-Wir zeigen, dass Augmentierungen mit den Daten skalierbar sind und alle bestehenden Methoden in Bezug auf Geschwindigkeit und Stabilität übertreffen.
-Der zweite Teil konzentriert sich auf einen spezifischen Näherungsansatz, der auf einer Gaußschen Variationsverteilung basiert.
-Wir zeigen, dass durch die Darstellung der Gauß-Verteilung als eine Menge von Partikeln anstelle ihrer Parameter die Inferenz flexibler ist, und wir beweisen theoretische Konvergenzgrenzen.
+Wir konzentrieren uns auf die Auswirkungen auf die Inferenz und entwickeln eine Verallgemeinerung für eine bestimmte Klasse von Likelihoods.
+Wir zeigen, dass die Augmentierungen mit den Daten skalierbar sind und alle bestehenden Methoden in Bezug auf Geschwindigkeit und Stabilität übertreffen.
+Der zweite Teil konzentriert sich auf Approximationen, die auf einer Gaußschen Variationsverteilung basieren.
+Wir zeigen, dass wir durch die Parametrisierung der Gauß-Verteilung durch eine Menge von Partikeln anstelle ihrer Parameter teure Berechnungen vermeiden, die Flexibilität des Modells erhöhen und theoretische Konvergenzgrenzen nachweisen können.
 Zusätzlich zu den veröffentlichten Arbeiten diskutieren wir die Auswirkungen dieser verschiedenen Erweiterungen, einschließlich ihrer Grenzen.
-Außerdem geben wir zahlreiche Ausblicke auf neue Forschungsrichtungen, einschließlich laufender Arbeiten.
-Insbesondere stellen wir Möglichkeiten vor, wie die in den Beiträgen aufgeworfenen Probleme kompensiert werden können, und präsentieren neue Augmentationsmodelle und neue Inferenzansätze, die mit den augmentierten Modellen kompatibel sind.
+Wir geben auch einen Ausblick auf neue Forschungsrichtungen, einschließlich konkreter Fortschritte.
+Insbesondere zeigen wir Wege auf, wie die in den vorgestellten Arbeiten aufgeworfenen Probleme kompensiert werden können, und stellen neue Augmentationsmodelle und neue Inferenzansätze vor, die mit augmentierten Modellen kompatibel sind.
 \end{zusammenfassung}
 \ifCLASSINFOlangDE
 \selectlanguage{german}
