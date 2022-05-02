@@ -37,8 +37,8 @@ It is not a scale mixture of Gaussians, but with the right variable transformati
 The \ac{MGF} of a Poisson is known, but we could also consider arbitrary \ac{MGF} since we are able to sample from a distribution given its Laplace transform only \cite{ridout2009generating}.
 
 The \ac{MGF} is also an interesting tool for creating hierarchical models. 
-Since scale mixtures are of the form $\sum_{x} e^{tx} p(x)$ or $\int e^{tx}p(x)dx$, by setting $t=\log \sigma(f)$, we get scales mixtures of the form $\sum_x \sigma^x(f)$.
-Thanks to the property that not only $\sigma(f)$ is augmentable but also $\sigma^n(f)$ for any $n\in \mathbb{R}^+$, we can use P\'olya-Gamma variables and obtain a conditionally conjugate model for a \ac{GP}.
+Since the \ac{MGF} is of the form $\sum_{x} e^{tx} p(x)$ or $\int e^{tx}p(x)dx$, by setting $t=\log \sigma(f)$, we get scales mixtures of the form $\sum_x \sigma^x(f)$.
+Thanks to the property that $\sigma^n(f)$ is augmentable for any $n\in \mathbb{R}^+$, we can use P\'olya-Gamma variables and obtain a conditionally conjugate model for a \ac{GP}.
 Additional examples of such constructions are shown in this chapter in Sections \ref{sec:heteroscedastic} and \ref{sec:improvemulticlass}.
 
 \paragraph{Marginalizing out augmented variables}\mbox{}\\
@@ -49,7 +49,7 @@ This marginalization step is avoidable by identifying the right \ac{MGF} from th
 As shown in Section~\ref{sec:heteroscedastic_nongaussian}, switching between marginalized and augmented models gives great inference flexibility.
 
 \paragraph{Convergence speed analysis}\mbox{}\\
-An unfinished work (despite trying) is to establish convergence rates (error as a function of the number of iterations) for the \ac{CAVI} algorithm and the correlation of the kernel for the Gibbs sampler.
+An unfinished work (despite trying) is to establish convergence rates (error as a function of the number of iterations) for the \ac{CAVI} algorithm and derive theoretical bounds on the intra-chain correlation and of the ergodicity for the Gibbs sampler.
 Experimental results indicate that the error on the variational free energy (and variational parameters) is decreasing as $\|\VFE^{*} - \VFE^{t}\|\propto C_0 e^{-ct}$, where $t$ is the number of iterations, but we did not manage to write a formal proof.
 We show the decay for both the variational free energy and the variational parameters for different examples in Figure~\ref{fig:convergence}.
 
@@ -57,7 +57,7 @@ We show the decay for both the variational free energy and the variational param
 \centering
 \includegraphics[width=\textwidth]{./chapters/8_discussions/figures/convergence.pdf}
 \caption{Convergence plot of the \ac{CAVI} updates for a one-dimensional toy example with different likelihoods (y-axis in log scale).
-The solid blue line shows the empirical error over the number of iterations and the dashed green line shows the fit of the function $C_0 \exp(-c t)$.
+The solid blue line shows the empirical error over the number of iterations and the dashed green line shows the fit of the function $C_0 \exp(c t)$.
 The exponential coefficient is written down explicitly for each likelihood.}
 \label{fig:convergence}
 \end{figure}
@@ -68,7 +68,7 @@ The exponential coefficient is written down explicitly for each likelihood.}
 The multi-class model developed in Chapter~\ref{ch:multi-class} paves the way to work with multi-latent models and hierarchical augmentations.
 Based on this idea, we developed another multi-latent model on the heteroscedastic regression likelihood  \cite{wangGaussianProcessRegression2012,lazaro2011variational}.
 It models simultaneously the mean and variance of a regression likelihood with two latent \acp{GP} $f$ and $g$.
-We consider both Gaussian and Non-Gaussian likelihoods since augmentations can stack in this situation.
+We consider both Gaussian and Non-Gaussian likelihoods since we can stack augmentations.
 We start with the simplest model: the heteroscedastic Gaussian likelihood.
 
 \subsection{Heteroscedastic Gaussian Likelihood}
@@ -90,10 +90,10 @@ Using the P\'olya-Gamma augmentation and the additivity property of P\'olya-Gamm
 \begin{align}
     p(y,n,\omega\mid f,g,\lambda) = \frac{\sqrt{\lambda}}{2^n\sqrt{\pi}}\exp\left(\frac{1}{2}\left(g\left(\frac{1}{2}-n\right) - \frac{g^2}{\omega}\right)\right)\PG \left(\omega \mid \half + n, 0\right) \Po \left(n \mid \lambda\frac{(y-f)^2}{2}\right)\label{eq:heteroscedastic}
 \end{align}
-The interesting part about this augmented likelihood is that although it is conditionally conjugate in $g$, $\omega$, and $n$, it is unclear how to infer $f$:
-the final likelihood~\eqref{eq:heteroscedastic} is quadratic in $g$ but not in $f$.
+The interesting part about this augmented likelihood~\eqref{eq:heteroscedastic} is that although it is conditionally conjugate in $g$, $\omega$, and $n$, it is unclear how to infer $f$:
+it is quadratic in $g$ but not in $f$.
 It turns out that the Gibbs sampler for this model is very simple:
-We take the augmented likelihood $p(y|f,g,\lambda,\omega,n)$, we marginalize out $n$ and $\omega$ and, as expected, we get the original likelihood~\eqref{eq:heteroscedastic}, which is conditionally conjugate with $f$.
+We take the augmented likelihood $p(y,\omega,n|f,g,\lambda)$, marginalize out $n$ and $\omega$ and, as expected, we get the original likelihood~\eqref{eq:hetero_lik}, which is conditionally conjugate with $f$.
 The conditional $p(f|y,g,\lambda)$ on this likelihood is the \textbf{collapsed conditional}.
 In a Gibbs sampling scheme, this allows us to perform a \textbf{collapsed step}.
 We give all the Gibbs sampling steps in Algorithm~\ref{alg:gibbs_hetero}.
@@ -184,7 +184,7 @@ An implementation as well as detailed derivations are in the \href{https://githu
 This method extends to non-Gaussian likelihoods as well.
 We take the example of the heteroscedastic Student-t likelihood, where we have a local scale with standard deviation $\epsilon(x) = \lambda \sigma(g)$ with $\lambda \in \mathbb{R}^+$.
 
-Similar to Equation~\eqref{eq:hetero_lik}, we get the likelihood:
+Similar to the heteroscedastic Gaussian likelihood~\eqref{eq:hetero_lik}, we get the likelihood:
 \begin{align}
     p(y|f,g,\lambda,\nu) = \frac{\Gamma(\frac{\nu+1}{2})\sqrt{\lambda\sigma(g)}}{\Gamma(\frac{\nu}{2})\sqrt{\pi\nu}}\left(1 + \lambda \sigma(g)\frac{(y-f)^2}{\nu}\right)^{-\frac{\nu+1}{2}}
     \label{eq:hetero_studentt}
@@ -203,7 +203,7 @@ where we used the \ac{MGF} of the \textbf{Negative Binomial} distribution.
 We obtain the same result by performing first the augmentation of the Student-t with a Gamma variable:
 \begin{align}
     p(y|f,g,\lambda) =& \int_0^\infty \mathcal{N}(y| f, (\lambda\sigma(g)\gamma)^{-1})\mathrm{IG}(\gamma|\frac{\nu}{2},\frac{\nu}{2})d\gamma\nonumber\\
-    p(y,\gamma|f,g,\lambda)= \mathcal{N}(y| f, (\lambda\sigma(g)\gamma)^{-1})\mathrm{IG}(\gamma|\frac{\nu}{2},\frac{\nu}{2}).\label{eq:aug_gamma_studentt}
+    p(y,\gamma|f,g,\lambda)=& \mathcal{N}(y| f, (\lambda\sigma(g)\gamma)^{-1})\mathrm{IG}\left(\gamma|\frac{\nu}{2},\frac{\nu}{2}\right).\label{eq:aug_gamma_studentt}
 \end{align}
 $\mathcal{N}(y| f, (\lambda\sigma(g)\gamma)^{-1})$ is the same starting point as Equation~\eqref{eq:hetero_lik} with an additional scaling $\gamma$.
 The next augmentation steps are the same as in Equation~\eqref{eq:aug_poisson} with an augmentation with a Poisson variable.
@@ -296,7 +296,7 @@ We can marginalize out $\lambda$:
     =& \prod_{j=1}^K\sigma(-f_j)^{n_j}\Gamma(1 + \sum_{j=1}^K n_j) \prod_{j=1}^K \left(\frac{1}{K}\right)^{n_j}\frac{1}{n_j!}. \label{eq:NM}
 \end{align}
 
-Which is proportional to a negative multinomial $\operatorname{NM}(x_0, \boldsymbol{p})$ defined by:
+Which is proportional to a \textbf{Negative Multinomial} $\operatorname{NM}(x_0, \boldsymbol{p})$ defined by:
 \begin{align*}
     \operatorname{NM}(\bx|x_0,\boldsymbol{p}) = \Gamma\left(\sum_{j=0}^K x_j\right) \frac{p_0^{x_0}}{\Gamma(x_0)}\prod_{j=1}^K \frac{p_j^{x_j}}{x_j!}   
 \end{align*}
@@ -344,7 +344,7 @@ This likelihood comes with different properties.
 Unlike the softmax link, the logistic-softmax link is not translation invariant\footnote{There is no function $f(\Delta)$ such that $\sigma(x + \Delta) = f(\Delta)\sigma(x)$ for all $x$.}.
 We can not freely exchange classes, and the "fixed" class has a different behavior than the rest.
 For example, since we fix $D$, the probability for classes other than $K$ will be upper bounded by $\frac{1}{D + 1}$.
-For example, taking $D=0.5$ leads to a maximum probability of $1$ for the class $K$ and $2/3$ for all other classes.
+For example, taking $D=0.5$ ($f_K = 0$) leads to a maximum probability of $1$ for the class $K$ and $2/3$ for all other classes.
 On the other hand, if $D=0$, the probability of the class $K$ will always be $0$.
 The bijective likelihood can still be practical if we do not care about one of the classes.
 Additionally, the scaled model presented in the next Section~\ref{sec:scale_multiclass} can also help with the imbalance between classes.
@@ -367,13 +367,13 @@ We show 1-dimensional examples with 3 classes with and without the bijection on 
 \begin{algorithm}[H]
     \caption{Gibbs sampling updates: $\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}$ latent \acp{GP} for $K$ classes}
     \begin{algorithmic}
-    \State \textbf{input:} $\boldsymbol{F} = \{\boldf_k\}_{k=1}^K$, $p(\boldsymbol{F}) = \prod_{k=1}^{\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}} p(\boldf_k|\bmu_0, K_{XX})$, $Y=\{\boldy^i\}_{i=1}^N$ (one-hot encoded)
+    \State \textbf{input:} $\boldsymbol{F} = \{\boldf_k\}_{k=1}^K$, $p(\boldsymbol{F}) = \prod_{k=1}^{\textcolor{sb1}{K}/\textcolor{sb2}{K - 1}} p(\boldf_k|\bmu_0, K_{\bX})$, $Y=\{\boldy^i\}_{i=1}^N$ (one-hot encoded)
     \For{$t$ in 1: \# samples}
         \State Draw $\boldsymbol{n}^i \sim p(\boldsymbol{n}^i|\boldsymbol{F}) = \mathrm{NM}(1, \boldsymbol{p}^i)$ where 
         $p_k^i = \textcolor{sb1}{\frac{\sigma(-f_k^i)}{K}}/\textcolor{sb2}{\frac{\sigma(-f_k^i)}{D + K - 1}}$
         \State Draw $\omega_k^i \sim p(\omega_k^i|f_k^i, n_k^i, y_k^i) = \PG(y_k^i + n^i_k, |f_k^i|)$
         \State Draw $\boldf_k \sim p(\boldf_k|\bomega_k,\boldsymbol{n}_k, \boldsymbol{Y}) = \mathcal{N}(\boldm_k, \boldsymbol{S}_k)$
-        \State where $\boldsymbol{S}_k = \left(K^{-1} + \diag(\bomega_k)\right)^{-1}$ and $\boldm_k = \boldsymbol{S}_k\left(K^{-1}\bmu_0 + \frac{\boldy_k - \boldsymbol{n}_k}{2}\right)$
+        \State where $\boldsymbol{S}_k = \left(K_{\bX}^{-1} + \diag(\bomega_k)\right)^{-1}$ and $\boldm_k = \boldsymbol{S}_k\left(K^{-1}_{\bX}\bmu_0 + \frac{\boldy_k - \boldsymbol{n}_k}{2}\right)$
     \EndFor
     \end{algorithmic}
     \label{alg:gibbs_multiclass}
@@ -388,8 +388,8 @@ We show 1-dimensional examples with 3 classes with and without the bijection on 
         \State $p^i_k = \textcolor{sb1}{\frac{\widetilde{\sigma}(q(f_k^i))}{K}}/\textcolor{sb2}{\frac{\widetilde{\sigma}(q(f_k^i))}{D + K - 1}}$
         \State $\bgamma^i = \expec{q(\boldsymbol{n}^i)}{\boldsymbol{n}^i} = \frac{\boldsymbol{p}^i}{1 - \sum_{i=1}^K p^i_k}$
         \State $\theta_k^i = \expec{q(\omega_k^i)}{\omega_k^i} = \frac{y_k^i + \gamma_k^i}{2c_k^i}\tanh\left(\frac{c_k^i}{2}\right)$
-        \State $\bSigma_k = \left(K^{-1} + \diag(\boldsymbol{\theta}_k)\right)^{-1}$
-        \State $\bmu_k = \bSigma_k\left(K^{-1}\bmu_0 + \frac{\boldy_k - \bgamma_k}{2}\right)$
+        \State $\bSigma_k = \left(K_{\bX}^{-1} + \diag(\boldsymbol{\theta}_k)\right)^{-1}$
+        \State $\bmu_k = \bSigma_k\left(K_{\bX}^{-1}\bmu_0 + \frac{\boldy_k - \bgamma_k}{2}\right)$
     \EndWhile
     \end{algorithmic}
     where $q(\boldsymbol{N}, \bOmega) = \prod_{i=1}^N \PG(\bomega^i|\boldy^i + \boldsymbol{n}^i, \boldsymbol{c}^i)\mathrm{NM}(\boldsymbol{n}^i|1, \boldsymbol{p}^i)$ and $\widetilde{\sigma}(q(f_k^i)) = \frac{e^{-\mu_k^i/2}}{\sqrt{(\mu_k^i)^2 + \Sigma^{ii}_k} / 2}$ is an approximation to the $\sigma(-f^i_k)$.
