@@ -1042,7 +1042,7 @@ supported!}
                  colorlinks = true,
                  linkcolor = blue,
                  urlcolor  = blue,
-                 citecolor = red,
+                 citecolor = false,
                  anchorcolor = green,
                  ]{hyperref}
 \else
