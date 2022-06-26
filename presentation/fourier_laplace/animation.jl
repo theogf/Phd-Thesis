@@ -3,6 +3,7 @@ using FFTW
 using Animations
 import ColorSchemes.seaborn_colorblind as sb
 using Colors
+using SpecialFunctions
 
 ## Basis functions
 sqexp(x) = exp(-x^2)
@@ -150,8 +151,16 @@ n_frames_lap = 100
 a_lap = Animation(1, 0.0, sineio(), n_frames_lap, 1.0)
 
 
-f_transform = x -> exp(-1/(4x)) / (2√(π) * x^(3/2))
-f_normal = x -> exp(-abs(x))
+ν = 3.0
+f_lap(x) = exp(-abs(x))
+f_st(x) = (1 + abs2(x)/ν)^(-(ν + 1) / 2)
+
+fl_lap(x) = exp(-1/(4x)) / (2√(π) * x^(3/2))
+fl_st(x) = ν * exp(-ν * x) * (ν * x)^((ν + 1) / 2 - 1) / gamma((ν + 1)/ 2 )
+
+f_transform = @lift x -> (1 - a_lap($to_lap)) * fl_lap(x) + a_lap($to_lap) * fl_st(x)
+f_normal = @lift x -> (1 - a_lap($to_lap)) * f_lap(x) + a_lap($to_lap) * f_st(x)
+
 
 alt_lines!(axtransform, 0:0.01:6, f_transform)
 
