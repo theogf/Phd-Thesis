@@ -27,7 +27,6 @@ x = 0:0.01:3
 mean(data)
 mean(abs2, data)
 
-Normal()  Normal()
 
 
 fig, axis, plt = lines(x, pdf.(prior_height, x))
