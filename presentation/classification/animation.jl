@@ -1,5 +1,6 @@
 using GLMakie
 using CairoMakie
+using Accessors
 CairoMakie.activate!()
 using AugmentedGPLikelihoods
 using AugmentedGPLikelihoods: logistic
@@ -31,6 +32,73 @@ lik = BernoulliLikelihood()
 lf = LatentGP(gp, lik, 1e-6)
 f, y = rand(lf(x))
 
+## Plot thow the data is generated
+
+fig = Figure()
+ax = Axis(fig[1,1], title="Data generation", xlabel=L"x", ylabel=L"f")
+sx= 0.05
+lx = vcat([[Point2(x_i, 0), Point2(x_i, sx)] for x_i in x]...)
+plt = linesegments!(ax, lx, color=:black)
+ylims!(ax, (-3, 3))
+tightlimits!(ax, Left(), Right())
+save(joinpath(target_path, "all_x.png"), fig)
+alpha_gp = Observable(0.3)
+plot!(ax, x, gp, color=@lift((sb[1], $alpha_gp)), bandscale=3)
+plot_samp = gpsample!(ax, x, gp; color=(sb[1], 1.0), samples=10, linewidth, label=L"f")
+lik_points = Observable(Point2[])
+y_points = Observable(Point2[])
+lines!(ax, lik_points; label=L"p(y|f)", color=sb[3], linewidth)
+scatter!(ax, y_points; label=L"y", color=(sb[4], 0.5))
+ylims!(ax, (-4, 4))
+rot = range(0, π, length=100)
+time_pause = 1
+framerate = 24
+alpha_decrease = range(0.3, 0, length=time_pause*framerate)
+leg = axislegend(ax; position=:lb, labelsize=40.0, labelcolor=(:black, 0.0))
+leg.entrygroups[][1][2][1].linecolor[] = (sb[1], 0.0)
+record(fig, joinpath(target_path, "moving samples.mp4"); framerate) do io
+    for i in 1:length(rot)
+        plot_samp.orbit[] = rot[i]
+        recordframe!(io)
+    end
+    plot_samp.samples[] = 1
+    samp_f = last.(plot_samp.plots[1].converted[1][])[1:end-1]
+    leg.entrygroups[][1][2][1].labelcolor[] = (:black, 1.0)
+    leg.entrygroups[][1][2][1].linecolor[] = (sb[2], 1.0)
+    for alpha in alpha_decrease
+        alpha_gp[] = alpha
+        recordframe!(io)
+    end
+    f_lik = lik.(samp_f)
+    leg.entrygroups[][1][2][2].labelcolor[] = (:black, 1.0)
+    for i in 1:length(f_lik)
+        lik_points[] = push!(lik_points[], Point2(x[i], mean(f_lik[i])))
+        recordframe!(io)
+    end
+    leg.entrygroups[][1][2][3].labelcolor[] = (:black, 1.0)
+    for i in 1:length(f_lik)
+        y_points[] = push!(y_points[], Point2(x[i], rand(f_lik[i])))
+        recordframe!(io)
+    end
+    recordframe!(io)
+end
+fig
+## Show likelihood
+fig = Figure()
+ax = Axis(fig[1,1], title="Data generation", xlabel="x")
+lines!(ax, x, f; label=L"f", linewidth)
+save(joinpath(target_path, "f_alone.png"), fig)
+lines!(ax, x, mean.(f_lik); label=L"p(y|f)", linewidth)
+save(joinpath(target_path, "f_with_likelihood.png"), fig)
+scatter!(ax, x, y; color=(sb[1], 0.5), label=L"y")
+axislegend(ax; position=:lb, labelsize=40.0)
+save(joinpath(target_path, "dataset.png"), fig)
+fig
+
+
+## Setup for training
+
+
 function u_posterior(fz, m, S)
     return posterior(SparseVariationalApproximation(Centered(), fz, MvNormal(m, S)))
 end
@@ -51,18 +119,6 @@ function cavi!(fz::AbstractGPs.FiniteGP, x, y, m, S, qΩ; niter=10)
     return m, S
 end
 
-m = zeros(N)
-S = Matrix{Float64}(I(N))
-qΩ = init_aux_posterior(lik, N)
-fz = gp(x, 1e-8);
-x_te = -10:0.01:10
-
-raw_initial_params = (
-    m=zeros(N),
-    S=positive_definite(Matrix{Float64}(I, N,  N)),
-)
-
-params, unflatten = value_flatten(raw_initial_params)
 
 function opt(fz::AbstractGPs.FiniteGP, x, y, params; niter=10)
     function loss(params)
@@ -85,8 +141,23 @@ function opt(fz::AbstractGPs.FiniteGP, x, y, params; niter=10)
     return opt.minimizer
 end
 
+
+## Run everything
 t = Observable(1)
 niter = 1
+
+m = zeros(N)
+S = Matrix{Float64}(I(N))
+qΩ = init_aux_posterior(lik, N)
+fz = gp(x, 1e-8);
+x_te = -10:0.01:10
+
+raw_initial_params = (
+    m=zeros(N),
+    S=positive_definite(Matrix{Float64}(I, N,  N)),
+)
+
+params, unflatten = value_flatten(raw_initial_params)
 
 post_cavi = map(t->u_posterior(fz, m, S), t)
 post_grad = map(t->u_posterior_grad(fz, params), t)
@@ -95,12 +166,12 @@ fig = Figure()
 
 linewidth = 5.0
 
-aug_ax = fig[2, 1] = Axis(fig; title="CAVI Updates")
+aug_ax = fig[2, 1] = Axis(fig; title="CAVI Updates", xlabel=L"x", ylabel=L"f")
 scatter!(aug_ax, x, y; color=(sb[1], 0.6))
 lines!(aug_ax, x, f; color=sb[1], linewidth)
 plot!(aug_ax, x, post_cavi; color=(sb[3], 0.5), linewidth)
 
-grad_ax = fig[2, 2] = Axis(fig; title="Gradient updates")
+grad_ax = fig[2, 2] = Axis(fig; title="Gradient updates", xlabel=L"x")
 scatter!(grad_ax, x, y; color=(sb[1], 0.6))
 lines!(grad_ax, x, f; color=sb[1], linewidth)
 plot!(grad_ax, x, post_grad; color=(sb[3], 0.5), linewidth)
@@ -165,11 +236,11 @@ fig = Figure()
 
 linewidth = 5.0
 
-aug_ax = fig[2, 1] = Axis(fig; title="Gibbs Sampling")
+aug_ax = fig[2, 1] = Axis(fig; title="Gibbs Sampling", xlabel=L"x", ylabel=L"f")
 scatter!(aug_ax, x, y; color=(sb[1], 0.6))
 lines!(aug_ax, x, f; color=sb[1], linewidth)
 
-grad_ax = fig[2, 2] = Axis(fig; title="NUTS Sampling")
+grad_ax = fig[2, 2] = Axis(fig; title="NUTS Sampling", xlabel=L"x")
 scatter!(grad_ax, x, y; color=(sb[1], 0.6))
 lines!(grad_ax, x, f; color=sb[1], linewidth)
 title = Label(fig[1, :], "Binary classification", textsize=30.0)
