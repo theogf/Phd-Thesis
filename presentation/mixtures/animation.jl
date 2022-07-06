@@ -125,9 +125,9 @@ ylims!(axtransform, -0.05, 1.05)
 ylims!(axnormal, -0.05, 0.5)
 
 for (i, σ) in enumerate(σs)
-    lines!(axnormal, x, @lift(x->$(norm_πs)[i] * pdf(Normal(0, σ), x)), color=sb[mod1(i, length(sb))])
+    lines!(axnormal, x, @lift(x->$(norm_πs)[i] * pdf(Normal(0, sqrt(σ)), x)), color=sb[mod1(i, length(sb))])
 end
-mix = @lift x->sum($(norm_πs)[i] * pdf(Normal(0, σs[i]), x) for i in 1:length(σs))
+mix = @lift x->sum($(norm_πs)[i] * pdf(Normal(0, sqrt(σs[i])), x) for i in 1:length(σs))
 lines!(axnormal, x, mix; linewidth, color=:black)
 lines!(axnormal, x, x->pdf(p_x, x); linewidth, color=sb[1], linestyle=:dash)
 
