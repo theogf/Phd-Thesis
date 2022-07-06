@@ -6,12 +6,11 @@ using Distributions
 ## Basis functions
 x = -5:0.01:5
 
-linewidth = 10.0
+linewidth = 5
 lw2 = 5.0
 target_path = joinpath(@__DIR__, "fig")
 mkpath(target_path)
 include(joinpath(@__DIR__, "..", "attributes", "theme.jl"))
-sb2 = ColorScheme(RGB)
 # Workaround for the current issue with GLMakie
 alt_lines! = lines!
 
@@ -135,9 +134,9 @@ for (i, σ) in enumerate(σs)
 end
 mix = @lift x->sum($(norm_πs)[i] * pdf(Normal(0, sqrt(σs[i])), x) for i in 1:length(σs))
 lines!(axnormal, x, mix; linewidth, color=:black)
-lines!(axnormal, x, x->pdf(p_x, x); linewidth, color=sb[1], linestyle=:dash)
-lines!(axtransform, x, zeros(length(x)); linewidth, color=:white)
-
+lines!(axnormal, x, x->pdf(p_x, x); linewidth, color=sb[1], label=L"Student-T($\nu$)", linestyle=:dash)
+lines!(axtransform, [0, 6], zeros(2); linewidth, color=:white)
+axislegend(axnormal, labelsize=30)
 t_m = 0.5
 framerate = 24
 per_p = floor(t_m * framerate)
