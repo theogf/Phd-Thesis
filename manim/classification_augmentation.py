@@ -23,5 +23,5 @@ class AugmentationLaTeX(Scene):
         self.play(TransformMatchingTex(rewrite_sigma, use_integral, transform_mismatches=True), FadeIn(scale), run_time=3)
         self.wait()
         self.play(TransformMatchingTex(use_integral, final_text, transform_mismatches=False), FadeOut(scale), FadeIn(aug), run_time=3)
-        self.wait()
-        self.play(TransformMatchingTex(final_text.copy(), cond_f, transform_mismatches=False), FadeOut(aug), run_time=3)
+        # self.wait()
+        # self.play(TransformMatchingTex(final_text.copy(), cond_f, transform_mismatches=False), FadeOut(aug), run_time=3)
