@@ -4,6 +4,9 @@ using LaTeXStrings
 using Animations
 
 my_theme = Theme(
+    palette = (
+        colors = sb,
+    ),
     Axis = (
         titlesize=28.0,
         xlabelsize=26.0,
