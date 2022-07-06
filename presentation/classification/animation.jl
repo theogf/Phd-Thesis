@@ -20,7 +20,6 @@ using Random: seed!
 seed!(42)
 
 include(joinpath(@__DIR__, "..", "attributes", "theme.jl"))
-set_theme!(my_theme)
 target_path = joinpath(@__DIR__, "fig")
 mkpath(target_path)
 
@@ -31,10 +30,11 @@ gp = GP(kernel)
 lik = BernoulliLikelihood()
 lf = LatentGP(gp, lik, 1e-6)
 f, y = rand(lf(x))
+plot(x, f)
 
 ## Plot thow the data is generated
 
-fig = Figure()
+fig = Figure(; resolution)
 ax = Axis(fig[1,1], title="Data generation", xlabel=L"x", ylabel=L"f")
 sx= 0.05
 lx = vcat([[Point2(x_i, 0), Point2(x_i, sx)] for x_i in x]...)
@@ -51,8 +51,9 @@ lines!(ax, lik_points; label=L"p(y|f)", color=sb[3], linewidth)
 scatter!(ax, y_points; label=L"y", color=(sb[4], 0.5))
 ylims!(ax, (-4, 4))
 rot = range(0, π, length=100)
-time_pause = 1
+time_pause = 2
 framerate = 24
+alpha_legend = Animation(1, 0.0, sineio(), length(f) / 2, 1.0)
 alpha_decrease = range(0.3, 0, length=time_pause*framerate)
 leg = axislegend(ax; position=:lb, labelsize=40.0, labelcolor=(:black, 0.0))
 leg.entrygroups[][1][2][1].linecolor[] = (sb[1], 0.0)
@@ -70,31 +71,21 @@ record(fig, joinpath(target_path, "moving samples.mp4"); framerate) do io
         recordframe!(io)
     end
     f_lik = lik.(samp_f)
-    leg.entrygroups[][1][2][2].labelcolor[] = (:black, 1.0)
-    for i in 1:length(f_lik)
+    for i in 1:2:length(f_lik)
+        leg.entrygroups[][1][2][2].labelcolor[] = (:black, alpha_legend(i))
         lik_points[] = push!(lik_points[], Point2(x[i], mean(f_lik[i])))
+        lik_points[] = push!(lik_points[], Point2(x[i+1], mean(f_lik[i+1])))
         recordframe!(io)
     end
-    leg.entrygroups[][1][2][3].labelcolor[] = (:black, 1.0)
-    for i in 1:length(f_lik)
+    for i in 1:2:length(f_lik)
+        leg.entrygroups[][1][2][3].labelcolor[] = (:black, alpha_legend(i))
         y_points[] = push!(y_points[], Point2(x[i], rand(f_lik[i])))
+        y_points[] = push!(y_points[], Point2(x[i+1], rand(f_lik[i+1])))
         recordframe!(io)
     end
     recordframe!(io)
 end
 fig
-## Show likelihood
-fig = Figure()
-ax = Axis(fig[1,1], title="Data generation", xlabel="x")
-lines!(ax, x, f; label=L"f", linewidth)
-save(joinpath(target_path, "f_alone.png"), fig)
-lines!(ax, x, mean.(f_lik); label=L"p(y|f)", linewidth)
-save(joinpath(target_path, "f_with_likelihood.png"), fig)
-scatter!(ax, x, y; color=(sb[1], 0.5), label=L"y")
-axislegend(ax; position=:lb, labelsize=40.0)
-save(joinpath(target_path, "dataset.png"), fig)
-fig
-
 
 ## Setup for training
 
@@ -162,7 +153,7 @@ params, unflatten = value_flatten(raw_initial_params)
 post_cavi = map(t->u_posterior(fz, m, S), t)
 post_grad = map(t->u_posterior_grad(fz, params), t)
 # params = opt(fz, x, y, params; niter)
-fig = Figure()
+fig = Figure(;resolution)
 
 linewidth = 5.0
 
@@ -170,12 +161,17 @@ aug_ax = fig[2, 1] = Axis(fig; title="CAVI Updates", xlabel=L"x", ylabel=L"f")
 scatter!(aug_ax, x, y; color=(sb[1], 0.6))
 lines!(aug_ax, x, f; color=sb[1], linewidth)
 plot!(aug_ax, x, post_cavi; color=(sb[3], 0.5), linewidth)
+tightlimits!(aug_ax, Left(), Right())
+
 
 grad_ax = fig[2, 2] = Axis(fig; title="Gradient updates", xlabel=L"x")
 scatter!(grad_ax, x, y; color=(sb[1], 0.6))
 lines!(grad_ax, x, f; color=sb[1], linewidth)
 plot!(grad_ax, x, post_grad; color=(sb[3], 0.5), linewidth)
 title = Label(fig[1, :], "Binary classification", textsize=30.0)
+tightlimits!(grad_ax, Left(), Right())
+
+
 
 record(fig, joinpath(target_path, "convergence_vi.mp4"), 1:20, framerate=2) do i
  t[] = i
@@ -232,17 +228,19 @@ t_gibbs = @elapsed samples_gibbs = gibbs_sample(fz, copy(f_init), Ω; nsamples=n
 
 ## Put it on a figure
 
-fig = Figure()
+fig = Figure(;resolution)
 
 linewidth = 5.0
 
 aug_ax = fig[2, 1] = Axis(fig; title="Gibbs Sampling", xlabel=L"x", ylabel=L"f")
 scatter!(aug_ax, x, y; color=(sb[1], 0.6))
 lines!(aug_ax, x, f; color=sb[1], linewidth)
+tightlimits!(aug_ax, Left(), Right())
 
 grad_ax = fig[2, 2] = Axis(fig; title="NUTS Sampling", xlabel=L"x")
 scatter!(grad_ax, x, y; color=(sb[1], 0.6))
 lines!(grad_ax, x, f; color=sb[1], linewidth)
+tightlimits!(grad_ax, Left(), Right())
 title = Label(fig[1, :], "Binary classification", textsize=30.0)
 
 t_per_s = (t_hmc, t_gibbs) ./ 200
@@ -252,7 +250,7 @@ fr = 24
 tot_i = Int(tot_t * fr)
 Δt = tot_t / tot_i
 current_t = Observable(1)
-alpha = 
+linkaxes!(grad_ax, aug_ax) 
 
 alpha_gibbs = map(current_t) do t
     curr_time = t * Δt
@@ -273,7 +271,7 @@ end
 # series!(grad_ax, samp_hmc; solid_color=(sb[3], 0.1), linewidth)
 
 record(fig, joinpath(target_path, "sampling_binary.mp4"), 1:tot_i; framerate=fr) do i
-    @info i
+    @info "$i / $tot_i"
     current_t[] = i
 end
 

@@ -3,7 +3,6 @@ using CairoMakie
 using LinearAlgebra
 
 include(joinpath(@__DIR__, "..", "attributes", "theme.jl"))
-set_theme!(my_theme)
 target_path = joinpath(@__DIR__, "fig")
 mkpath(target_path)
 linewidth=5.0
@@ -47,11 +46,11 @@ t_dev = 3
 t_wait = 2
 framerate = 24
 
-fig = Figure()
-ax = Axis(fig[1,1], xlabel=L"w", ylabel=L"p(w)")
-plot!(ax, xs, @lift(x->$we_prior * pdf(prior_w, x)); color=@lift((sb[1], $alpha_prior)), linewidth, label=L"prior $p(w)$")
-plot!(ax, xs, @lift(x->$we_lik * sum(pdf.(Normal.(x .* sizes, noise), weight))); color=@lift((sb[2], $alpha_lik)), linewidth, label=L"likelihood $p(x|w)$")
-plot!(ax, xs, @lift(x->$we_post * pdf(posterior_w, x)); color=@lift((sb[3], $alpha_post)), linewidth, label=L"posterior $p(w|x)$", labelcolor=:blue)
+fig = Figure(; resolution)
+ax = Axis(fig[1,1], xlabel=L"\theta", ylabel=L"p(\theta)")
+plot!(ax, xs, @lift(x->$we_prior * pdf(prior_w, x)); color=@lift((sb[1], $alpha_prior)), linewidth, label=L"prior $p(\theta)$")
+plot!(ax, xs, @lift(x->$we_lik * sum(pdf.(Normal.(x .* sizes, noise), weight))); color=@lift((sb[2], $alpha_lik)), linewidth, label=L"likelihood $p(x|\theta)$")
+plot!(ax, xs, @lift(x->$we_post * pdf(posterior_w, x)); color=@lift((sb[3], $alpha_post)), linewidth, label=L"posterior $p(\theta|x)$", labelcolor=:blue)
 leg= axislegend(ax, labelcolor=(:black, 0.0))
 anim = Animation(1, 0.0, sineio(), t_dev * framerate, 1.0)
 ylims!(ax, -0.05, 0.8)
@@ -88,7 +87,7 @@ fig = Figure()
 ax = Axis(fig[1,1], xlabel="Height [m]", ylabel="Weight [kg]")
 scatter!(ax, sizes, weight; color=sb[1])
 save(joinpath(target_path, "data.png"))
-n_samples = 50
+n_samples = 200
 ablines!(ax, zeros(n_samples), rand(posterior_w, n_samples); color=(sb[2], 0.05), linewidth)
 save(joinpath(target_path, "posterior_samples.png"), fig)
 fig
