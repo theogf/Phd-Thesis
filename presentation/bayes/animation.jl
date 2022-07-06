@@ -83,35 +83,7 @@ record(fig, joinpath(target_path, "evolution_bayes.mp4"); framerate) do io
     end
 end
 fig
-##
-
-
-
-for i in 1:3
-    fig = Figure()
-    ax = Axis(fig[1,1], xlabel=L"w", ylabel=L"p(w)")
-    if i == 1
-        leg = axislegend(ax)
-        save(joinpath(target_path, "prior.png"), fig)
-        continue
-    end
-    plot!(ax, xs, x->sum(pdf.(Normal.(x .* sizes, noise), weight)); color=sb[2], linewidth, label=L"likelihood $p(x|w)$")
-    if i == 2
-        leg = axislegend(ax)
-        save(joinpath(target_path, "likelihood.png"), fig)
-        continue
-    end
-    plot!(ax, xs, x->pdf(posterior_w, x); color=sb[3], linewidth, label=L"posterior $p(w|x)$")
-    if i == 3
-        leg = axislegend(ax)
-        save(joinpath(target_path, "posterior.png"), fig)
-        continue
-    end
-end
-fig
 ## Now show the different sampled Options
-
-
 fig = Figure()
 ax = Axis(fig[1,1], xlabel="Height [m]", ylabel="Weight [kg]")
 scatter!(ax, sizes, weight; color=sb[1])
