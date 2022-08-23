@@ -100,7 +100,7 @@ We give all the Gibbs sampling steps in Algorithm~\ref{alg:gibbs_hetero}.
 So far, we have excluded the $\lambda$ parameter from inference.
 By putting a Gamma prior $\Ga(\lambda|\alpha, \beta)$, where $\alpha$ is the shape and $\beta$ is the rate, the collapsed conditional is available in closed-form:
 \begin{align*}
-    p(\lambda|\boldf, \boldf, \boldy) = \Ga(\lambda| \alpha + \frac{N}{2}, \beta + \sum_{i=1}^N \frac{\sigma(g^i)}{2}(y^i - f^i)^2).
+    p(\lambda|\boldf, \boldg, \boldy) = \Ga(\lambda| \alpha + \frac{N}{2}, \beta + \sum_{i=1}^N \frac{\sigma(g^i)}{2}(y^i - f^i)^2).
 \end{align*}
 
 

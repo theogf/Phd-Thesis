@@ -176,7 +176,7 @@
 
 %\frontmatter
 \include{chapters/0_frontmatter/dedication}
-% \include{chapters/0_frontmatter/acknowledgement}
+\include{chapters/0_frontmatter/acknowledgement}
 
 
 %: ----------------------- contents ------------------------
@@ -227,16 +227,11 @@
 % Parts of the thesis are included below. Rename the files as required.
 % But take care that the paths match. You can also change the order of appearance by moving the include commands.
 % \cfchapter[short name] {full name} {folder name} {file name}.
-% \tikzsetexternalprefix{./chapters/1_introduction/TikzPictures/}
 \cfchapter{Introduction}{./chapters/1_introduction}{introduction}
-% \tikzsetexternalprefix{./chapters/2_background/TikzPictures/}
 \cfchapter{Background\label{ch:background}}{./chapters/2_background}{chapter2_background}
 \cfchapter{Efficient Gaussian Process Classification Using P\'olya-Gamma Data Augmentation\label{ch:classification}}{./chapters/3_classification}{chapter3_classification}
 \cfchapter{Multi-Class Gaussian Process Classification Made Conjugate: Efficient Inference via Data Augmentation\label{ch:multi-class}}{./chapters/4_multiclass}{chapter4_multiclass}
 \cfchapter{Automated Augmented Conjugate Inference for Non-conjugate Gaussian Process Models\label{ch:general}}{./chapters/5_general}{chapter5_general}
-% \tikzsetexternalprefix{./chapters/6/TikzPictures/}
-% \tikzsetexternalprefix{./chapters/6_sparse_gibbs/TikzPictures/}
-% \cfchapter{Automated Augmented Conjugate Inference for Non-conjugate Gaussian Process Models\label{ch:chapter6}}{./chapters/6_general}{chapter5_general}
 \cfchapter{Flexible and Efficient Inference with Particles for the Variational Gaussian Approximation\label{ch:gpf}}{./chapters/7_gpf}{chapter7_gpf.tex}
 \cfchapter{Discussions and extensions\label{ch:discussion}}{./chapters/8_discussions}{discussion}
 \cfchapter{Conclusion\label{ch:conclusion}}{./chapters/9_conclusion}{conclusion}
