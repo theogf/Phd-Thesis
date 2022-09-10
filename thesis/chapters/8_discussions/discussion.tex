@@ -462,8 +462,9 @@ Simply adding inducing points locations $Z$ with realizations $\boldu = f(Z)$ le
 To solve this problem, we propose to mix the Gibbs sampling approach we presented in Chapter~\ref{ch:general} with variational inference.
 
 We build on the work of \citet{hensmanMCMCVariationallySparse2015}. 
-They make the Titsias' assumption \cite{Titsias2009}, i.e. setting the variational distribution as $q(\boldu,\boldf) = q(\boldu)\prod_i p(f_i|\boldu)$.
-With this assumption, they show the optimal variational distribution of the inducing variables $\boldu$ minimizing $\KL{q(\boldu, \boldf)}{p(\boldu)p(\boldf|\boldu)p(\boldy|\boldf)}$ for a factorizable likelihood $p(\boldy|\boldf)=\prod_i p(y_i|f_i)$ is given by:
+They make the Titsias' assumption \cite{Titsias2009}, i.e. setting the variational distribution as $q(\boldu,\boldf) = q(\boldu)p(\boldf|\boldu)$.
+Since they also assume a fully factorizable likelihood $p(\boldy|\boldf) = \prod_{i} p(y_i|f_i)$, only marginals $q(f_i)$ are required and the computational complexity of the bound decreases to $\mathcal{O}(NM^2 + M^3)$.  
+\citet{hensmanMCMCVariationallySparse2015} show the optimal variational distribution of the inducing variables $\boldu$ minimizing $\KL{q(\boldu, \boldf)}{p(\boldu)p(\boldf|\boldu)p(\boldy|\boldf)}$ for a factorizable likelihood $p(\boldy|\boldf)=\prod_i p(y_i|f_i)$ is given by:
 \begin{align}
     \log q^*(\boldu) = \sum_{i}\expec{p(f_i|\boldu)}{\log p(y_i|f_i)} + \log p(\boldu) + C,\label{eq:obj_hensman}
 \end{align}
@@ -474,7 +475,7 @@ We propose instead to derive a variational Gibbs sampling algorithm to draw samp
 \begin{align}
     D_\alpha(p,q) = \frac{1}{\alpha(\alpha - 1)}\log\int \alpha p(x) + (1-\alpha)q(x) - p^\alpha(x)q^{1-\alpha}(x)dx,\quad \alpha \in \mathbb{R}^+.\label{eq:renyi}
 \end{align}
-The Renyi divergence converges to the forward KL divergence $\KL{p}{q}$ for $\alpha=1$ and the reverse KL divergence $\KL{q}{p}$ for $\alpha=0$ \cite{van2014renyi}.
+The Renyi divergence converges to the forward KL divergence: $\KL{p}{q}$ for $\alpha=1$ and the reverse KL divergence: $\KL{q}{p}$ for $\alpha=0$ \cite{van2014renyi}.
 We define our variational distribution as $q(\boldu,\boldf,\bOmega) = q(\boldu,\bOmega)\prod_i p(f_i|\boldu)$, and aim at minimizing $D_\alpha(p(\boldu,\boldf,\bOmega|\boldy),q(\boldu,\boldf,\bOmega))$.
 Note that we do not assume any independence between $\boldu$ and $\bOmega$, only that every $f_i$ is conditionally independent given $\boldu$.
 There is no parametric closed-form for the optimal distribution $q^*(\boldu,\bOmega)$ minimizing the divergence in Equation~\eqref{eq:renyi}, hence we take the approach of \citet{hensmanMCMCVariationallySparse2015} and sample from it instead.
@@ -494,7 +495,7 @@ Like in the Power-EP setting, $\alpha=0$ corresponds to solving the variational 
 
 The only parameters left are the hyperparameters $\btheta$, omitted in the previous equations, that can represent a real challenge.
 For $\alpha=0$, we could sample from $q^*(\btheta)$ with the \ac{HMC} algorithm in a separate Gibbs sampling step.
-For other $\alpha$, we could optimize $q(\btheta)$ with variational inference methods \cite{li2016renyi, hernandez2016black}, and use a hot-start with the previous distribution.
+For other $\alpha$, we could optimize $q(\btheta)$ with variational inference methods \cite{li2016renyi, hernandez2016black}, and hot-start with the previous distribution.
 The complete variational Gibbs sampler is described in Algorithm~\ref{alg:sparsegp}.
 
 \begin{algorithm}[H]
@@ -503,7 +504,7 @@ The complete variational Gibbs sampler is described in Algorithm~\ref{alg:sparse
         \State \textbf{input:} $\boldy$, $\boldu^0 \sim p(u)$, $\boldf^0 \sim p(\boldf|\boldu^0)$, $\btheta^0 \sim p(\btheta)$
     \For{$t$ in 1: \# samples}
         \State Draw $\bOmega^i \sim p(\bOmega|\boldf^{i-1},\btheta^{i-1}\boldy)$ \textit{(in closed form)}
-        \State Draw $\boldu^i,\boldf^i \sim q^*(\boldu,\boldf) = \arg \min D_\alpha\left(p(\boldu,\boldf|\bOmega^i,\btheta^{i-1},\boldy),q(\boldu,\boldf)\right)$ (\textit{in closed form})
+        \State Draw $\boldu^i,\boldf^i \sim q^*(\boldu,\boldf) = \arg_q \min D_\alpha\left(p(\boldu,\boldf|\bOmega^i,\btheta^{i-1},\boldy),q(\boldu,\boldf)\right)$ (\textit{in closed form})
         \State Draw $\btheta^i \sim q^*(\btheta^i) = \arg \min D_\alpha\left(p(\btheta|\boldu^i, \boldf^i, \bOmega^i, \boldy), q(\btheta)\right)$ (\textit{\ac{HMC} or optimization})
     \EndFor
     \end{algorithmic}
@@ -511,7 +512,8 @@ The complete variational Gibbs sampler is described in Algorithm~\ref{alg:sparse
 \end{algorithm}
 
 
-Our approach opens up more possibilities over more complex likelihoods like the multi-class or heteroscedastic ones where computing expectations, like in Equation~\eqref{eq:obj_hensman}, is a limitation.
+Our approach completely gets rid of expectation computations for $\boldu$.
+It opens up more possibilities over more complex likelihoods like the multi-class or heteroscedastic ones where computing expectations numerically, like in Equation~\eqref{eq:obj_hensman}, is a limitation.
 For medium-sized datasets, this outperforms the \ac{CAVI} algorithm as it has the same convergence speed but does not suffer from the mean-field assumption on the variational parameters.
 We show preliminary results on Figure~\ref{fig:magictelescope} for a binary classification problem on the Magic Telescope dataset (10 dimensions, 19020 data points) \cite{bock2004methods}.
 The experiment is run with a 10-fold cross-validation, we use $M=50$ inducing points selected via the k-means++ algorithm \cite{arthur2007k}, and we keep the hyperparameters fixed.
