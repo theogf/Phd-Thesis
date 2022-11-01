@@ -1295,6 +1295,7 @@ supported!}
 \def\crest#1{\gdef\@crest{#1}}
 % Stating the city of birth for title page where needed; uncommented for use
 \def\cityofbirth#1{\gdef\@cityofbirth{#1}}
+\def\orcid#1{\gdef\@orcid{#1}}
 
 \def\degreefull#1{\gdef\@degreefull{#1}}
 
@@ -1405,7 +1406,7 @@ supported!}
       {{\@olddegree} \par}
       {{\@author} \par}
       {geb. in {\@cityofbirth} \par}
-  % {{\@cityofbirth} \par}    
+      {ORCID: {\@orcid} \par  }
   }
   \end{minipage}
 \end{lrbox}
@@ -1434,6 +1435,7 @@ supported!}
 \begin{minipage}[c]{\textwidth}
  {\Large \singlespacing
   {{Promotionsausschuss:} \par}
+  \vspace*{1ex}
   {{{\@comiteeheadidentifier}: {\@comiteehead}} \par}
   {{{\@firstrevieweridentifier}: {\@firstreviewer}} \par}
   \ifdefempty{\@secondreviewer}{}{{{{\@secondrevieweridentifier}: {\@secondreviewer}} \par}}

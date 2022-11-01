@@ -13,9 +13,17 @@
 % Most style definitions are in the external file PhDthesisTUB.
 % In this template package, it can be found in ./Classes/
 
-\documentclass[twoside,11pt,online,a4paper,pdfa1,custommargin,numbered,customfont]{PhDthesisTUB}
- 
 
+\begin{filecontents*}[overwrite]{\jobname.xmpdata}
+       \Title{Latent Variable Augmentation for Approximate Bayesian Inference - Applications for Gaussian Processes}
+       \Author{Théo Galy-Fajou}
+       \Keywords{Gaussian Process\sep Bayesian Inference\sep Approximate Inference}
+       \Language{en-US}
+       \Subject{Ph.D. of Théo Galy-Fajou}
+\end{filecontents*}
+
+\documentclass[twoside,11pt,online,a4paper,pdfa2,custommargin,numbered,customfont]{PhDthesisTUB}
+ 
 % *********************** Choosing pdfx standard ******************************
 % `pdfa1'
 % `pdfa2'
@@ -117,11 +125,9 @@
 \usepackage{caption}
 \usepackage{xcolor}
 \usepackage[final]{pdfpages}
-\include{utils/commands}
 
 \include{chapters/Preamble/preamble}
-\include{thesis-info}
-
+ 
 \definecolor{sb1}{rgb}{0.00392156862745098,0.45098039215686275,0.6980392156862745}
 \definecolor{sb2}{rgb}{0.8705882352941177,0.5607843137254902,0.0196078431372549}
 
@@ -149,6 +155,9 @@
 \begin{document}
 
 
+
+\include{utils/commands}
+\include{thesis-info}
 
 %: ----------------------- generate cover page ------------------------
 \frontmatter
