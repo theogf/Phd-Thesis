@@ -1405,7 +1405,6 @@ supported!}
       {{vorgelegt von} \par}
       {{\@olddegree} \par}
       {{\@author} \par}
-      {geb. in {\@cityofbirth} \par}
       {ORCID: {\@orcid} \par  }
   }
   \end{minipage}
